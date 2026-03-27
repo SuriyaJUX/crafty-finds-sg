@@ -1,7 +1,8 @@
 import { Link, useLocation } from "react-router-dom";
-import { ShoppingBag, Heart, Search, Menu, X, User } from "lucide-react";
+import { ShoppingBag, Heart, Search, Menu, X, User, LogOut, Trophy } from "lucide-react";
 import { useCart } from "@/context/CartContext";
-import { useState } from "react";
+import { useAuth } from "@/context/AuthContext";
+import { useState, useRef, useEffect } from "react";
 
 const navLinks = [
   { to: "/", label: "Home" },
