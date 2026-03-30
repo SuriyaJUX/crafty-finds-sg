@@ -6,6 +6,7 @@ import { TooltipProvider } from "@/components/ui/tooltip";
 import { CartProvider } from "@/context/CartContext";
 import { AuthProvider } from "@/context/AuthContext";
 import Navbar from "@/components/Navbar";
+import ScrollToTop from "@/components/ScrollToTop";
 import CartDrawer from "@/components/CartDrawer";
 import Footer from "@/components/Footer";
 import Index from "./pages/Index";
@@ -17,6 +18,9 @@ import Wishlist from "./pages/Wishlist";
 import Login from "./pages/Login";
 import Signup from "./pages/Signup";
 import Account from "./pages/Account";
+import CheckoutDetails from "./pages/CheckoutDetails";
+import CheckoutPayment from "./pages/CheckoutPayment";
+import CheckoutConfirmation from "./pages/CheckoutConfirmation";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -29,6 +33,7 @@ const App = () => (
       <AuthProvider>
         <CartProvider>
           <BrowserRouter>
+            <ScrollToTop />
             <Navbar />
             <CartDrawer />
             <main className="min-h-screen">
@@ -42,6 +47,9 @@ const App = () => (
                 <Route path="/login" element={<Login />} />
                 <Route path="/signup" element={<Signup />} />
                 <Route path="/account" element={<Account />} />
+                <Route path="/checkout/details" element={<CheckoutDetails />} />
+                <Route path="/checkout/payment" element={<CheckoutPayment />} />
+                <Route path="/checkout/confirmation" element={<CheckoutConfirmation />} />
                 <Route path="*" element={<NotFound />} />
               </Routes>
             </main>

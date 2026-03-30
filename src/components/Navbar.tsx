@@ -4,6 +4,7 @@ import { useCart } from "@/context/CartContext";
 import { useAuth } from "@/context/AuthContext";
 import { useState, useRef, useEffect } from "react";
 
+
 const navLinks = [
   { to: "/", label: "Home" },
   { to: "/shop", label: "Shop" },
@@ -17,6 +18,7 @@ const Navbar = () => {
   const location = useLocation();
   const [mobileOpen, setMobileOpen] = useState(false);
   const [userMenuOpen, setUserMenuOpen] = useState(false);
+  const [scrolled, setScrolled] = useState(false);
   const userMenuRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
@@ -29,8 +31,14 @@ const Navbar = () => {
     return () => document.removeEventListener("mousedown", handleClick);
   }, []);
 
+  useEffect(() => {
+    const handleScroll = () => setScrolled(window.scrollY > 50);
+    window.addEventListener("scroll", handleScroll, { passive: true });
+    return () => window.removeEventListener("scroll", handleScroll);
+  }, []);
+
   return (
-    <header className="sticky top-0 z-50 bg-background/95 backdrop-blur border-b border-border">
+    <header className={`sticky top-0 z-50 bg-background/95 backdrop-blur border-b border-border transition-shadow duration-300 ${scrolled ? "shadow-md" : "shadow-none"}`}>
       <div className="container max-w-7xl mx-auto px-4 flex items-center justify-between h-16">
         <Link to="/" className="font-serif text-2xl tracking-tight text-foreground">
           Paperly

@@ -3,7 +3,7 @@ import { Link } from "react-router-dom";
 import type { Product } from "@/data/products";
 import { useCart } from "@/context/CartContext";
 
-const ProductCard = ({ product }: { product: Product }) => {
+const ProductCard = ({ product, style }: { product: Product; style?: React.CSSProperties }) => {
   const { addItem, toggleSaved, isSaved } = useCart();
   const saved = isSaved(product.id);
   const discount = product.originalPrice
@@ -11,7 +11,7 @@ const ProductCard = ({ product }: { product: Product }) => {
     : null;
 
   return (
-    <div className="group relative animate-fade-in">
+    <div className="group relative animate-fade-in" style={style}>
       <Link to={`/product/${product.id}`} className="block">
         <div className="relative aspect-square rounded-lg bg-muted overflow-hidden mb-3">
           <img src={product.images[0]} alt={product.name} className="w-full h-full object-cover transition-transform duration-300 group-hover:scale-105" />
@@ -63,7 +63,7 @@ const ProductCard = ({ product }: { product: Product }) => {
       {/* Quick add */}
       <button
         onClick={() => addItem(product)}
-        className="absolute bottom-[5.5rem] right-2 opacity-0 group-hover:opacity-100 transition-opacity px-3 py-1.5 rounded-md bg-primary text-primary-foreground text-xs font-medium hover:opacity-90"
+        className="absolute bottom-[5.5rem] right-2 opacity-0 group-hover:opacity-100 transition-opacity active:scale-95 px-3 py-1.5 rounded-md bg-primary text-primary-foreground text-xs font-medium hover:opacity-90"
       >
         Add to cart
       </button>

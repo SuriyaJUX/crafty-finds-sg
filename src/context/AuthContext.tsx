@@ -47,6 +47,7 @@ interface AuthContextType {
   login: (email: string, password: string) => Promise<boolean>;
   signup: (email: string, password: string, displayName: string) => Promise<boolean>;
   logout: () => void;
+  addOrder: (order: OrderHistoryItem) => void;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
@@ -144,8 +145,12 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     setUser(null);
   }, []);
 
+  const addOrder = useCallback((order: OrderHistoryItem) => {
+    setUser(prev => prev ? { ...prev, orderHistory: [order, ...prev.orderHistory] } : prev);
+  }, []);
+
   return (
-    <AuthContext.Provider value={{ user, isAuthenticated: !!user, login, signup, logout }}>
+    <AuthContext.Provider value={{ user, isAuthenticated: !!user, login, signup, logout, addOrder }}>
       {children}
     </AuthContext.Provider>
   );

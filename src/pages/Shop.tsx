@@ -105,8 +105,15 @@ const Shop = () => {
       <p className="text-sm text-muted-foreground mb-4">{filtered.length} products</p>
       {filtered.length > 0 ? (
         <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 md:gap-6">
-          {filtered.map(product => (
-            <ProductCard key={product.id} product={product} />
+          {filtered.map((product, index) => (
+            <ProductCard
+              key={product.id}
+              product={product}
+              style={{
+                animationDelay: `${Math.min(index, 8) * 60}ms`,
+                animationFillMode: "backwards",
+              }}
+            />
           ))}
         </div>
       ) : (

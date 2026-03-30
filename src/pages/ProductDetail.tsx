@@ -4,12 +4,17 @@ import { useCart } from "@/context/CartContext";
 import { Star, Heart, ShoppingBag, ArrowLeft, Users, Camera } from "lucide-react";
 import { useState } from "react";
 import ProductCard from "@/components/ProductCard";
+import { useScrollReveal } from "@/hooks/use-scroll-reveal";
 
 const ProductDetail = () => {
   const { id } = useParams();
   const product = products.find(p => p.id === id);
   const { addItem, toggleSaved, isSaved } = useCart();
   const [startSmall, setStartSmall] = useState(false);
+
+  const reviewsReveal = useScrollReveal<HTMLElement>();
+  const pairsReveal = useScrollReveal<HTMLElement>();
+  const projectsReveal = useScrollReveal<HTMLElement>();
 
   if (!product) {
     return (
@@ -37,14 +42,24 @@ const ProductDetail = () => {
 
   return (
     <div className="container max-w-6xl mx-auto px-4 py-8">
-      <Link to="/shop" className="inline-flex items-center gap-1 text-sm text-muted-foreground hover:text-primary mb-6">
+      <Link
+        to="/shop"
+        className="inline-flex items-center gap-1 text-sm text-muted-foreground hover:text-primary mb-6 animate-fade-in"
+      >
         <ArrowLeft className="w-4 h-4" /> Back to shop
       </Link>
 
       <div className="grid md:grid-cols-2 gap-8 mb-16">
-        {/* Image */}
-        <div className="relative aspect-square rounded-xl bg-muted overflow-hidden">
-          <img src={product.images[0]} alt={product.name} className="w-full h-full object-cover" />
+        {/* Image — fades + rises in */}
+        <div
+          className="relative aspect-square rounded-xl bg-muted overflow-hidden animate-fade-in"
+          style={{ animationDuration: "0.6s" }}
+        >
+          <img
+            src={product.images[0]}
+            alt={product.name}
+            className="w-full h-full object-cover transition-transform duration-500 hover:scale-105"
+          />
           {product.isCommunityFavourite && (
             <span className="absolute top-3 left-3 badge-community px-2.5 py-1 rounded-full text-xs font-semibold">
               ❤️ Community Favourite
@@ -57,8 +72,11 @@ const ProductDetail = () => {
           )}
         </div>
 
-        {/* Info */}
-        <div>
+        {/* Info — follows image with slight delay */}
+        <div
+          className="animate-fade-in"
+          style={{ animationDelay: "150ms", animationFillMode: "backwards" }}
+        >
           <h1 className="font-serif text-3xl mb-2">{product.name}</h1>
           <div className="flex items-center gap-3 mb-4">
             <div className="flex items-center gap-1">
@@ -103,27 +121,34 @@ const ProductDetail = () => {
           <div className="flex gap-3">
             <button
               onClick={() => addItem(product, startSmall)}
-              className="flex-1 inline-flex items-center justify-center gap-2 px-6 py-3 rounded-lg bg-primary text-primary-foreground font-medium text-sm hover:opacity-90 transition-opacity"
+              className="flex-1 inline-flex items-center justify-center gap-2 px-6 py-3 rounded-lg bg-primary text-primary-foreground font-medium text-sm hover:opacity-90 active:scale-95 transition-[opacity,transform]"
             >
               <ShoppingBag className="w-4 h-4" />
               Add to cart
             </button>
             <button
               onClick={() => toggleSaved(product)}
-              className={`p-3 rounded-lg border transition-colors ${saved ? "border-primary bg-primary/5 text-primary" : "border-border text-muted-foreground hover:border-primary/40"}`}
+              className={`p-3 rounded-lg border transition-[colors,transform] active:scale-90 ${saved ? "border-primary bg-primary/5 text-primary" : "border-border text-muted-foreground hover:border-primary/40"}`}
             >
-              <Heart className={`w-5 h-5 ${saved ? "fill-primary" : ""}`} />
+              <Heart className={`w-5 h-5 transition-transform duration-200 ${saved ? "fill-primary scale-110" : ""}`} />
             </button>
           </div>
         </div>
       </div>
 
       {/* What you can make */}
-      <section className="mb-16">
+      <section
+        ref={projectsReveal.ref}
+        className={`mb-16 transition-[opacity,transform] duration-700 ${projectsReveal.visible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-8"}`}
+      >
         <h2 className="font-serif text-2xl mb-4">What you can make with this</h2>
         <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
-          {[1, 2, 3].map(i => (
-            <div key={i} className="aspect-[4/3] rounded-lg bg-muted flex items-center justify-center">
+          {[1, 2, 3].map((i, idx) => (
+            <div
+              key={i}
+              className={`aspect-[4/3] rounded-lg bg-muted flex items-center justify-center transition-[opacity,transform] duration-500 ${projectsReveal.visible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-4"}`}
+              style={{ transitionDelay: projectsReveal.visible ? `${idx * 80}ms` : "0ms" }}
+            >
               <p className="text-xs text-muted-foreground">Community project {i}</p>
             </div>
           ))}
@@ -131,7 +156,10 @@ const ProductDetail = () => {
       </section>
 
       {/* Reviews */}
-      <section className="mb-16">
+      <section
+        ref={reviewsReveal.ref}
+        className={`mb-16 transition-[opacity,transform] duration-700 ${reviewsReveal.visible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-8"}`}
+      >
         <div className="flex items-end justify-between mb-6">
           <h2 className="font-serif text-2xl">Reviews ({reviews.length})</h2>
           <button className="inline-flex items-center gap-1 text-sm text-primary font-medium hover:underline">
@@ -140,8 +168,12 @@ const ProductDetail = () => {
         </div>
         {sortedReviews.length > 0 ? (
           <div className="space-y-4">
-            {sortedReviews.map(review => (
-              <div key={review.id} className="p-4 rounded-lg border border-border bg-card">
+            {sortedReviews.map((review, idx) => (
+              <div
+                key={review.id}
+                className={`p-4 rounded-lg border border-border bg-card transition-[opacity,transform] duration-500 ${reviewsReveal.visible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-3"}`}
+                style={{ transitionDelay: reviewsReveal.visible ? `${idx * 60}ms` : "0ms" }}
+              >
                 <div className="flex items-center gap-2 mb-2">
                   <div className="flex">
                     {Array.from({ length: 5 }).map((_, i) => (
@@ -165,10 +197,23 @@ const ProductDetail = () => {
 
       {/* Pairs well with */}
       {pairsWellWith.length > 0 && (
-        <section className="mb-16">
+        <section
+          ref={pairsReveal.ref}
+          className={`mb-16 transition-[opacity,transform] duration-700 ${pairsReveal.visible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-8"}`}
+        >
           <h2 className="font-serif text-2xl mb-6">Pairs well with</h2>
           <div className="grid grid-cols-2 md:grid-cols-4 gap-4 md:gap-6">
-            {pairsWellWith.map(p => p && <ProductCard key={p.id} product={p} />)}
+            {pairsWellWith.map((p, idx) =>
+              p && (
+                <div
+                  key={p.id}
+                  className={`transition-[opacity,transform] duration-500 ${pairsReveal.visible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-4"}`}
+                  style={{ transitionDelay: pairsReveal.visible ? `${idx * 80}ms` : "0ms" }}
+                >
+                  <ProductCard product={p} />
+                </div>
+              )
+            )}
           </div>
         </section>
       )}

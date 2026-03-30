@@ -1,12 +1,13 @@
 import { X, Minus, Plus, Trash2, ArrowRight } from "lucide-react";
 import { useCart } from "@/context/CartContext";
 import { products } from "@/data/products";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 
 const FREE_SHIPPING_THRESHOLD = 50;
 
 const CartDrawer = () => {
   const { items, isCartOpen, setIsCartOpen, updateQuantity, removeItem, subtotal } = useCart();
+  const navigate = useNavigate();
 
   if (!isCartOpen) return null;
 
@@ -108,7 +109,10 @@ const CartDrawer = () => {
               <span className="text-muted-foreground">Subtotal</span>
               <span className="font-semibold">S${subtotal.toFixed(2)}</span>
             </div>
-            <button className="w-full py-3 rounded-lg bg-primary text-primary-foreground font-medium text-sm hover:opacity-90 transition-opacity">
+            <button
+              onClick={() => { setIsCartOpen(false); navigate("/checkout/details"); }}
+              className="w-full py-3 rounded-lg bg-primary text-primary-foreground font-medium text-sm hover:opacity-90 active:scale-95 transition-[opacity,transform]"
+            >
               Checkout — S${subtotal.toFixed(2)}
             </button>
           </div>

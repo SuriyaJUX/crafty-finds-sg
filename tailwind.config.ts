@@ -92,17 +92,25 @@ export default {
           from: { transform: "translateX(0%)" },
           to: { transform: "translateX(-50%)" },
         },
-        "ken-burns-1": {
-          "0%": { transform: "scale(1) translate(0, 0)" },
-          "100%": { transform: "scale(1.15) translate(-2%, -1%)" },
+        "hero-pan-right": {
+          "0%": { transform: "scale(1.06) translateX(-3%)" },
+          "100%": { transform: "scale(1.06) translateX(0%)" },
         },
-        "ken-burns-2": {
-          "0%": { transform: "scale(1.1) translate(-1%, -2%)" },
-          "100%": { transform: "scale(1) translate(1%, 0%)" },
+        "hero-pan-left": {
+          "0%": { transform: "scale(1.06) translateX(0%)" },
+          "100%": { transform: "scale(1.06) translateX(-3%)" },
         },
-        "ken-burns-3": {
-          "0%": { transform: "scale(1) translate(1%, 0%)" },
-          "100%": { transform: "scale(1.12) translate(0%, -2%)" },
+        "hero-pan-up": {
+          "0%": { transform: "scale(1.06) translateY(2%)" },
+          "100%": { transform: "scale(1.06) translateY(-1%)" },
+        },
+        "hero-pan-down": {
+          "0%": { transform: "scale(1.06) translateY(-1%)" },
+          "100%": { transform: "scale(1.06) translateY(2%)" },
+        },
+        "float": {
+          "0%, 100%": { transform: "translateY(0)" },
+          "50%": { transform: "translateY(-10px)" },
         },
       },
       animation: {
@@ -111,9 +119,11 @@ export default {
         "slide-in": "slide-in 0.3s ease-out",
         "fade-in": "fade-in 0.4s ease-out",
         "marquee": "marquee 30s linear infinite",
-        "ken-burns-1": "ken-burns-1 8s ease-in-out infinite alternate",
-        "ken-burns-2": "ken-burns-2 9s ease-in-out infinite alternate",
-        "ken-burns-3": "ken-burns-3 7s ease-in-out infinite alternate",
+        "hero-pan-right": "hero-pan-right 14s ease-in-out forwards",
+        "hero-pan-left": "hero-pan-left 14s ease-in-out forwards",
+        "hero-pan-up": "hero-pan-up 14s ease-in-out forwards",
+        "hero-pan-down": "hero-pan-down 14s ease-in-out forwards",
+        "float": "float 4s ease-in-out infinite",
       },
     },
   },

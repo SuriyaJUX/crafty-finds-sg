@@ -1,25 +1,42 @@
 import { Search, Compass, Camera } from "lucide-react";
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { useNavigate } from "react-router-dom";
 import heroBg1 from "@/assets/hero-bg-1.jpg";
 import heroBg2 from "@/assets/hero-bg-2.jpg";
 import heroBg3 from "@/assets/hero-bg-3.jpg";
-import heroBg4 from "@/assets/hero-bg-4.jpg";
-import heroBg5 from "@/assets/hero-bg-5.jpg";
 import heroBg6 from "@/assets/hero-bg-6.jpg";
 
-const heroImages = [heroBg1, heroBg2, heroBg3, heroBg4, heroBg5, heroBg6];
+const heroImages = [heroBg1, heroBg2, heroBg3, heroBg6];
+const heroPanClasses = [
+  "animate-hero-pan-right",
+  "animate-hero-pan-left",
+  "animate-hero-pan-up",
+  "animate-hero-pan-down",
+];
+
+const FADE_DURATION = 5000;
 
 const IntentPrompt = () => {
   const [query, setQuery] = useState("");
   const [currentImage, setCurrentImage] = useState(0);
+  const [leavingImage, setLeavingImage] = useState<number | null>(null);
+  const leavingTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const navigate = useNavigate();
 
   useEffect(() => {
     const interval = setInterval(() => {
-      setCurrentImage((prev) => (prev + 1) % heroImages.length);
-    }, 6000);
-    return () => clearInterval(interval);
+      setCurrentImage(prev => {
+        const leaving = prev;
+        setLeavingImage(leaving);
+        if (leavingTimerRef.current) clearTimeout(leavingTimerRef.current);
+        leavingTimerRef.current = setTimeout(() => setLeavingImage(null), FADE_DURATION + 200);
+        return (prev + 1) % heroImages.length;
+      });
+    }, 9000);
+    return () => {
+      clearInterval(interval);
+      if (leavingTimerRef.current) clearTimeout(leavingTimerRef.current);
+    };
   }, []);
 
   const handleSearch = (e: React.FormEvent) => {
@@ -32,22 +49,33 @@ const IntentPrompt = () => {
   return (
     <section className="relative py-16 md:py-24 overflow-hidden">
       {/* Cycling background images */}
-      {heroImages.map((src, index) => (
-        <img
-          key={index}
-          src={src}
-          alt=""
-          aria-hidden="true"
-          className="absolute inset-0 w-full h-full object-cover transition-opacity duration-[2000ms] ease-in-out"
-          style={{ opacity: currentImage === index ? 1 : 0 }}
-          {...(index === 0 ? { width: 1440, height: 800 } : { loading: "lazy" as const, width: 1440, height: 800 })}
-        />
-      ))}
+      {heroImages.map((src, index) => {
+        const isActive = currentImage === index;
+        const isLeaving = leavingImage === index;
+        const panClass = isActive || isLeaving ? heroPanClasses[index] : "";
+        const pausedClass = isLeaving ? "[animation-play-state:paused]" : "";
+
+        return (
+          <img
+            key={index}
+            src={src}
+            alt=""
+            aria-hidden="true"
+            className={`absolute inset-0 w-full h-full object-cover transition-opacity duration-[5000ms] ease-in-out ${panClass} ${pausedClass}`}
+            style={{
+              opacity: isActive ? 1 : 0,
+              zIndex: isActive ? 1 : 0,
+              transform: "scale(1.06)",
+            }}
+            {...(index === 0 ? { width: 1440, height: 800 } : { loading: "lazy" as const, width: 1440, height: 800 })}
+          />
+        );
+      })}
       {/* Overlay for text readability */}
-      <div className="absolute inset-0 bg-background/55" />
+      <div className="absolute inset-0 bg-background/55" style={{ zIndex: 2 }} />
 
       {/* Content */}
-      <div className="relative z-10 container max-w-3xl mx-auto px-4 text-center">
+      <div className="relative container max-w-3xl mx-auto px-4 text-center" style={{ zIndex: 3 }}>
         <h1 className="font-serif text-4xl md:text-5xl mb-4 text-foreground leading-tight">
           What are you creating today?
         </h1>
