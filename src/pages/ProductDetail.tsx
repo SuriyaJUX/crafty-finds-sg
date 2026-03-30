@@ -1,7 +1,7 @@
 import { useParams, Link } from "react-router-dom";
 import { products, reviews as allReviews } from "@/data/products";
 import { useCart } from "@/context/CartContext";
-import { Star, Heart, ShoppingBag, ArrowLeft, Users, Camera } from "lucide-react";
+import { Star, Heart, ShoppingBag, ArrowLeft, Users, Camera, Sparkles, AlertTriangle } from "lucide-react";
 import { useState } from "react";
 import ProductCard from "@/components/ProductCard";
 import { useScrollReveal } from "@/hooks/use-scroll-reveal";
@@ -11,6 +11,7 @@ const ProductDetail = () => {
   const product = products.find(p => p.id === id);
   const { addItem, toggleSaved, isSaved } = useCart();
   const [startSmall, setStartSmall] = useState(false);
+  const [reviewFilter, setReviewFilter] = useState<"all" | "photos" | "verified">("all");
 
   const reviewsReveal = useScrollReveal<HTMLElement>();
   const pairsReveal = useScrollReveal<HTMLElement>();
@@ -27,9 +28,22 @@ const ProductDetail = () => {
 
   const saved = isSaved(product.id);
   const reviews = allReviews.filter(r => r.productId === product.id);
-  const photoReviews = reviews.filter(r => r.hasPhoto);
-  const textReviews = reviews.filter(r => !r.hasPhoto);
-  const sortedReviews = [...photoReviews, ...textReviews];
+
+  // Honesty sort: surfaces 2★ & 3★ first, then 4★, then 5★, then 1★
+  const honestyOrder: Record<number, number> = { 2: 0, 3: 1, 4: 2, 5: 3, 1: 4 };
+  const sortedReviews = [...reviews].sort((a, b) => honestyOrder[a.rating] - honestyOrder[b.rating]);
+
+  const filteredReviews = sortedReviews.filter(r => {
+    if (reviewFilter === "photos") return r.hasPhoto;
+    if (reviewFilter === "verified") return r.isVerified;
+    return true;
+  });
+
+  // Common complaints: lowest-rated review at ≤ 2★
+  const lowReviews = reviews.filter(r => r.rating <= 2);
+  const worstReview = lowReviews.length > 0
+    ? lowReviews.reduce((a, b) => a.rating < b.rating ? a : b)
+    : null;
 
   const pairsWellWith = (product.pairsWellWith || [])
     .map(pid => products.find(p => p.id === pid))
@@ -91,12 +105,16 @@ const ProductDetail = () => {
             <span className="text-sm text-muted-foreground">{product.purchaseCount.toLocaleString()} purchased</span>
           </div>
 
-          <div className="flex items-baseline gap-3 my-6">
+          <div className="flex items-baseline gap-3 mt-6 mb-2">
             <span className="text-3xl font-semibold">S${currentPrice.toFixed(2)}</span>
             {product.originalPrice && !startSmall && (
               <span className="text-lg text-muted-foreground line-through">S${product.originalPrice.toFixed(2)}</span>
             )}
           </div>
+          <p className="flex items-center gap-1 text-sm text-secondary font-medium mb-6">
+            <Sparkles className="w-3.5 h-3.5" />
+            Earn {Math.floor(currentPrice)} Ink Points with this purchase
+          </p>
 
           {/* Start Small toggle */}
           {product.hasStartSmall && product.startSmallPrice && (
@@ -160,15 +178,43 @@ const ProductDetail = () => {
         ref={reviewsReveal.ref}
         className={`mb-16 transition-[opacity,transform] duration-700 ${reviewsReveal.visible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-8"}`}
       >
-        <div className="flex items-end justify-between mb-6">
+        <div className="flex items-end justify-between mb-4">
           <h2 className="font-serif text-2xl">Reviews ({reviews.length})</h2>
           <button className="inline-flex items-center gap-1 text-sm text-primary font-medium hover:underline">
             <Camera className="w-4 h-4" /> Write a review
           </button>
         </div>
-        {sortedReviews.length > 0 ? (
+
+        {/* Common complaints callout */}
+        {worstReview && (
+          <div className="flex gap-3 p-3 rounded-lg border border-amber-200 bg-amber-50 dark:border-amber-900/40 dark:bg-amber-950/20 mb-4">
+            <AlertTriangle className="w-4 h-4 text-amber-600 dark:text-amber-400 flex-shrink-0 mt-0.5" />
+            <p className="text-sm text-amber-900 dark:text-amber-300 leading-relaxed">
+              <span className="font-semibold">Buyers mention:</span> {worstReview.text}
+            </p>
+          </div>
+        )}
+
+        {/* Filter tabs */}
+        <div className="flex gap-2 mb-5">
+          {(["all", "photos", "verified"] as const).map(f => (
+            <button
+              key={f}
+              onClick={() => setReviewFilter(f)}
+              className={`px-3 py-1.5 rounded-full text-xs font-medium border transition-colors ${
+                reviewFilter === f
+                  ? "bg-primary text-primary-foreground border-primary"
+                  : "border-border text-muted-foreground hover:border-primary/40 hover:text-foreground"
+              }`}
+            >
+              {f === "all" ? "All reviews" : f === "photos" ? "With photos" : "Verified only"}
+            </button>
+          ))}
+        </div>
+
+        {filteredReviews.length > 0 ? (
           <div className="space-y-4">
-            {sortedReviews.map((review, idx) => (
+            {filteredReviews.map((review, idx) => (
               <div
                 key={review.id}
                 className={`p-4 rounded-lg border border-border bg-card transition-[opacity,transform] duration-500 ${reviewsReveal.visible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-3"}`}
@@ -191,7 +237,9 @@ const ProductDetail = () => {
             ))}
           </div>
         ) : (
-          <p className="text-sm text-muted-foreground">No reviews yet. Be the first to share your experience!</p>
+          <p className="text-sm text-muted-foreground">
+            {reviewFilter === "all" ? "No reviews yet. Be the first to share your experience!" : "No reviews match this filter."}
+          </p>
         )}
       </section>
 
