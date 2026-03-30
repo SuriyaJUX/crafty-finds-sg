@@ -92,6 +92,18 @@ export default {
           from: { transform: "translateX(0%)" },
           to: { transform: "translateX(-50%)" },
         },
+        "ken-burns-1": {
+          "0%": { transform: "scale(1) translate(0, 0)" },
+          "100%": { transform: "scale(1.15) translate(-2%, -1%)" },
+        },
+        "ken-burns-2": {
+          "0%": { transform: "scale(1.1) translate(-1%, -2%)" },
+          "100%": { transform: "scale(1) translate(1%, 0%)" },
+        },
+        "ken-burns-3": {
+          "0%": { transform: "scale(1) translate(1%, 0%)" },
+          "100%": { transform: "scale(1.12) translate(0%, -2%)" },
+        },
       },
       animation: {
         "accordion-down": "accordion-down 0.2s ease-out",
@@ -99,6 +111,9 @@ export default {
         "slide-in": "slide-in 0.3s ease-out",
         "fade-in": "fade-in 0.4s ease-out",
         "marquee": "marquee 30s linear infinite",
+        "ken-burns-1": "ken-burns-1 8s ease-in-out infinite alternate",
+        "ken-burns-2": "ken-burns-2 9s ease-in-out infinite alternate",
+        "ken-burns-3": "ken-burns-3 7s ease-in-out infinite alternate",
       },
     },
   },

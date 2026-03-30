@@ -9,18 +9,28 @@ import heroBg5 from "@/assets/hero-bg-5.jpg";
 import heroBg6 from "@/assets/hero-bg-6.jpg";
 
 const heroImages = [heroBg1, heroBg2, heroBg3, heroBg4, heroBg5, heroBg6];
+const kenBurnsClasses = [
+  "animate-ken-burns-1",
+  "animate-ken-burns-2",
+  "animate-ken-burns-3",
+];
 
 const IntentPrompt = () => {
   const [query, setQuery] = useState("");
   const [currentImage, setCurrentImage] = useState(0);
+  const [prevImage, setPrevImage] = useState<number | null>(null);
   const navigate = useNavigate();
 
   useEffect(() => {
     const interval = setInterval(() => {
+      setPrevImage(currentImage);
       setCurrentImage((prev) => (prev + 1) % heroImages.length);
+      // Clear prevImage after transition completes
+      const timeout = setTimeout(() => setPrevImage(null), 2000);
+      return () => clearTimeout(timeout);
     }, 6000);
     return () => clearInterval(interval);
-  }, []);
+  }, [currentImage]);
 
   const handleSearch = (e: React.FormEvent) => {
     e.preventDefault();
@@ -31,18 +41,28 @@ const IntentPrompt = () => {
 
   return (
     <section className="relative py-16 md:py-24 overflow-hidden">
-      {/* Cycling background images */}
-      {heroImages.map((src, index) => (
+      {/* Previous image (fading out) */}
+      {prevImage !== null && (
         <img
-          key={index}
-          src={src}
+          key={`prev-${prevImage}`}
+          src={heroImages[prevImage]}
           alt=""
           aria-hidden="true"
-          className="absolute inset-0 w-full h-full object-cover transition-opacity duration-[2000ms] ease-in-out"
-          style={{ opacity: currentImage === index ? 1 : 0 }}
-          {...(index === 0 ? { width: 1440, height: 800 } : { loading: "lazy" as const, width: 1440, height: 800 })}
+          className={`absolute inset-0 w-full h-full object-cover transition-opacity duration-[2000ms] ease-in-out opacity-0 ${kenBurnsClasses[prevImage % kenBurnsClasses.length]}`}
+          width={1440}
+          height={800}
         />
-      ))}
+      )}
+      {/* Current image (fading in) */}
+      <img
+        key={`current-${currentImage}`}
+        src={heroImages[currentImage]}
+        alt=""
+        aria-hidden="true"
+        className={`absolute inset-0 w-full h-full object-cover transition-opacity duration-[2000ms] ease-in-out opacity-100 ${kenBurnsClasses[currentImage % kenBurnsClasses.length]}`}
+        width={1440}
+        height={800}
+      />
 
       {/* Overlay for text readability */}
       <div className="absolute inset-0 bg-background/55" />
