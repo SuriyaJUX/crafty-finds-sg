@@ -5,8 +5,10 @@ import heroBg1 from "@/assets/hero-bg-1.jpg";
 import heroBg2 from "@/assets/hero-bg-2.jpg";
 import heroBg3 from "@/assets/hero-bg-3.jpg";
 import heroBg4 from "@/assets/hero-bg-4.jpg";
+import heroBg5 from "@/assets/hero-bg-5.jpg";
+import heroBg6 from "@/assets/hero-bg-6.jpg";
 
-const heroImages = [heroBg1, heroBg2, heroBg3, heroBg4];
+const heroImages = [heroBg1, heroBg2, heroBg3, heroBg4, heroBg5, heroBg6];
 
 const IntentPrompt = () => {
   const [query, setQuery] = useState("");
