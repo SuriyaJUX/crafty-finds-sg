@@ -45,7 +45,7 @@ const IntentPrompt = () => {
       ))}
 
       {/* Overlay for text readability */}
-      <div className="absolute inset-0 bg-background/75 backdrop-blur-[2px]" />
+      <div className="absolute inset-0 bg-background/55" />
 
       {/* Content */}
       <div className="relative z-10 container max-w-3xl mx-auto px-4 text-center">
