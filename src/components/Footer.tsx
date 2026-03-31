@@ -23,7 +23,8 @@ const Footer = () => (
           <ul className="space-y-2 text-sm text-muted-foreground">
             <li><a href="#" className="hover:text-primary transition-colors">Shipping & Returns</a></li>
             <li><a href="#" className="hover:text-primary transition-colors">FAQ</a></li>
-            <li><a href="#" className="hover:text-primary transition-colors">Contact Us</a></li>
+            <li><Link to="/about" className="hover:text-primary transition-colors">Contact Us</Link></li>
+            <li><Link to="/about" className="hover:text-primary transition-colors">About Paperly</Link></li>
           </ul>
         </div>
         <div>

@@ -10,6 +10,7 @@ const navLinks = [
   { to: "/shop", label: "Shop" },
   { to: "/creative-paths", label: "Creative Paths" },
   { to: "/promotions", label: "Deals" },
+  { to: "/about", label: "About" },
 ];
 
 const Navbar = () => {

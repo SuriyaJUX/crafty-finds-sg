@@ -21,6 +21,7 @@ import Account from "./pages/Account";
 import CheckoutDetails from "./pages/CheckoutDetails";
 import CheckoutPayment from "./pages/CheckoutPayment";
 import CheckoutConfirmation from "./pages/CheckoutConfirmation";
+import About from "./pages/About";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -50,6 +51,7 @@ const App = () => (
                 <Route path="/checkout/details" element={<CheckoutDetails />} />
                 <Route path="/checkout/payment" element={<CheckoutPayment />} />
                 <Route path="/checkout/confirmation" element={<CheckoutConfirmation />} />
+                <Route path="/about" element={<About />} />
                 <Route path="*" element={<NotFound />} />
               </Routes>
             </main>
