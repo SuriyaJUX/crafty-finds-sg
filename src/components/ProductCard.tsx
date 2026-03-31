@@ -2,20 +2,39 @@ import { Heart, Star } from "lucide-react";
 import { Link } from "react-router-dom";
 import type { Product } from "@/data/products";
 import { useCart } from "@/context/CartContext";
+import { COLOR_MAP } from "@/components/ColorWheelFilter";
 
-const ProductCard = ({ product, style }: { product: Product; style?: React.CSSProperties }) => {
+const COLOR_HEX: Record<string, string> = {
+  ...Object.fromEntries(Object.entries(COLOR_MAP).map(([k, v]) => [k, v.hex])),
+  multicolor: "conic-gradient(#e53935, #fdd835, #43a047, #1e88e5, #8e24aa, #e53935)",
+};
+
+const ProductCard = ({
+  product,
+  style,
+  selectedColor,
+}: {
+  product: Product;
+  style?: React.CSSProperties;
+  selectedColor?: string | null;
+}) => {
   const { addItem, toggleSaved, isSaved } = useCart();
   const saved = isSaved(product.id);
   const discount = product.originalPrice
     ? Math.round(((product.originalPrice - product.price) / product.originalPrice) * 100)
     : null;
 
+  const showDots = product.colors && product.colors.length > 1;
+  const visibleDots = product.colors ? product.colors.slice(0, 4) : [];
+  const extraCount = product.colors && product.colors.length > 4 ? product.colors.length - 3 : 0;
+  const dotsToRender = extraCount > 0 ? visibleDots.slice(0, 3) : visibleDots;
+
   return (
     <div className="group relative animate-fade-in" style={style}>
       <Link to={`/product/${product.id}`} className="block">
         <div className="relative aspect-square rounded-lg bg-muted overflow-hidden mb-3">
           <img src={product.images[0]} alt={product.name} className="w-full h-full object-cover transition-transform duration-300 group-hover:scale-105" />
-          
+
           {/* Badges */}
           <div className="absolute top-2 left-2 flex flex-col gap-1">
             {product.isCommunityFavourite && (
@@ -49,6 +68,34 @@ const ProductCard = ({ product, style }: { product: Product; style?: React.CSSPr
               </span>
             )}
           </div>
+
+          {/* Colour dots */}
+          {showDots && (
+            <div className="flex items-center gap-1 mt-1.5">
+              {dotsToRender.map(c => {
+                const isMatch = selectedColor === c;
+                const hex = COLOR_HEX[c];
+                const isGradient = c === "multicolor";
+                return (
+                  <span
+                    key={c}
+                    className="w-2 h-2 rounded-full border shrink-0 transition-all duration-150"
+                    style={{
+                      background: isGradient ? undefined : hex,
+                      backgroundImage: isGradient ? hex : undefined,
+                      borderColor: isMatch ? "hsl(var(--primary))" : "hsl(var(--border))",
+                      boxShadow: isMatch ? "0 0 0 1.5px hsl(var(--primary))" : undefined,
+                      width: isMatch ? "10px" : "8px",
+                      height: isMatch ? "10px" : "8px",
+                    }}
+                  />
+                );
+              })}
+              {extraCount > 0 && (
+                <span className="text-[10px] text-muted-foreground">+{extraCount} more</span>
+              )}
+            </div>
+          )}
         </div>
       </Link>
 
