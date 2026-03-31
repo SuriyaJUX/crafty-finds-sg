@@ -170,6 +170,66 @@ export const deals = [
   { text: "✏️ 15% off Faber-Castell pencils", code: "FABER15" },
 ];
 
+export interface ImageSearchScenario {
+  id: string;
+  label: string;
+  thumbnailDescription: string;
+  matchedProductIds: string[];
+  confidence: number;
+  suggestedQuery: string;
+}
+
+export const imageSearchScenarios: ImageSearchScenario[] = [
+  {
+    id: "scenario-notebook",
+    label: "Notebook",
+    thumbnailDescription: "A hardcover dotted notebook on a wooden desk",
+    matchedProductIds: ["23", "21", "24", "25", "22"],
+    confidence: 0.96,
+    suggestedQuery: "dotted notebook hardcover",
+  },
+  {
+    id: "scenario-pen",
+    label: "Gel pen",
+    thumbnailDescription: "A slim black gel pen against a white background",
+    matchedProductIds: ["4", "5", "2", "12", "1"],
+    confidence: 0.94,
+    suggestedQuery: "gel pen black smooth",
+  },
+  {
+    id: "scenario-watercolour",
+    label: "Watercolour set",
+    thumbnailDescription: "A travel watercolour pan set with a brush",
+    matchedProductIds: ["31", "33", "34", "32"],
+    confidence: 0.97,
+    suggestedQuery: "watercolour paint set",
+  },
+  {
+    id: "scenario-brushpen",
+    label: "Brush pen",
+    thumbnailDescription: "A set of colourful brush pens fanned out",
+    matchedProductIds: ["47", "37", "16", "17", "38"],
+    confidence: 0.91,
+    suggestedQuery: "brush pen lettering set",
+  },
+  {
+    id: "scenario-pencil",
+    label: "Pencil",
+    thumbnailDescription: "A graphite pencil with shavings beside it",
+    matchedProductIds: ["7", "10", "6", "8"],
+    confidence: 0.89,
+    suggestedQuery: "graphite pencil drawing",
+  },
+  {
+    id: "scenario-sketchpad",
+    label: "Sketch pad",
+    thumbnailDescription: "An open spiral-bound sketch pad with pencil marks",
+    matchedProductIds: ["27", "30", "29", "28"],
+    confidence: 0.85,
+    suggestedQuery: "sketch pad drawing paper",
+  },
+];
+
 export const qaData: QAQuestion[] = [
   {
     id: "qa-1",
