@@ -1,6 +1,6 @@
 import { useState, useEffect, useRef, useCallback } from "react";
 import { useNavigate } from "react-router-dom";
-import { X, Camera, Upload, RotateCcw, Search, ChevronRight } from "lucide-react";
+import { X, Camera, Upload, RotateCcw, Search, ChevronRight, Clock } from "lucide-react";
 import { products, imageSearchScenarios, type ImageSearchScenario } from "@/data/products";
 import ProductCard from "@/components/ProductCard";
 
@@ -14,7 +14,13 @@ interface ImageSearchModalProps {
   onProductSelect: (productId: string) => void;
 }
 
-// ── Scanning status messages ───────────────────────────────────────────────
+interface RecentSearch {
+  label: string;
+  scenarioId: string;
+  timestamp: number;
+}
+
+// ── Constants ──────────────────────────────────────────────────────────────
 
 const SCAN_MESSAGES = [
   "Analysing image",
@@ -22,8 +28,6 @@ const SCAN_MESSAGES = [
   "Matching against catalogue",
   "Finding best matches",
 ] as const;
-
-// ── Gradient placeholders per scenario (for non-file uploads) ──────────────
 
 const SCENARIO_GRADIENTS: Record<string, string> = {
   "scenario-notebook":    "linear-gradient(135deg, #e8ddd0 0%, #c8b89a 100%)",
@@ -34,6 +38,40 @@ const SCENARIO_GRADIENTS: Record<string, string> = {
   "scenario-sketchpad":   "linear-gradient(135deg, #f0ede8 0%, #d8d0c4 100%)",
 };
 
+const RECENT_KEY = "recentImageSearches";
+const MAX_RECENT = 3;
+
+// ── Recent searches helpers ────────────────────────────────────────────────
+
+function loadRecentSearches(): RecentSearch[] {
+  try {
+    const raw = localStorage.getItem(RECENT_KEY);
+    return raw ? (JSON.parse(raw) as RecentSearch[]) : [];
+  } catch {
+    return [];
+  }
+}
+
+function saveRecentSearch(scenario: ImageSearchScenario) {
+  const existing = loadRecentSearches().filter((r) => r.scenarioId !== scenario.id);
+  const updated: RecentSearch[] = [
+    { label: scenario.label, scenarioId: scenario.id, timestamp: Date.now() },
+    ...existing,
+  ].slice(0, MAX_RECENT);
+  localStorage.setItem(RECENT_KEY, JSON.stringify(updated));
+}
+
+function relativeTime(timestamp: number): string {
+  const diffMs = Date.now() - timestamp;
+  const mins = Math.floor(diffMs / 60_000);
+  if (mins < 1) return "just now";
+  if (mins < 60) return `${mins} minute${mins === 1 ? "" : "s"} ago`;
+  const hrs = Math.floor(mins / 60);
+  if (hrs < 24) return `${hrs} hour${hrs === 1 ? "" : "s"} ago`;
+  const days = Math.floor(hrs / 24);
+  return `${days} day${days === 1 ? "" : "s"} ago`;
+}
+
 // ── Sub-components ─────────────────────────────────────────────────────────
 
 /** State 1 — Upload */
@@ -41,10 +79,12 @@ const UploadState = ({
   onScenarioSelect,
   onFileSelect,
   onClose,
+  recentSearches,
 }: {
   onScenarioSelect: (scenario: ImageSearchScenario) => void;
   onFileSelect: (file: File) => void;
   onClose: () => void;
+  recentSearches: RecentSearch[];
 }) => {
   const fileInputRef = useRef<HTMLInputElement>(null);
   const [dragging, setDragging] = useState(false);
@@ -56,12 +96,20 @@ const UploadState = ({
     if (file && file.type.startsWith("image/")) onFileSelect(file);
   };
 
+  const handleRecentClick = (recent: RecentSearch) => {
+    const scenario = imageSearchScenarios.find((s) => s.id === recent.scenarioId);
+    if (scenario) onScenarioSelect(scenario);
+  };
+
   return (
     <div className="animate-fade-in">
       {/* Header */}
       <div className="flex items-center justify-between mb-6">
         <h2 className="font-serif text-xl">Search by image</h2>
-        <button onClick={onClose} className="p-1.5 rounded-full hover:bg-muted transition-colors text-muted-foreground">
+        <button
+          onClick={onClose}
+          className="p-1.5 rounded-full hover:bg-muted transition-colors text-muted-foreground"
+        >
           <X className="w-5 h-5" />
         </button>
       </div>
@@ -104,6 +152,37 @@ const UploadState = ({
         <Camera className="w-4 h-4 text-muted-foreground" />
         Take a photo
       </button>
+
+      {/* Recent searches */}
+      {recentSearches.length > 0 && (
+        <div className="mb-6">
+          <p className="text-xs text-muted-foreground uppercase tracking-wide font-medium mb-3">
+            Recent searches
+          </p>
+          <div className="flex flex-col gap-2">
+            {recentSearches.map((recent) => (
+              <button
+                key={`${recent.scenarioId}-${recent.timestamp}`}
+                onClick={() => handleRecentClick(recent)}
+                className="flex items-center gap-3 px-3 py-2.5 rounded-xl border border-border bg-card hover:border-primary/40 hover:bg-muted transition-colors text-left"
+              >
+                <div
+                  className="w-8 h-8 rounded-lg shrink-0"
+                  style={{ background: SCENARIO_GRADIENTS[recent.scenarioId] ?? "#e8e8e8" }}
+                />
+                <div className="flex-1 min-w-0">
+                  <p className="text-sm font-medium">{recent.label}</p>
+                  <p className="text-xs text-muted-foreground flex items-center gap-1 mt-0.5">
+                    <Clock className="w-3 h-3" />
+                    {relativeTime(recent.timestamp)}
+                  </p>
+                </div>
+                <ChevronRight className="w-4 h-4 text-muted-foreground shrink-0" />
+              </button>
+            ))}
+          </div>
+        </div>
+      )}
 
       {/* Sample triggers */}
       <div>
@@ -149,7 +228,6 @@ const ScanningState = ({
 
   return (
     <div className="animate-fade-in flex flex-col items-center py-8 gap-6">
-      {/* Preview / gradient */}
       <div className="relative w-56 h-56 rounded-xl overflow-hidden shadow-md">
         {previewUrl ? (
           <img src={previewUrl} alt="Scanning" className="w-full h-full object-cover" />
@@ -163,11 +241,9 @@ const ScanningState = ({
             style={{ animation: "scanline 1.1s linear infinite" }}
           />
         </div>
-        {/* Overlay grid dots */}
         <div className="absolute inset-0 bg-background/10" />
       </div>
 
-      {/* Status text */}
       <div className="text-center">
         <p className="text-sm font-medium text-foreground animate-fade-in" key={msgIdx}>
           {SCAN_MESSAGES[msgIdx]}
@@ -176,7 +252,6 @@ const ScanningState = ({
         <p className="text-xs text-muted-foreground mt-1">Powered by visual search</p>
       </div>
 
-      {/* Scanline keyframe injected via a style tag */}
       <style>{`
         @keyframes scanline {
           0%   { top: 0%; }
@@ -217,10 +292,8 @@ const ResultsState = ({
 
   return (
     <div className="animate-fade-in">
-      {/* Header */}
       <div className="flex items-start justify-between mb-5">
         <div className="flex items-center gap-3">
-          {/* Thumbnail */}
           <div className="w-14 h-14 rounded-lg overflow-hidden shrink-0 shadow-sm border border-border">
             {previewUrl ? (
               <img src={previewUrl} alt={scenario.label} className="w-full h-full object-cover" />
@@ -236,14 +309,16 @@ const ResultsState = ({
             </span>
           </div>
         </div>
-        <button onClick={onClose} className="p-1.5 rounded-full hover:bg-muted transition-colors text-muted-foreground shrink-0">
+        <button
+          onClick={onClose}
+          className="p-1.5 rounded-full hover:bg-muted transition-colors text-muted-foreground shrink-0"
+        >
           <X className="w-5 h-5" />
         </button>
       </div>
 
       <h2 className="font-serif text-xl mb-4">We found these for you</h2>
 
-      {/* Product grid */}
       <div className="grid grid-cols-2 sm:grid-cols-3 gap-4 mb-6">
         {matchedProducts.map((product) => (
           <div key={product.id} onClick={() => onProductSelect(product.id)}>
@@ -252,9 +327,7 @@ const ResultsState = ({
         ))}
       </div>
 
-      {/* Actions */}
       <div className="flex flex-wrap items-center gap-3 pt-4 border-t border-border">
-        {/* Refine chip */}
         <button
           onClick={handleRefine}
           className="flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-primary/10 text-primary text-xs font-semibold hover:bg-primary/20 transition-colors"
@@ -263,8 +336,6 @@ const ResultsState = ({
           Refine: "{scenario.suggestedQuery}"
           <ChevronRight className="w-3 h-3" />
         </button>
-
-        {/* Search again */}
         <button
           onClick={onSearchAgain}
           className="flex items-center gap-1.5 px-3 py-1.5 rounded-full border border-border text-xs font-medium text-muted-foreground hover:text-foreground hover:border-primary/40 transition-colors"
@@ -283,11 +354,14 @@ const ImageSearchModal = ({ open, onClose, onProductSelect }: ImageSearchModalPr
   const [state, setState] = useState<ModalState>("upload");
   const [activeScenario, setActiveScenario] = useState<ImageSearchScenario | null>(null);
   const [previewUrl, setPreviewUrl] = useState<string | null>(null);
+  const [recentSearches, setRecentSearches] = useState<RecentSearch[]>([]);
   const scanTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
-  // Clean up object URL on unmount / close
+  // Load recent searches whenever modal opens
   useEffect(() => {
-    if (!open) {
+    if (open) {
+      setRecentSearches(loadRecentSearches());
+    } else {
       resetToUpload();
     }
   }, [open]);
@@ -303,9 +377,7 @@ const ImageSearchModal = ({ open, onClose, onProductSelect }: ImageSearchModalPr
     if (scanTimerRef.current) clearTimeout(scanTimerRef.current);
     setState("upload");
     setActiveScenario(null);
-    if (previewUrl && previewUrl.startsWith("blob:")) {
-      URL.revokeObjectURL(previewUrl);
-    }
+    if (previewUrl && previewUrl.startsWith("blob:")) URL.revokeObjectURL(previewUrl);
     setPreviewUrl(null);
   }, [previewUrl]);
 
@@ -314,25 +386,33 @@ const ImageSearchModal = ({ open, onClose, onProductSelect }: ImageSearchModalPr
     setPreviewUrl(url);
     setState("scanning");
     scanTimerRef.current = setTimeout(() => {
+      // Save to recent searches when results arrive
+      saveRecentSearch(scenario);
+      setRecentSearches(loadRecentSearches());
       setState("results");
     }, 2200);
   }, []);
 
-  const handleScenarioSelect = useCallback((scenario: ImageSearchScenario) => {
-    startScan(scenario, null);
-  }, [startScan]);
+  const handleScenarioSelect = useCallback(
+    (scenario: ImageSearchScenario) => startScan(scenario, null),
+    [startScan]
+  );
 
-  const handleFileSelect = useCallback((file: File) => {
-    const url = URL.createObjectURL(file);
-    // Default to notebook scenario for real uploads (no visual analysis)
-    const fallback = imageSearchScenarios[0];
-    startScan(fallback, url);
-  }, [startScan]);
+  const handleFileSelect = useCallback(
+    (file: File) => {
+      const url = URL.createObjectURL(file);
+      startScan(imageSearchScenarios[0], url);
+    },
+    [startScan]
+  );
 
-  const handleProductSelect = useCallback((productId: string) => {
-    onProductSelect(productId);
-    onClose();
-  }, [onProductSelect, onClose]);
+  const handleProductSelect = useCallback(
+    (productId: string) => {
+      onProductSelect(productId);
+      onClose();
+    },
+    [onProductSelect, onClose]
+  );
 
   if (!open) return null;
 
@@ -349,14 +429,12 @@ const ImageSearchModal = ({ open, onClose, onProductSelect }: ImageSearchModalPr
             onScenarioSelect={handleScenarioSelect}
             onFileSelect={handleFileSelect}
             onClose={onClose}
+            recentSearches={recentSearches}
           />
         )}
 
         {state === "scanning" && (
-          <ScanningState
-            previewUrl={previewUrl}
-            gradient={activeGradient}
-          />
+          <ScanningState previewUrl={previewUrl} gradient={activeGradient} />
         )}
 
         {state === "results" && activeScenario && (

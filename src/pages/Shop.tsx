@@ -1,8 +1,9 @@
 import { useState, useMemo, useEffect } from "react";
-import { useSearchParams } from "react-router-dom";
+import { useSearchParams, useNavigate } from "react-router-dom";
 import { products, categories } from "@/data/products";
 import ProductCard from "@/components/ProductCard";
 import ColorFilterDrawer from "@/components/ColorFilterDrawer";
+import ImageSearchModal from "@/components/ImageSearchModal";
 import { COLOR_MAP } from "@/components/ColorWheelFilter";
 import { Search, SlidersHorizontal, Camera, X, Palette } from "lucide-react";
 
@@ -20,6 +21,8 @@ const Shop = () => {
   const [showDiscounted, setShowDiscounted] = useState(false);
   const [selectedColor, setSelectedColor] = useState<string | null>(initialColor);
   const [colorDrawerOpen, setColorDrawerOpen] = useState(false);
+  const [showImageSearch, setShowImageSearch] = useState(false);
+  const navigate = useNavigate();
 
   // Sync color param on mount
   useEffect(() => {
@@ -68,6 +71,7 @@ const Shop = () => {
       : null;
 
   return (
+    <>
     <div className="container max-w-6xl mx-auto px-4 py-8">
       <h1 className="font-serif text-3xl mb-6">Shop</h1>
 
@@ -81,7 +85,12 @@ const Shop = () => {
           placeholder="Search products..."
           className="w-full pl-10 pr-10 py-2.5 rounded-lg border border-border bg-card text-sm placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-primary/30"
         />
-        <button className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-primary">
+        <button
+          type="button"
+          onClick={() => setShowImageSearch(true)}
+          className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-primary transition-colors"
+          title="Search by image"
+        >
           <Camera className="w-4 h-4" />
         </button>
       </div>
@@ -218,6 +227,16 @@ const Shop = () => {
         </div>
       )}
     </div>
+
+      <ImageSearchModal
+        open={showImageSearch}
+        onClose={() => setShowImageSearch(false)}
+        onProductSelect={(productId) => {
+          setShowImageSearch(false);
+          navigate(`/product/${productId}`);
+        }}
+      />
+    </>
   );
 };
 

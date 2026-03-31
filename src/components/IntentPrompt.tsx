@@ -5,6 +5,7 @@ import heroBg1 from "@/assets/hero-bg-1.jpg";
 import heroBg2 from "@/assets/hero-bg-2.jpg";
 import heroBg3 from "@/assets/hero-bg-3.jpg";
 import heroBg6 from "@/assets/hero-bg-6.jpg";
+import ImageSearchModal from "@/components/ImageSearchModal";
 
 const heroImages = [heroBg1, heroBg2, heroBg3, heroBg6];
 const heroPanClasses = [
@@ -15,6 +16,7 @@ const heroPanClasses = [
 ];
 
 const FADE_DURATION = 5000;
+const HINT_KEY = "imageSearchHintSeen";
 
 const IntentPrompt = () => {
   const [query, setQuery] = useState("");
@@ -22,6 +24,13 @@ const IntentPrompt = () => {
   const [leavingImage, setLeavingImage] = useState<number | null>(null);
   const leavingTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const navigate = useNavigate();
+
+  const [showImageSearch, setShowImageSearch] = useState(false);
+  const [hintSeen, setHintSeen] = useState(() =>
+    typeof window !== "undefined"
+      ? !!localStorage.getItem(HINT_KEY)
+      : true
+  );
 
   useEffect(() => {
     const interval = setInterval(() => {
@@ -44,6 +53,23 @@ const IntentPrompt = () => {
     if (query.trim()) {
       navigate(`/shop?q=${encodeURIComponent(query.trim())}`);
     }
+  };
+
+  const openImageSearch = () => {
+    dismissHint();
+    setShowImageSearch(true);
+  };
+
+  const dismissHint = () => {
+    if (!hintSeen) {
+      localStorage.setItem(HINT_KEY, "1");
+      setHintSeen(true);
+    }
+  };
+
+  const handleModalClose = () => {
+    dismissHint();
+    setShowImageSearch(false);
   };
 
   return (
@@ -83,7 +109,7 @@ const IntentPrompt = () => {
           Search for something specific or browse our curated collections.
         </p>
 
-        <form onSubmit={handleSearch} className="relative max-w-xl mx-auto mb-8">
+        <form onSubmit={handleSearch} className="relative max-w-xl mx-auto mb-3">
           <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-muted-foreground" />
           <input
             type="text"
@@ -94,12 +120,27 @@ const IntentPrompt = () => {
           />
           <button
             type="button"
+            onClick={openImageSearch}
             className="absolute right-4 top-1/2 -translate-y-1/2 p-1 text-muted-foreground hover:text-primary transition-colors"
             title="Search by image"
           >
             <Camera className="w-5 h-5" />
           </button>
         </form>
+
+        {/* First-visit hint */}
+        {!hintSeen && (
+          <div className="flex justify-center mb-6">
+            <button
+              onClick={openImageSearch}
+              className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-card/90 border border-border text-xs font-medium text-foreground shadow-sm animate-bounce hover:bg-muted transition-colors"
+            >
+              📷 New: search by photo — try it
+            </button>
+          </div>
+        )}
+
+        {!hintSeen ? null : <div className="mb-6" />}
 
         <div className="flex flex-wrap justify-center gap-3">
           <button
@@ -129,6 +170,15 @@ const IntentPrompt = () => {
           </button>
         </div>
       </div>
+
+      <ImageSearchModal
+        open={showImageSearch}
+        onClose={handleModalClose}
+        onProductSelect={(productId) => {
+          handleModalClose();
+          navigate(`/product/${productId}`);
+        }}
+      />
     </section>
   );
 };
