@@ -124,7 +124,7 @@ export const products: Product[] = [
   { id: "45", name: "Faber-Castell Eraser - Dust-free", price: 2.50, images: [imgFaberEraser], category: "Erasers", tags: ["eraser", "dust-free", "clean"], description: "Innovative dust-free formula collects eraser shavings into neat strips instead of scattered crumbs. PVC-free and gentle on paper. Protective sliding sleeve keeps it clean.", isCommunityFavourite: false, purchaseCount: 1567, reviewCount: 234, rating: 4.4, pairsWellWith: ["8", "9"], colors: ["white", "pink"], inStock: true },
 
   // === BRUSHES ===
-  { id: "50", name: "Winsor & Newton Sablé Brush Set - 6 pieces", price: 24.80, images: [imgBrushSet], category: "Brushes", tags: ["brush", "watercolour", "sable"], description: "Set of 6 premium synthetic sable brushes in assorted sizes. Excellent spring, snap, and paint-holding capacity. Seamless ferrules and lacquered wooden handles. Works with all water-based media.", isCommunityFavourite: false, purchaseCount: 345, reviewCount: 78, rating: 4.5, pairsWellWith: ["31", "34"], inStock: true },
+  { id: "50", name: "Winsor & Newton Sablé Brush Set - 6 pieces", price: 24.80, images: [imgBrushSet], category: "Brushes", tags: ["brush", "watercolour", "sable"], description: "Set of 6 premium synthetic sable brushes in assorted sizes. Excellent spring, snap, and paint-holding capacity. Seamless ferrules and lacquered wooden handles. Works with all water-based media.", isCommunityFavourite: false, purchaseCount: 345, reviewCount: 78, rating: 4.5, pairsWellWith: ["31", "34"], colors: ["brown"], inStock: true },
 ];
 
 export const reviews: Review[] = [
