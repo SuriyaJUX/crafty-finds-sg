@@ -15,6 +15,7 @@ export interface Product {
   hasStartSmall?: boolean;
   startSmallPrice?: number;
   pairsWellWith?: string[];
+  colors?: string[];
   inStock: boolean;
 }
 
