@@ -98,6 +98,26 @@ const CheckoutPayment = () => {
 
   if (!deliveryDetails) return <Navigate to="/checkout/details" replace />;
 
+  // Auto-apply voucher claimed from the Promotions page
+  useEffect(() => {
+    const pending = localStorage.getItem("pendingVoucher");
+    if (pending) {
+      const code = pending.trim().toUpperCase();
+      const result = VOUCHER_MAP[code];
+      if (result) {
+        setVoucherApplied(result);
+        setVoucherCode(code);
+        setDiscountOpen(true);
+        toast({
+          title: `Voucher ${code} applied from your deals page`,
+          description: result.label,
+        });
+      }
+      localStorage.removeItem("pendingVoucher");
+    }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
   // PayNow countdown — only runs when PayNow is expanded
   useEffect(() => {
     if (expandedMethod === "paynow") {

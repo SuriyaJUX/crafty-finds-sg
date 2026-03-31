@@ -1,5 +1,5 @@
 import { Link, useLocation } from "react-router-dom";
-import { ShoppingBag, Heart, Search, Menu, X, User, LogOut, Trophy } from "lucide-react";
+import { ShoppingBag, Heart, Search, Menu, X, User, LogOut, Trophy, Sparkles } from "lucide-react";
 import { useCart } from "@/context/CartContext";
 import { useAuth } from "@/context/AuthContext";
 import { useState, useRef, useEffect } from "react";
@@ -19,6 +19,7 @@ const Navbar = () => {
   const [mobileOpen, setMobileOpen] = useState(false);
   const [userMenuOpen, setUserMenuOpen] = useState(false);
   const [scrolled, setScrolled] = useState(false);
+  const [inkHovered, setInkHovered] = useState(false);
   const userMenuRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
@@ -45,17 +46,28 @@ const Navbar = () => {
         </Link>
 
         <nav className="hidden md:flex items-center gap-8">
-          {navLinks.map(link => (
-            <Link
-              key={link.to}
-              to={link.to}
-              className={`text-sm font-medium transition-colors hover:text-primary ${
-                location.pathname === link.to ? "text-primary" : "text-muted-foreground"
-              }`}
-            >
-              {link.label}
-            </Link>
-          ))}
+          {navLinks.map(link => {
+            const isDeals = link.label === "Deals";
+            const isActive = location.pathname === link.to;
+            return (
+              <Link
+                key={link.to}
+                to={link.to}
+                className={`text-sm font-medium transition-colors hover:text-primary ${
+                  isActive
+                    ? "text-primary"
+                    : isDeals
+                    ? "text-primary font-semibold"
+                    : "text-muted-foreground"
+                }`}
+              >
+                {link.label}
+                {isDeals && !isActive && (
+                  <span className="ml-1 inline-block w-1.5 h-1.5 rounded-full bg-primary align-middle -mt-0.5" />
+                )}
+              </Link>
+            );
+          })}
         </nav>
 
         <div className="flex items-center gap-3">
@@ -81,6 +93,42 @@ const Navbar = () => {
               </span>
             )}
           </button>
+          {/* Ink Points widget — authenticated only, desktop only */}
+          {isAuthenticated && user && (() => {
+            const sgdValue = (user.loyaltyPoints / 200).toFixed(2);
+            const streakEntry = user.pointsHistory.find(e => e.icon === "star");
+            const streakDay = streakEntry
+              ? parseInt(streakEntry.label.match(/\d+/)?.[0] ?? "1")
+              : 1;
+            const streakPoints = streakEntry?.points ?? 5;
+            return (
+              <div
+                className="hidden md:flex relative"
+                onMouseEnter={() => setInkHovered(true)}
+                onMouseLeave={() => setInkHovered(false)}
+              >
+                <button className="flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-primary/10 text-primary text-xs font-semibold hover:bg-primary/20 transition-colors">
+                  <Sparkles className="w-3.5 h-3.5" />
+                  {user.loyaltyPoints} pts
+                </button>
+                {inkHovered && (
+                  <div className="absolute right-0 top-full mt-2 w-52 rounded-lg border border-border bg-card shadow-lg p-3 z-50 animate-fade-in">
+                    <div className="flex items-center gap-1.5 mb-1.5">
+                      <Trophy className="w-4 h-4 text-primary" />
+                      <span className="text-sm font-semibold text-primary">{user.loyaltyPoints} Ink Points</span>
+                    </div>
+                    <p className="text-xs text-muted-foreground mb-1">
+                      = <span className="font-medium text-foreground">S${sgdValue}</span> off your next order
+                    </p>
+                    <p className="text-xs text-muted-foreground border-t border-border pt-2 mt-2">
+                      🔥 Day {streakDay} — earn <span className="font-medium text-foreground">{streakPoints} pts</span> today
+                    </p>
+                  </div>
+                )}
+              </div>
+            );
+          })()}
+
           {/* User / Auth */}
           <div className="relative" ref={userMenuRef}>
             {isAuthenticated ? (

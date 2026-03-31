@@ -1,9 +1,16 @@
+import { useState } from "react";
 import { deals, products } from "@/data/products";
 import ProductCard from "@/components/ProductCard";
-import { Tag, Clock } from "lucide-react";
+import { Tag, Clock, Check } from "lucide-react";
 
 const Promotions = () => {
   const discountedProducts = products.filter(p => p.originalPrice);
+  const [claimedCodes, setClaimedCodes] = useState<Set<string>>(new Set());
+
+  const handleClaim = (code: string) => {
+    localStorage.setItem("pendingVoucher", code);
+    setClaimedCodes(prev => new Set(prev).add(code));
+  };
 
   return (
     <div className="container max-w-6xl mx-auto px-4 py-8">
@@ -12,21 +19,41 @@ const Promotions = () => {
 
       {/* Vouchers */}
       <div className="grid md:grid-cols-2 gap-4 mb-12">
-        {deals.map((deal, i) => (
-          <div key={i} className="flex items-center gap-4 p-4 rounded-xl border border-border bg-card">
-            <div className="p-2 rounded-lg bg-primary/10">
-              {deal.code ? <Tag className="w-5 h-5 text-primary" /> : <Clock className="w-5 h-5 text-primary" />}
-            </div>
-            <div className="flex-1">
-              <p className="text-sm font-medium">{deal.text}</p>
+        {deals.map((deal, i) => {
+          const claimed = deal.code ? claimedCodes.has(deal.code) : false;
+          return (
+            <div key={i} className="flex items-center gap-4 p-4 rounded-xl border border-border bg-card">
+              <div className="p-2 rounded-lg bg-primary/10 flex-shrink-0">
+                {deal.code ? <Tag className="w-5 h-5 text-primary" /> : <Clock className="w-5 h-5 text-primary" />}
+              </div>
+              <div className="flex-1 min-w-0">
+                <p className="text-sm font-medium">{deal.text}</p>
+                {deal.code && (
+                  <p className="text-xs text-muted-foreground mt-0.5">
+                    Use code: <span className="font-semibold text-primary">{deal.code}</span>
+                  </p>
+                )}
+              </div>
               {deal.code && (
-                <p className="text-xs text-muted-foreground mt-0.5">
-                  Use code: <span className="font-semibold text-primary">{deal.code}</span>
-                </p>
+                <button
+                  onClick={() => handleClaim(deal.code!)}
+                  disabled={claimed}
+                  className={`flex-shrink-0 flex items-center gap-1 px-3 py-1.5 rounded-lg text-xs font-semibold transition-colors ${
+                    claimed
+                      ? "bg-secondary/10 text-secondary cursor-default"
+                      : "bg-primary text-primary-foreground hover:opacity-90 active:scale-95"
+                  }`}
+                >
+                  {claimed ? (
+                    <><Check className="w-3 h-3" /> Claimed</>
+                  ) : (
+                    "Claim"
+                  )}
+                </button>
               )}
             </div>
-          </div>
-        ))}
+          );
+        })}
       </div>
 
       {/* Discounted products */}

@@ -1,5 +1,5 @@
 // Re-export types for backwards compatibility
-export type { Product, Review } from "./types";
+export type { Product, Review, QAQuestion, QAAnswer } from "./types";
 
 // Image imports
 import imgPilotV5 from "@/assets/products/pilot-v5-gel-pen.jpg";
@@ -53,7 +53,7 @@ import imgGellyRoll from "@/assets/products/sakura-gelly-roll.jpg";
 import imgTracing from "@/assets/products/clairefontaine-tracing.jpg";
 import imgBrushSet from "@/assets/products/winsor-brush-set.jpg";
 
-import type { Product, Review } from "./types";
+import type { Product, Review, QAQuestion } from "./types";
 
 export const products: Product[] = [
   // === PENS & MARKERS ===
@@ -63,11 +63,11 @@ export const products: Product[] = [
   { id: "4", name: "Muji Gel Pen 0.5mm - Black", price: 2.90, images: [imgMujiGel05], category: "Pens & Markers", tags: ["pen", "gel", "muji", "minimal"], description: "Iconic minimalist gel pen with smooth 0.5mm writing. Clean design with transparent barrel. A cult favourite for bullet journalling and everyday notes.", isCommunityFavourite: true, purchaseCount: 2341, reviewCount: 623, rating: 4.8, creativePath: "journalling", pairsWellWith: ["5", "19"], inStock: true },
   { id: "5", name: "Muji Gel Pen 0.38mm - Black", price: 3.20, images: [imgMujiGel038], category: "Pens & Markers", tags: ["pen", "gel", "muji", "fine"], description: "Extra-fine 0.38mm tip for precise, detailed writing. Perfect for small handwriting, planners, and intricate note-taking. Same beloved Muji quality in a finer point.", isCommunityFavourite: true, purchaseCount: 1876, reviewCount: 489, rating: 4.7, creativePath: "journalling", pairsWellWith: ["4", "25"], inStock: true },
   { id: "12", name: "Uni-ball Jetstream Pen - Black", price: 6.50, images: [imgJetstream], category: "Pens & Markers", tags: ["pen", "ballpoint", "smooth"], description: "Revolutionary hybrid ink combines ballpoint reliability with gel pen smoothness. Quick-drying, smudge-proof, and incredibly smooth. The pen that converts ballpoint sceptics.", isCommunityFavourite: true, purchaseCount: 1678, reviewCount: 445, rating: 4.8, pairsWellWith: ["19", "21"], inStock: true },
-  { id: "13", name: "Staedtler Triplus Fineliner - Set of 10", price: 12.90, images: [imgTriplus], category: "Pens & Markers", tags: ["fineliner", "set", "colour"], description: "10 vibrant colours with ergonomic triangular barrel. Dry-safe ink technology means they won't dry out even uncapped for days. Perfect for colour-coding, journalling, and illustration.", isCommunityFavourite: true, purchaseCount: 1245, reviewCount: 334, rating: 4.6, creativePath: "journalling", hasStartSmall: true, startSmallPrice: 6.90, pairsWellWith: ["23", "25"], inStock: true },
+  { id: "13", name: "Staedtler Triplus Fineliner - Set of 10", price: 12.90, originalPrice: 15.90, images: [imgTriplus], category: "Pens & Markers", tags: ["fineliner", "set", "colour"], description: "10 vibrant colours with ergonomic triangular barrel. Dry-safe ink technology means they won't dry out even uncapped for days. Perfect for colour-coding, journalling, and illustration.", isCommunityFavourite: true, purchaseCount: 1245, reviewCount: 334, rating: 4.6, creativePath: "journalling", hasStartSmall: true, startSmallPrice: 6.90, pairsWellWith: ["23", "25"], inStock: true },
   { id: "14", name: "Pilot Highlighter Pen - Yellow", price: 4.20, images: [imgPilotHL], category: "Pens & Markers", tags: ["highlighter", "yellow", "study"], description: "Bright fluorescent yellow highlighter with chisel tip for both broad and fine highlighting. Fade-resistant ink. Essential for study and document review.", isCommunityFavourite: false, purchaseCount: 567, reviewCount: 112, rating: 4.2, pairsWellWith: ["15"], inStock: true },
   { id: "15", name: "Stabilo Boss Highlighter - Yellow", price: 3.80, images: [imgStabiloBoss], category: "Pens & Markers", tags: ["highlighter", "yellow", "study"], description: "The original flat highlighter with unique pocket-clip cap. Anti-dry-out technology lasts up to 4 hours uncapped. Bright, even coverage without streaking.", isCommunityFavourite: false, purchaseCount: 789, reviewCount: 156, rating: 4.4, pairsWellWith: ["14"], inStock: true },
   { id: "16", name: "Pentel Fude Touch Brush Sign Pen - Black", price: 8.90, images: [imgPentelFude], category: "Pens & Markers", tags: ["brush-pen", "lettering", "calligraphy"], description: "Flexible felt brush tip creates beautiful thick-to-thin strokes. Water-based dye ink for rich, saturated lines. Perfect for modern calligraphy, lettering, and sketching.", isCommunityFavourite: true, purchaseCount: 1023, reviewCount: 278, rating: 4.7, creativePath: "lettering", pairsWellWith: ["17", "26"], inStock: true },
-  { id: "17", name: "Tombow Fudenosuke Brush Pen - Set of 2", price: 7.50, images: [imgFudenosuke], category: "Pens & Markers", tags: ["brush-pen", "lettering", "calligraphy"], description: "Set includes both hard and soft tip brush pens. Elastomer tip produces beautiful calligraphy strokes. Water-based ink in deep black. A must-have for brush lettering beginners.", isCommunityFavourite: true, purchaseCount: 1456, reviewCount: 389, rating: 4.8, creativePath: "lettering", pairsWellWith: ["16", "26"], inStock: true },
+  { id: "17", name: "Tombow Fudenosuke Brush Pen - Set of 2", price: 7.50, originalPrice: 9.90, images: [imgFudenosuke], category: "Pens & Markers", tags: ["brush-pen", "lettering", "calligraphy"], description: "Set includes both hard and soft tip brush pens. Elastomer tip produces beautiful calligraphy strokes. Water-based ink in deep black. A must-have for brush lettering beginners.", isCommunityFavourite: true, purchaseCount: 1456, reviewCount: 389, rating: 4.8, creativePath: "lettering", pairsWellWith: ["16", "26"], inStock: true },
   { id: "18", name: "Sakura Pigma Micron Pen 0.5mm", price: 5.60, images: [imgMicron05], category: "Pens & Markers", tags: ["fineliner", "illustration", "archival"], description: "Professional-grade archival pigment ink pen. Waterproof, chemical-proof, and fade-resistant. The industry standard for illustration, manga, and technical drawing.", isCommunityFavourite: true, purchaseCount: 1567, reviewCount: 423, rating: 4.8, creativePath: "illustration", pairsWellWith: ["27", "30"], inStock: true },
   { id: "46", name: "Pilot Parallel Pen 3.8mm - Black", price: 16.50, images: [imgParallel], category: "Pens & Markers", tags: ["calligraphy", "parallel", "broad-nib"], description: "Unique parallel plate nib creates crisp calligraphic strokes. 3.8mm nib width ideal for Gothic and Italic scripts. Includes ink cartridges and mixing plate for colour blending.", isCommunityFavourite: false, purchaseCount: 345, reviewCount: 87, rating: 4.5, creativePath: "lettering", pairsWellWith: ["49"], inStock: true },
   { id: "47", name: "Pentel Brush Sign Pen Set - 12 colours", price: 28.00, images: [imgBrushSignSet], category: "Pens & Markers", tags: ["brush-pen", "set", "colour", "lettering"], description: "12 vibrant colours with flexible fibre tip for expressive brush lettering. Water-based dye ink blends beautifully. Each pen produces consistent thick-to-thin variation.", isCommunityFavourite: true, purchaseCount: 934, reviewCount: 245, rating: 4.6, creativePath: "lettering", hasStartSmall: true, startSmallPrice: 14.90, pairsWellWith: ["16", "26"], inStock: true },
@@ -84,7 +84,7 @@ export const products: Product[] = [
   // === NOTEBOOKS ===
   { id: "19", name: "Muji Notebook A5 - 40 pages", price: 3.50, images: [imgMujiNBA5], category: "Notebooks", tags: ["notebook", "muji", "minimal", "A5"], description: "Simple, functional notebook with smooth recycled paper. Minimalist kraft cover embodies the Muji philosophy. Lightweight and perfect for on-the-go note-taking and daily journalling.", isCommunityFavourite: false, purchaseCount: 3210, reviewCount: 567, rating: 4.3, creativePath: "journalling", pairsWellWith: ["4", "5"], inStock: true },
   { id: "20", name: "Muji Notebook A4 - 50 pages", price: 6.20, images: [imgMujiNBA4], category: "Notebooks", tags: ["notebook", "muji", "minimal", "A4"], description: "Larger A4 format with 50 pages of smooth recycled paper. Ample space for sketches, meeting notes, and study summaries. Same elegant Muji simplicity in a bigger canvas.", isCommunityFavourite: false, purchaseCount: 1456, reviewCount: 234, rating: 4.2, pairsWellWith: ["4", "13"], inStock: true },
-  { id: "21", name: "Moleskine Classic Notebook A5 Hardcover - Black", price: 48.00, images: [imgMoleskineClassic], category: "Notebooks", tags: ["notebook", "premium", "hardcover"], description: "The legendary notebook with ivory-coloured acid-free paper, elastic closure, and expandable inner pocket. Rounded corners and ribbon bookmark. A timeless companion for writers and thinkers.", isCommunityFavourite: true, purchaseCount: 1876, reviewCount: 456, rating: 4.7, creativePath: "journalling", pairsWellWith: ["2", "12"], inStock: true },
+  { id: "21", name: "Moleskine Classic Notebook A5 Hardcover - Black", price: 48.00, originalPrice: 58.00, images: [imgMoleskineClassic], category: "Notebooks", tags: ["notebook", "premium", "hardcover"], description: "The legendary notebook with ivory-coloured acid-free paper, elastic closure, and expandable inner pocket. Rounded corners and ribbon bookmark. A timeless companion for writers and thinkers.", isCommunityFavourite: true, purchaseCount: 1876, reviewCount: 456, rating: 4.7, creativePath: "journalling", pairsWellWith: ["2", "12"], inStock: true },
   { id: "22", name: "Moleskine Cahier Notebook A5 Softcover - Black", price: 24.50, images: [imgMoleskineCahier], category: "Notebooks", tags: ["notebook", "softcover", "lightweight"], description: "Lightweight cardboard cover with visible stitching for a casual, literary aesthetic. Acid-free paper and last 16 detachable pages. Comes in a set of 3 for continuous journalling.", isCommunityFavourite: false, purchaseCount: 987, reviewCount: 213, rating: 4.4, creativePath: "journalling", pairsWellWith: ["21", "4"], inStock: true },
   { id: "23", name: "Leuchtturm1917 Medium A5 Hardcover Dotted - Black", price: 47.00, images: [imgLeuchtturmDotted], category: "Notebooks", tags: ["notebook", "dotted", "premium", "bujo"], description: "251 numbered pages with dotted grid — the gold standard for bullet journalling. Includes table of contents, page markers, and expandable pocket. Ink-proof 80gsm paper.", isCommunityFavourite: true, purchaseCount: 2567, reviewCount: 678, rating: 4.9, creativePath: "journalling", pairsWellWith: ["13", "4"], inStock: true },
   { id: "24", name: "Leuchtturm1917 Medium A5 Hardcover Ruled - Blue", price: 47.50, images: [imgLeuchtturmRuled], category: "Notebooks", tags: ["notebook", "ruled", "premium"], description: "Beautiful Nordic blue hardcover with 251 numbered ruled pages. Same premium Leuchtturm quality with traditional lined format. Two ribbon bookmarks and sticker labels included.", isCommunityFavourite: false, purchaseCount: 1234, reviewCount: 312, rating: 4.8, creativePath: "journalling", pairsWellWith: ["23", "2"], inStock: true },
@@ -101,17 +101,17 @@ export const products: Product[] = [
   // === PAINTS & WATERCOLOURS ===
   { id: "31", name: "Sakura Koi Watercolour Set - 24 colours", price: 32.00, images: [imgKoi24], category: "Paints", tags: ["watercolour", "paint", "travel"], description: "24 vibrant pan watercolours in a compact travel case with built-in palette and water brush. Excellent pigmentation and blending. Perfect for plein air painting and travel sketching.", isCommunityFavourite: true, purchaseCount: 1234, reviewCount: 334, rating: 4.6, creativePath: "illustration", hasStartSmall: true, startSmallPrice: 18.90, pairsWellWith: ["28", "50"], inStock: true },
   { id: "32", name: "Sakura Koi Watercolour Set - 48 colours", price: 58.00, images: [imgKoi48], category: "Paints", tags: ["watercolour", "paint", "professional"], description: "Complete 48-colour watercolour set for the serious artist. Fold-out case with generous mixing palette and water brush pen included. Lightfast, vibrant pigments.", isCommunityFavourite: false, purchaseCount: 567, reviewCount: 145, rating: 4.5, creativePath: "illustration", pairsWellWith: ["28", "50"], inStock: true },
-  { id: "33", name: "Winsor & Newton Cotman Watercolour Set - 12 colours", price: 28.50, images: [imgCotman12], category: "Paints", tags: ["watercolour", "paint", "beginner"], description: "12 carefully selected colours providing an excellent introduction to watercolour. High-quality student-grade pigments with good transparency and mixing properties. Compact metal tin.", isCommunityFavourite: false, purchaseCount: 789, reviewCount: 198, rating: 4.5, creativePath: "illustration", hasStartSmall: true, startSmallPrice: 15.90, pairsWellWith: ["28", "50"], inStock: true },
+  { id: "33", name: "Winsor & Newton Cotman Watercolour Set - 12 colours", price: 28.50, originalPrice: 35.00, images: [imgCotman12], category: "Paints", tags: ["watercolour", "paint", "beginner"], description: "12 carefully selected colours providing an excellent introduction to watercolour. High-quality student-grade pigments with good transparency and mixing properties. Compact metal tin.", isCommunityFavourite: false, purchaseCount: 789, reviewCount: 198, rating: 4.5, creativePath: "illustration", hasStartSmall: true, startSmallPrice: 15.90, pairsWellWith: ["28", "50"], inStock: true },
   { id: "34", name: "Winsor & Newton Cotman Watercolour Set - 24 colours", price: 42.00, images: [imgCotman24], category: "Paints", tags: ["watercolour", "paint", "intermediate"], description: "24-colour expanded palette for more adventurous colour mixing. Same excellent Cotman quality with a wider range. Durable metal tin with built-in mixing wells.", isCommunityFavourite: true, purchaseCount: 1023, reviewCount: 267, rating: 4.7, creativePath: "illustration", pairsWellWith: ["28", "50"], inStock: true },
 
   // === COLOURED PENCILS & PASTELS ===
   { id: "35", name: "Staedtler Luna Watercolour Pencil Set - 24 colours", price: 35.90, images: [imgWCPencils], category: "Coloured Pencils", tags: ["coloured-pencil", "watercolour", "set"], description: "24 watercolour pencils that can be used dry or activated with water for painterly effects. Rich, highly pigmented cores with smooth laydown. ABS coating prevents breakage.", isCommunityFavourite: false, purchaseCount: 456, reviewCount: 112, rating: 4.4, creativePath: "illustration", hasStartSmall: true, startSmallPrice: 18.90, pairsWellWith: ["28", "27"], inStock: true },
-  { id: "36", name: "Faber-Castell Polychromos Coloured Pencil Set - 24 colours", price: 65.00, images: [imgPolychromos], category: "Coloured Pencils", tags: ["coloured-pencil", "professional", "premium"], description: "Premium oil-based coloured pencils with unmatched lightfastness and colour intensity. Thick 3.8mm cores for rich coverage and fine detail. The professional's choice for illustration.", isCommunityFavourite: true, purchaseCount: 678, reviewCount: 178, rating: 4.9, creativePath: "illustration", pairsWellWith: ["27", "30"], inStock: true },
+  { id: "36", name: "Faber-Castell Polychromos Coloured Pencil Set - 24 colours", price: 65.00, originalPrice: 78.00, images: [imgPolychromos], category: "Coloured Pencils", tags: ["coloured-pencil", "professional", "premium"], description: "Premium oil-based coloured pencils with unmatched lightfastness and colour intensity. Thick 3.8mm cores for rich coverage and fine detail. The professional's choice for illustration.", isCommunityFavourite: true, purchaseCount: 678, reviewCount: 178, rating: 4.9, creativePath: "illustration", pairsWellWith: ["27", "30"], inStock: true },
   { id: "39", name: "Staedtler Coloured Pencil Set - 12 colours", price: 14.50, images: [imgColored12], category: "Coloured Pencils", tags: ["coloured-pencil", "set", "beginner"], description: "12 bright, blendable coloured pencils with break-resistant leads. Ergonomic hexagonal barrel for comfortable grip. Excellent value for students, colouring enthusiasts, and creative projects.", isCommunityFavourite: false, purchaseCount: 1234, reviewCount: 234, rating: 4.3, pairsWellWith: ["27"], inStock: true },
   { id: "40", name: "Caran d'Ache Neocolor II Pastels - 15 colours", price: 22.00, images: [imgNeocolor], category: "Coloured Pencils", tags: ["pastel", "water-soluble", "premium"], description: "Water-soluble wax pastels that blend like watercolours when activated with water. Vibrant, lightfast Swiss-made colours. Excellent for mixed-media, journalling accents, and illustration.", isCommunityFavourite: false, purchaseCount: 345, reviewCount: 78, rating: 4.5, creativePath: "illustration", pairsWellWith: ["28", "27"], inStock: true },
 
   // === BRUSH PENS (SETS) ===
-  { id: "37", name: "Tombow Dual Brush Pen Set - 10 colours", price: 31.50, images: [imgTombowDual10], category: "Pens & Markers", tags: ["brush-pen", "lettering", "dual-tip"], description: "10 dual-tip brush pens with flexible brush tip and fine tip. Water-based ink blends beautifully. Ideal for hand lettering, calligraphy, and watercolour-style illustrations.", isCommunityFavourite: true, purchaseCount: 1876, reviewCount: 456, rating: 4.7, creativePath: "lettering", hasStartSmall: true, startSmallPrice: 15.90, pairsWellWith: ["23", "26"], inStock: true },
+  { id: "37", name: "Tombow Dual Brush Pen Set - 10 colours", price: 31.50, originalPrice: 38.00, images: [imgTombowDual10], category: "Pens & Markers", tags: ["brush-pen", "lettering", "dual-tip"], description: "10 dual-tip brush pens with flexible brush tip and fine tip. Water-based ink blends beautifully. Ideal for hand lettering, calligraphy, and watercolour-style illustrations.", isCommunityFavourite: true, purchaseCount: 1876, reviewCount: 456, rating: 4.7, creativePath: "lettering", hasStartSmall: true, startSmallPrice: 15.90, pairsWellWith: ["23", "26"], inStock: true },
   { id: "38", name: "Tombow Dual Brush Pen Set - 24 colours", price: 68.00, images: [imgTombowDual24], category: "Pens & Markers", tags: ["brush-pen", "lettering", "dual-tip", "professional"], description: "Expanded 24-colour set for the serious letterer and illustrator. Same beloved flexible brush tip with wider colour palette for more creative possibilities. Blendable, water-based ink.", isCommunityFavourite: false, purchaseCount: 567, reviewCount: 134, rating: 4.6, creativePath: "lettering", pairsWellWith: ["37", "26"], inStock: true },
 
   // === OFFICE SUPPLIES ===
@@ -168,4 +168,85 @@ export const deals = [
   { text: "✨ Flash Sale: Watercolour sets from S$15.90", code: "FLASH" },
   { text: "🎁 Buy 2 notebooks, get 1 free", code: "NOTE3" },
   { text: "✏️ 15% off Faber-Castell pencils", code: "FABER15" },
+];
+
+export const qaData: QAQuestion[] = [
+  {
+    id: "qa-1",
+    productId: "4",
+    question: "Is the Muji 0.5mm gel pen refillable?",
+    askedBy: "Priya L.",
+    createdAt: "2025-11-10T08:00:00Z",
+    answers: [
+      {
+        id: "qa-1-a1",
+        text: "Yes! Muji sells separate ink refills in-store. Just unscrew the barrel and swap out the cartridge. The 0.5mm refill fits perfectly.",
+        answeredBy: "Sarah T.",
+        isVerifiedBuyer: true,
+        createdAt: "2025-11-11T10:30:00Z",
+      },
+      {
+        id: "qa-1-a2",
+        text: "Confirmed — I've been refilling mine for over a year. Much more eco-friendly and cost-effective.",
+        answeredBy: "Ming Wei",
+        isVerifiedBuyer: true,
+        createdAt: "2025-11-12T14:15:00Z",
+      },
+    ],
+  },
+  {
+    id: "qa-2",
+    productId: "4",
+    question: "Does the ink smear when used with highlighters on top?",
+    askedBy: "Jun Hao",
+    createdAt: "2025-12-01T09:00:00Z",
+    answers: [
+      {
+        id: "qa-2-a1",
+        text: "I highlight over my Muji gel pen notes all the time without smearing. Wait about 10 seconds after writing before highlighting to be safe.",
+        answeredBy: "Rachel L.",
+        isVerifiedBuyer: true,
+        createdAt: "2025-12-02T11:00:00Z",
+      },
+    ],
+  },
+  {
+    id: "qa-3",
+    productId: "23",
+    question: "Does the Leuchtturm1917 paper handle fountain pens without ghosting?",
+    askedBy: "Daniel C.",
+    createdAt: "2025-10-15T07:00:00Z",
+    answers: [
+      {
+        id: "qa-3-a1",
+        text: "Absolutely — I use a medium-nib fountain pen with wet ink and there's barely any ghosting. The 80gsm paper is excellent for fountain pen users.",
+        answeredBy: "Priya S.",
+        isVerifiedBuyer: true,
+        createdAt: "2025-10-16T09:45:00Z",
+      },
+      {
+        id: "qa-3-a2",
+        text: "Very wet inks may ghost slightly on the opposite side, but for most fountain pens it's completely fine. No bleed-through at all.",
+        answeredBy: "Alex K.",
+        isVerifiedBuyer: true,
+        createdAt: "2025-10-17T12:00:00Z",
+      },
+    ],
+  },
+  {
+    id: "qa-4",
+    productId: "17",
+    question: "How long do the Tombow Fudenosuke tips last before they fray?",
+    askedBy: "Mei Ling",
+    createdAt: "2025-11-20T10:00:00Z",
+    answers: [
+      {
+        id: "qa-4-a1",
+        text: "With regular daily lettering practice, mine lasted around 4 months before the soft tip started to show wear. The hard tip is noticeably more durable.",
+        answeredBy: "Aisha N.",
+        isVerifiedBuyer: true,
+        createdAt: "2025-11-21T08:30:00Z",
+      },
+    ],
+  },
 ];

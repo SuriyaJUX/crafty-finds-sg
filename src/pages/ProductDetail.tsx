@@ -4,6 +4,7 @@ import { useCart } from "@/context/CartContext";
 import { Star, Heart, ShoppingBag, ArrowLeft, Users, Camera, Sparkles, AlertTriangle } from "lucide-react";
 import { useState } from "react";
 import ProductCard from "@/components/ProductCard";
+import ProductQA from "@/components/ProductQA";
 import { useScrollReveal } from "@/hooks/use-scroll-reveal";
 
 const ProductDetail = () => {
@@ -242,6 +243,9 @@ const ProductDetail = () => {
           </p>
         )}
       </section>
+
+      {/* Q&A */}
+      <ProductQA productId={product.id} />
 
       {/* Pairs well with */}
       {pairsWellWith.length > 0 && (
