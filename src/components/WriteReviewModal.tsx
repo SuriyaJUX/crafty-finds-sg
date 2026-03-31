@@ -27,6 +27,36 @@ export function savePurchasedProductIds(ids: string[]) {
   localStorage.setItem(PURCHASED_KEY, JSON.stringify(ids));
 }
 
+// ── Submitted review persistence ───────────────────────────────────────────
+
+export interface SubmittedReviewRecord {
+  reviewId: string;
+  productId: string;
+  productName: string;
+  rating: number;
+  text: string;
+  hasPhoto: boolean;
+  photoUrl?: string;
+  date: string;
+  pointsEarned: number;
+}
+
+const SUBMITTED_REVIEWS_KEY = "paperly_submitted_reviews";
+
+export function getSubmittedReviews(): SubmittedReviewRecord[] {
+  try {
+    const raw = localStorage.getItem(SUBMITTED_REVIEWS_KEY);
+    return raw ? (JSON.parse(raw) as SubmittedReviewRecord[]) : [];
+  } catch {
+    return [];
+  }
+}
+
+export function saveSubmittedReview(record: SubmittedReviewRecord) {
+  const existing = getSubmittedReviews();
+  localStorage.setItem(SUBMITTED_REVIEWS_KEY, JSON.stringify([record, ...existing]));
+}
+
 // ── Star selector ──────────────────────────────────────────────────────────
 
 const StarSelector = ({
@@ -212,11 +242,25 @@ const WriteReviewModal = ({
       date: new Date().toISOString().slice(0, 10),
     };
 
+    const pts = calcPoints(text, !!photoUrl, isVerifiedBuyer);
+
     onSubmit(review);
+
+    // Persist record to localStorage (powers My Reviews on account page)
+    saveSubmittedReview({
+      reviewId: review.id,
+      productId,
+      productName,
+      rating,
+      text: text.trim(),
+      hasPhoto: !!photoUrl,
+      photoUrl: photoUrl ?? undefined,
+      date: review.date,
+      pointsEarned: user ? pts : 0,
+    });
 
     // Award Ink Points to authenticated users
     if (user) {
-      const pts = calcPoints(text, !!photoUrl, isVerifiedBuyer);
       const breakdown: string[] = [`Review for "${productName}"`];
       if (text.trim().length >= 100) breakdown.push("detailed review bonus");
       if (photoUrl) breakdown.push("photo bonus");
