@@ -7,6 +7,7 @@ import ProductCard from "@/components/ProductCard";
 import { Check, CheckCircle2, MapPin, Trophy, Bell, ArrowRight, Gift } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
+import { getPurchasedProductIds, savePurchasedProductIds } from "@/components/WriteReviewModal";
 
 interface DeliveryDetails {
   fullName: string;
@@ -103,6 +104,12 @@ const CheckoutConfirmation = () => {
         items: items.map(i => ({ productId: i.productId, name: i.name, quantity: i.quantity, price: i.price })),
         total,
       });
+      // Persist purchased product IDs so ProductDetail can mark user as Verified Buyer
+      const existing = getPurchasedProductIds();
+      const newIds = items.map(i => i.productId).filter(id => !existing.includes(id));
+      if (newIds.length > 0) {
+        savePurchasedProductIds([...existing, ...newIds]);
+      }
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);

@@ -48,6 +48,7 @@ interface AuthContextType {
   signup: (email: string, password: string, displayName: string) => Promise<boolean>;
   logout: () => void;
   addOrder: (order: OrderHistoryItem) => void;
+  addPoints: (points: number, label: string, icon: LoyaltyPointEntry["icon"]) => void;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
@@ -149,8 +150,38 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     setUser(prev => prev ? { ...prev, orderHistory: [order, ...prev.orderHistory] } : prev);
   }, []);
 
+  const addPoints = useCallback((points: number, label: string, icon: LoyaltyPointEntry["icon"]) => {
+    setUser(prev => {
+      if (!prev) return prev;
+      const newTotal = prev.loyaltyPoints + points;
+      const tier =
+        newTotal >= 1000 ? "Platinum" :
+        newTotal >= 500  ? "Gold"     :
+        newTotal >= 200  ? "Silver"   : "Bronze";
+      const tierThreshold =
+        tier === "Bronze"   ? 200  :
+        tier === "Silver"   ? 500  :
+        tier === "Gold"     ? 1000 : Infinity;
+      const entry: LoyaltyPointEntry = {
+        id: `lp-${Date.now()}`,
+        label,
+        points,
+        date: new Date().toISOString(),
+        icon,
+      };
+      return {
+        ...prev,
+        loyaltyPoints: newTotal,
+        loyaltyTier: tier,
+        tierProgress: newTotal,
+        tierThreshold,
+        pointsHistory: [entry, ...prev.pointsHistory],
+      };
+    });
+  }, []);
+
   return (
-    <AuthContext.Provider value={{ user, isAuthenticated: !!user, login, signup, logout, addOrder }}>
+    <AuthContext.Provider value={{ user, isAuthenticated: !!user, login, signup, logout, addOrder, addPoints }}>
       {children}
     </AuthContext.Provider>
   );

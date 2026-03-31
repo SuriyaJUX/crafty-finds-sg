@@ -1,11 +1,13 @@
 import { useParams, Link } from "react-router-dom";
 import { products, reviews as allReviews } from "@/data/products";
+import type { Review } from "@/data/types";
 import { useCart } from "@/context/CartContext";
 import { Star, Heart, ShoppingBag, ArrowLeft, Users, Camera, Sparkles, AlertTriangle } from "lucide-react";
 import { useState } from "react";
 import ProductCard from "@/components/ProductCard";
 import ProductQA from "@/components/ProductQA";
 import { useScrollReveal } from "@/hooks/use-scroll-reveal";
+import WriteReviewModal, { getPurchasedProductIds } from "@/components/WriteReviewModal";
 
 const ProductDetail = () => {
   const { id } = useParams();
@@ -13,6 +15,8 @@ const ProductDetail = () => {
   const { addItem, toggleSaved, isSaved } = useCart();
   const [startSmall, setStartSmall] = useState(false);
   const [reviewFilter, setReviewFilter] = useState<"all" | "photos" | "verified">("all");
+  const [showReviewModal, setShowReviewModal] = useState(false);
+  const [localReviews, setLocalReviews] = useState<Review[]>([]);
 
   const reviewsReveal = useScrollReveal<HTMLElement>();
   const pairsReveal = useScrollReveal<HTMLElement>();
@@ -28,7 +32,9 @@ const ProductDetail = () => {
   }
 
   const saved = isSaved(product.id);
-  const reviews = allReviews.filter(r => r.productId === product.id);
+  const isVerifiedBuyer = getPurchasedProductIds().includes(product.id);
+  // Merge user-submitted reviews (shown first) with seeded reviews
+  const reviews = [...localReviews, ...allReviews.filter(r => r.productId === product.id)];
 
   // Honesty sort: surfaces 2★ & 3★ first, then 4★, then 5★, then 1★
   const honestyOrder: Record<number, number> = { 2: 0, 3: 1, 4: 2, 5: 3, 1: 4 };
@@ -181,7 +187,10 @@ const ProductDetail = () => {
       >
         <div className="flex items-end justify-between mb-4">
           <h2 className="font-serif text-2xl">Reviews ({reviews.length})</h2>
-          <button className="inline-flex items-center gap-1 text-sm text-primary font-medium hover:underline">
+          <button
+            onClick={() => setShowReviewModal(true)}
+            className="inline-flex items-center gap-1 text-sm text-primary font-medium hover:underline"
+          >
             <Camera className="w-4 h-4" /> Write a review
           </button>
         </div>
@@ -232,7 +241,15 @@ const ProductDetail = () => {
                 </div>
                 <p className="text-sm text-muted-foreground leading-relaxed">{review.text}</p>
                 {review.hasPhoto && (
-                  <div className="mt-3 w-20 h-20 rounded-md bg-muted" />
+                  review.photoUrl ? (
+                    <img
+                      src={review.photoUrl}
+                      alt="Review photo"
+                      className="mt-3 w-20 h-20 rounded-md object-cover border border-border"
+                    />
+                  ) : (
+                    <div className="mt-3 w-20 h-20 rounded-md bg-muted" />
+                  )
                 )}
               </div>
             ))}
@@ -269,6 +286,17 @@ const ProductDetail = () => {
           </div>
         </section>
       )}
+
+      <WriteReviewModal
+        open={showReviewModal}
+        onClose={() => setShowReviewModal(false)}
+        productId={product.id}
+        productName={product.name}
+        isVerifiedBuyer={isVerifiedBuyer}
+        onSubmit={(review) => {
+          setLocalReviews(prev => [review, ...prev]);
+        }}
+      />
     </div>
   );
 };

@@ -87,6 +87,7 @@ const UploadState = ({
   recentSearches: RecentSearch[];
 }) => {
   const fileInputRef = useRef<HTMLInputElement>(null);
+  const cameraInputRef = useRef<HTMLInputElement>(null);
   const [dragging, setDragging] = useState(false);
 
   const handleDrop = (e: React.DragEvent) => {
@@ -144,14 +145,27 @@ const UploadState = ({
         />
       </div>
 
-      {/* Take a photo */}
+      {/* Take a photo — mobile only (camera capture has no desktop equivalent) */}
       <button
-        onClick={() => fileInputRef.current?.click()}
-        className="w-full flex items-center justify-center gap-2 py-3 rounded-xl border border-border bg-card text-sm font-medium hover:bg-muted transition-colors mb-8"
+        onClick={() => cameraInputRef.current?.click()}
+        className="md:hidden w-full flex items-center justify-center gap-2 py-3 rounded-xl border border-border bg-card text-sm font-medium hover:bg-muted transition-colors mb-8"
       >
         <Camera className="w-4 h-4 text-muted-foreground" />
         Take a photo
       </button>
+      <input
+        ref={cameraInputRef}
+        type="file"
+        accept="image/*"
+        capture="environment"
+        className="hidden"
+        onChange={(e) => {
+          const file = e.target.files?.[0];
+          if (file) onFileSelect(file);
+        }}
+      />
+      {/* Desktop spacer to maintain consistent gap below drop zone */}
+      <div className="hidden md:block mb-8" />
 
       {/* Recent searches */}
       {recentSearches.length > 0 && (
