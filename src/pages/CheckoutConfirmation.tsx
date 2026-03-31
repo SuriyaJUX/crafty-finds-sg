@@ -4,7 +4,7 @@ import { useCart } from "@/context/CartContext";
 import { useAuth } from "@/context/AuthContext";
 import { products } from "@/data/products";
 import ProductCard from "@/components/ProductCard";
-import { Check, CheckCircle2, MapPin, Trophy, Bell, ArrowRight } from "lucide-react";
+import { Check, CheckCircle2, MapPin, Trophy, Bell, ArrowRight, Gift } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 
@@ -41,6 +41,7 @@ interface ConfirmationState {
   paymentMethod: string;
   deliveryDetails: DeliveryDetails;
   items: OrderItem[];
+  isGuest?: boolean;
 }
 
 const CheckoutProgressBar = ({ active }: { active: 1 | 2 | 3 }) => {
@@ -88,7 +89,7 @@ const CheckoutConfirmation = () => {
   const [notifEnabled, setNotifEnabled] = useState(false);
 
   const state = (location.state ?? {}) as Partial<ConfirmationState>;
-  const { orderId, total, pointsEarned, pointsUsed, voucherApplied, deliveryDetails, items } = state;
+  const { orderId, total, pointsEarned, pointsUsed, voucherApplied, deliveryDetails, items, isGuest } = state;
 
   if (!orderId) return <Navigate to="/" replace />;
 
@@ -204,21 +205,50 @@ const CheckoutConfirmation = () => {
         </div>
       </div>
 
-      {/* Points earned */}
-      <div className="rounded-xl border border-primary/20 bg-primary/5 p-5 mb-6">
-        <div className="flex items-center gap-3">
-          <Trophy className="w-8 h-8 text-primary flex-shrink-0" />
-          <div>
-            <p className="font-medium text-sm">
-              You earned <span className="text-primary font-semibold">+{pointsEarned} points</span> from this order
-            </p>
-            <p className="text-xs text-muted-foreground mt-0.5">
-              Updated balance: <span className="font-medium text-foreground">{updatedPoints} pts</span>
-              {" "}(= S${(updatedPoints / 200).toFixed(2)} off your next order)
-            </p>
+      {/* Points earned — authenticated users only */}
+      {!isGuest && (
+        <div className="rounded-xl border border-primary/20 bg-primary/5 p-5 mb-6">
+          <div className="flex items-center gap-3">
+            <Trophy className="w-8 h-8 text-primary flex-shrink-0" />
+            <div>
+              <p className="font-medium text-sm">
+                You earned <span className="text-primary font-semibold">+{pointsEarned} points</span> from this order
+              </p>
+              <p className="text-xs text-muted-foreground mt-0.5">
+                Updated balance: <span className="font-medium text-foreground">{updatedPoints} pts</span>
+                {" "}(= S${(updatedPoints / 200).toFixed(2)} off your next order)
+              </p>
+            </div>
           </div>
         </div>
-      </div>
+      )}
+
+      {/* Guest upsell — show what they missed and invite sign-up */}
+      {isGuest && (
+        <div className="rounded-xl border border-secondary/30 bg-secondary/5 p-5 mb-6">
+          <div className="flex items-start gap-4">
+            <Gift className="w-8 h-8 text-secondary flex-shrink-0 mt-0.5" />
+            <div className="flex-1">
+              <p className="font-medium text-sm mb-1">
+                You could have earned{" "}
+                <span className="text-secondary font-semibold">{pointsEarned ?? 0} Ink Points</span>{" "}
+                on this order
+              </p>
+              <p className="text-xs text-muted-foreground mb-4">
+                Create an account now and we'll add{" "}
+                <span className="font-medium text-foreground">200 bonus points</span> to get you started
+              </p>
+              <Button
+                size="sm"
+                className="bg-secondary text-secondary-foreground hover:bg-secondary/90"
+                onClick={() => navigate("/signup")}
+              >
+                Create account
+              </Button>
+            </div>
+          </div>
+        </div>
+      )}
 
       {/* Shipping notification opt-in */}
       <div className="rounded-xl border border-border bg-card p-5 mb-6">

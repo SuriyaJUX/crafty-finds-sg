@@ -1,10 +1,10 @@
 import { useState } from "react";
-import { useNavigate, Navigate } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 import { useCart } from "@/context/CartContext";
 import { useAuth } from "@/context/AuthContext";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
-import { Check, MapPin, Plus, ChevronDown, ChevronUp } from "lucide-react";
+import { Check, MapPin, Plus, ChevronDown, ChevronUp, Sparkles, Package, BookUser } from "lucide-react";
 import { cn } from "@/lib/utils";
 
 interface DeliveryDetails {
@@ -72,10 +72,7 @@ const CheckoutDetails = () => {
     phone: "",
   });
   const [errors, setErrors] = useState<Partial<Record<keyof DeliveryDetails, string>>>({});
-
-  if (!isAuthenticated) {
-    return <Navigate to="/login" state={{ from: "/checkout/details" }} replace />;
-  }
+  const [guestMode, setGuestMode] = useState(false);
 
   const shipping = subtotal >= 50 ? 0 : 3.50;
 
@@ -112,6 +109,27 @@ const CheckoutDetails = () => {
     navigate("/checkout/payment", { state: { deliveryDetails } });
   };
 
+  const guestValidate = () => {
+    const e: Partial<Record<keyof DeliveryDetails, string>> = {};
+    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(form.email)) e.email = "Please enter a valid email";
+    if (!/^\d{6}$/.test(form.postalCode)) e.postalCode = "Singapore postal code must be 6 digits";
+    setErrors(e);
+    return Object.keys(e).length === 0;
+  };
+
+  const handleGuestContinue = () => {
+    if (!guestValidate()) return;
+    const deliveryDetails: DeliveryDetails = {
+      fullName: "Guest",
+      email: form.email,
+      line1: "",
+      line2: "",
+      postalCode: form.postalCode,
+      phone: "",
+    };
+    navigate("/checkout/payment", { state: { deliveryDetails, isGuest: true } });
+  };
+
   const OrderSummary = () => (
     <div className="space-y-3">
       {items.map(item => {
@@ -141,6 +159,102 @@ const CheckoutDetails = () => {
       </div>
     </div>
   );
+
+  /* ── Choice screen: shown to unauthenticated users before they decide ── */
+  if (!isAuthenticated && !guestMode) {
+    return (
+      <div className="container max-w-6xl mx-auto px-4 py-8 animate-fade-in">
+        <CheckoutProgressBar active={1} />
+        <h1 className="font-serif text-2xl mb-8 text-center">How would you like to continue?</h1>
+        <div className="grid md:grid-cols-2 gap-5 max-w-3xl mx-auto">
+          {/* Card A — Sign in */}
+          <div className="rounded-xl border-2 border-primary/30 bg-primary/5 p-6 flex flex-col">
+            <div className="flex items-center gap-2 mb-3">
+              <BookUser className="w-5 h-5 text-primary" />
+              <h2 className="font-serif text-lg text-primary">Sign in or create an account</h2>
+            </div>
+            <ul className="space-y-2.5 mb-6 flex-1">
+              {[
+                { icon: Sparkles, text: "Earn Ink Points on every purchase" },
+                { icon: Package, text: "Track your order anytime" },
+                { icon: Check,   text: "Save your details for next time" },
+              ].map(({ icon: Icon, text }) => (
+                <li key={text} className="flex items-center gap-2 text-sm text-foreground">
+                  <Icon className="w-3.5 h-3.5 text-primary flex-shrink-0" />
+                  {text}
+                </li>
+              ))}
+            </ul>
+            <Button
+              className="w-full"
+              onClick={() => navigate("/login", { state: { from: "/checkout/details" } })}
+            >
+              Sign in
+            </Button>
+          </div>
+
+          {/* Card B — Guest */}
+          <div className="rounded-xl border-2 border-border bg-card p-6 flex flex-col">
+            <h2 className="font-serif text-lg mb-3">Continue as guest</h2>
+            <p className="text-sm text-muted-foreground mb-6 flex-1">
+              You won't earn Ink Points on this order.
+            </p>
+            <Button
+              variant="outline"
+              className="w-full border-secondary text-secondary hover:bg-secondary/5"
+              onClick={() => setGuestMode(true)}
+            >
+              Continue as guest
+            </Button>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  /* ── Guest form: minimal email + postal code ── */
+  if (!isAuthenticated && guestMode) {
+    return (
+      <div className="container max-w-lg mx-auto px-4 py-8 animate-fade-in">
+        <CheckoutProgressBar active={1} />
+        <h1 className="font-serif text-2xl mb-2">Guest Checkout</h1>
+        <p className="text-sm text-muted-foreground mb-8">
+          We only need two details to deliver your order.
+        </p>
+        <div className="space-y-4 rounded-xl border border-border bg-card p-5">
+          <div>
+            <label className="text-sm font-medium mb-1.5 block">Email Address</label>
+            <Input
+              type="email"
+              value={form.email}
+              onChange={e => setForm(f => ({ ...f, email: e.target.value }))}
+              placeholder="you@email.com"
+            />
+            {errors.email && <p className="text-xs text-destructive mt-1">{errors.email}</p>}
+          </div>
+          <div>
+            <label className="text-sm font-medium mb-1.5 block">Singapore Postal Code</label>
+            <Input
+              value={form.postalCode}
+              onChange={e => setForm(f => ({ ...f, postalCode: e.target.value }))}
+              placeholder="570123"
+              maxLength={6}
+            />
+            {errors.postalCode && <p className="text-xs text-destructive mt-1">{errors.postalCode}</p>}
+          </div>
+        </div>
+        <Button onClick={handleGuestContinue} className="w-full mt-6" size="lg">
+          Continue to Payment
+        </Button>
+        <button
+          className="w-full mt-3 text-sm text-muted-foreground hover:text-foreground"
+          onClick={() => setGuestMode(false)}
+        >
+          ← Back
+        </button>
+      </div>
+    );
+  }
 
   return (
     <div className="container max-w-6xl mx-auto px-4 py-8 animate-fade-in">

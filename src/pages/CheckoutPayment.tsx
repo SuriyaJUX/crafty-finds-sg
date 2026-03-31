@@ -76,7 +76,7 @@ const CheckoutProgressBar = ({ active }: { active: 1 | 2 | 3 }) => {
 
 const CheckoutPayment = () => {
   const location = useLocation();
-  const { deliveryDetails } = (location.state ?? {}) as { deliveryDetails?: DeliveryDetails };
+  const { deliveryDetails, isGuest } = (location.state ?? {}) as { deliveryDetails?: DeliveryDetails; isGuest?: boolean };
   const { items, subtotal, removeItem } = useCart();
   const { user } = useAuth();
   const navigate = useNavigate();
@@ -200,6 +200,7 @@ const CheckoutPayment = () => {
           price: i.isStartSmall && i.product.startSmallPrice ? i.product.startSmallPrice : i.product.price,
           category: i.product.category,
         })),
+        isGuest,
       },
     });
   };
