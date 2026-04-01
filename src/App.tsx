@@ -5,6 +5,7 @@ import { Toaster } from "@/components/ui/toaster";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { CartProvider } from "@/context/CartContext";
 import { AuthProvider } from "@/context/AuthContext";
+import { InkPointsProvider } from "@/context/InkPointsContext";
 import Navbar from "@/components/Navbar";
 import ScrollToTop from "@/components/ScrollToTop";
 import CartDrawer from "@/components/CartDrawer";
@@ -32,6 +33,7 @@ const App = () => (
       <Toaster />
       <Sonner />
       <AuthProvider>
+        <InkPointsProvider>
         <CartProvider>
           <BrowserRouter>
             <ScrollToTop />
@@ -58,6 +60,7 @@ const App = () => (
             <Footer />
           </BrowserRouter>
         </CartProvider>
+        </InkPointsProvider>
       </AuthProvider>
     </TooltipProvider>
   </QueryClientProvider>
