@@ -76,6 +76,8 @@ const Index = () => {
 
   return (
     <div>
+      <DealsBanner />
+
       {/* ── Streak milestone banner ── */}
       {showStreakBanner && user && (
         <div className="w-full bg-orange-700 text-white px-4 py-3 flex items-center justify-between animate-fade-in">
@@ -94,7 +96,7 @@ const Index = () => {
 
       {/* ── Personalised greeting card ── */}
       {isAuthenticated && user && (
-        <div className="container max-w-7xl mx-auto px-4 pt-6 pb-2 animate-fade-in">
+        <div className="container max-w-7xl mx-auto px-4 pt-3 pb-2 animate-fade-in">
           <div className="rounded-xl border border-border bg-card px-5 py-4 flex flex-col sm:flex-row sm:items-center gap-4">
             {/* Left: greeting + tier */}
             <div className="flex-1 min-w-0">
@@ -181,7 +183,6 @@ const Index = () => {
       </div>
 
       <CreativePathsPreview />
-      <DealsBanner />
       <FeaturedProducts />
       <PersonalisedDeals />
       <CommunityPick />

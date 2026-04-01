@@ -73,7 +73,7 @@ const IntentPrompt = () => {
   };
 
   return (
-    <section className="relative py-16 md:py-24 overflow-hidden">
+    <section className="relative py-8 md:py-16 overflow-hidden">
       {/* Cycling background images */}
       {heroImages.map((src, index) => {
         const isActive = currentImage === index;
