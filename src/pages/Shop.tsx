@@ -14,6 +14,7 @@ const Shop = () => {
   const initialCategory = searchParams.get("category") || "All";
   const initialQuery = searchParams.get("q") || "";
   const initialColor = searchParams.get("color") || null;
+  const initialPath = searchParams.get("path") || null;
 
   const [category, setCategory] = useState(initialCategory);
   const [sort, setSort] = useState<SortOption>("popular");
