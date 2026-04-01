@@ -1,10 +1,11 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState, useRef } from "react";
 import { useLocation, useNavigate, Navigate } from "react-router-dom";
 import { useCart } from "@/context/CartContext";
 import { useAuth } from "@/context/AuthContext";
+import { useInkPoints } from "@/context/InkPointsContext";
 import { products } from "@/data/products";
 import ProductCard from "@/components/ProductCard";
-import { Check, CheckCircle2, MapPin, Trophy, Bell, ArrowRight, Gift } from "lucide-react";
+import { Check, CheckCircle2, MapPin, Bell, ArrowRight, Gift } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 import { getPurchasedProductIds, savePurchasedProductIds } from "@/components/WriteReviewModal";
@@ -82,12 +83,46 @@ const CheckoutProgressBar = ({ active }: { active: 1 | 2 | 3 }) => {
   );
 };
 
+// Animated ink drop that fills bottom-to-top
+const AnimatedInkDrop = ({ fillPercent }: { fillPercent: number }) => {
+  const DROP = 56;
+  const clipY = DROP * (1 - fillPercent / 100);
+  return (
+    <svg width={DROP} height={DROP} viewBox={`0 0 ${DROP} ${DROP}`} aria-hidden="true">
+      <defs>
+        <clipPath id="ink-fill-clip">
+          <rect x="0" y={clipY} width={DROP} height={DROP} />
+        </clipPath>
+      </defs>
+      {/* Outline */}
+      <path
+        d="M28 4 C28 4, 6 24, 6 38 A22 22 0 0 0 50 38 C50 24, 28 4, 28 4 Z"
+        fill="none"
+        stroke="hsl(var(--primary))"
+        strokeWidth="2"
+        opacity="0.35"
+      />
+      {/* Filled portion */}
+      <path
+        d="M28 4 C28 4, 6 24, 6 38 A22 22 0 0 0 50 38 C50 24, 28 4, 28 4 Z"
+        fill="hsl(var(--primary))"
+        clipPath="url(#ink-fill-clip)"
+      />
+    </svg>
+  );
+};
+
 const CheckoutConfirmation = () => {
   const location = useLocation();
   const navigate = useNavigate();
   const { clearCart } = useCart();
-  const { user, addOrder } = useAuth();
+  const { user, addOrder, addPoints } = useAuth();
+  const { isNewTier, clearNewTier, currentTier } = useInkPoints();
   const [notifEnabled, setNotifEnabled] = useState(false);
+  // Animation states
+  const [fillPercent, setFillPercent] = useState(0);
+  const [displayedPoints, setDisplayedPoints] = useState(0);
+  const animatedRef = useRef(false);
 
   const state = (location.state ?? {}) as Partial<ConfirmationState>;
   const { orderId, total, pointsEarned, pointsUsed, voucherApplied, deliveryDetails, items, isGuest } = state;
@@ -110,7 +145,43 @@ const CheckoutConfirmation = () => {
       if (newIds.length > 0) {
         savePurchasedProductIds([...existing, ...newIds]);
       }
+      // Award Ink Points for this purchase (authenticated users only)
+      if (!isGuest && pointsEarned) {
+        addPoints(pointsEarned, `Purchase — Order ${orderId}`, "shopping-bag", "purchase");
+      }
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
+  // Ink drop fill animation (800 ms ease-out, authenticated only)
+  useEffect(() => {
+    if (isGuest || !pointsEarned || animatedRef.current) return;
+    animatedRef.current = true;
+    const start = Date.now();
+    let rafId: number;
+    const animate = () => {
+      const t = Math.min((Date.now() - start) / 800, 1);
+      const eased = 1 - (1 - t) * (1 - t);
+      setFillPercent(eased * 100);
+      if (t < 1) { rafId = requestAnimationFrame(animate); }
+    };
+    rafId = requestAnimationFrame(animate);
+    return () => cancelAnimationFrame(rafId);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
+  // Count-up animation (600 ms, 20 steps)
+  useEffect(() => {
+    if (isGuest || !pointsEarned) return;
+    const target = pointsEarned;
+    const STEPS = 20;
+    let frame = 0;
+    const iv = setInterval(() => {
+      frame++;
+      setDisplayedPoints(Math.round((frame / STEPS) * target));
+      if (frame >= STEPS) clearInterval(iv);
+    }, 30);
+    return () => clearInterval(iv);
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
@@ -212,21 +283,70 @@ const CheckoutConfirmation = () => {
         </div>
       </div>
 
-      {/* Points earned — authenticated users only */}
+      {/* Animated Ink Points earned — authenticated users only */}
       {!isGuest && (
-        <div className="rounded-xl border border-primary/20 bg-primary/5 p-5 mb-6">
-          <div className="flex items-center gap-3">
-            <Trophy className="w-8 h-8 text-primary flex-shrink-0" />
-            <div>
-              <p className="font-medium text-sm">
-                You earned <span className="text-primary font-semibold">+{pointsEarned} points</span> from this order
+        <div className="rounded-xl border border-primary/20 bg-primary/5 p-6 mb-6">
+          <div className="flex items-center gap-5">
+            {/* Animated ink drop */}
+            <div className="flex-shrink-0">
+              <AnimatedInkDrop fillPercent={fillPercent} />
+            </div>
+            <div className="flex-1 min-w-0">
+              <p className="text-xs text-muted-foreground mb-1 uppercase tracking-wide font-medium">
+                Ink Points earned
               </p>
-              <p className="text-xs text-muted-foreground mt-0.5">
-                Updated balance: <span className="font-medium text-foreground">{updatedPoints} pts</span>
-                {" "}(= S${(updatedPoints / 200).toFixed(2)} off your next order)
+              <p className="text-3xl font-bold text-primary tabular-nums">
+                +{displayedPoints}
+              </p>
+              <p className="text-xs text-muted-foreground mt-1.5">
+                New balance:{" "}
+                <span className="font-semibold text-foreground">{updatedPoints} Ink</span>
+                {" "}= <span className="font-medium text-foreground">
+                  S${(updatedPoints / 200).toFixed(2)}
+                </span> off your next order
               </p>
             </div>
           </div>
+        </div>
+      )}
+
+      {/* Tier upgrade panel */}
+      {isNewTier && !isGuest && (
+        <div
+          className="rounded-xl border p-5 mb-6 animate-fade-in"
+          style={{
+            borderColor: `${currentTier.color}60`,
+            backgroundColor: `${currentTier.color}12`,
+          }}
+        >
+          <div className="flex items-center gap-2 mb-3">
+            <span className="text-xl">✦</span>
+            <h3 className="font-serif text-lg">
+              You've reached{" "}
+              <span style={{ color: currentTier.color }}>{currentTier.badge}</span>!
+            </h3>
+            <button
+              onClick={clearNewTier}
+              className="ml-auto p-1 text-muted-foreground hover:text-foreground rounded transition-colors"
+              aria-label="Dismiss"
+            >
+              ×
+            </button>
+          </div>
+          <p className="text-xs text-muted-foreground mb-3">
+            Newly unlocked benefits:
+          </p>
+          <ul className="space-y-1.5">
+            {currentTier.benefits.map(b => (
+              <li key={b} className="text-sm flex items-start gap-2 text-foreground/80">
+                <CheckCircle2
+                  className="w-3.5 h-3.5 mt-0.5 flex-shrink-0"
+                  style={{ color: currentTier.color }}
+                />
+                {b}
+              </li>
+            ))}
+          </ul>
         </div>
       )}
 

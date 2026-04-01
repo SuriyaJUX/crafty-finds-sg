@@ -2,6 +2,9 @@ import { useParams, Link } from "react-router-dom";
 import { products, reviews as allReviews } from "@/data/products";
 import type { Review } from "@/data/types";
 import { useCart } from "@/context/CartContext";
+import { useAuth } from "@/context/AuthContext";
+import { useInkPoints } from "@/context/InkPointsContext";
+import { useToast } from "@/hooks/use-toast";
 import { Star, Heart, ShoppingBag, ArrowLeft, Users, Camera, Sparkles, AlertTriangle } from "lucide-react";
 import { useState } from "react";
 import ProductCard from "@/components/ProductCard";
@@ -13,6 +16,9 @@ const ProductDetail = () => {
   const { id } = useParams();
   const product = products.find(p => p.id === id);
   const { addItem, toggleSaved, isSaved } = useCart();
+  const { isAuthenticated } = useAuth();
+  const { currentTier } = useInkPoints();
+  const { toast } = useToast();
   const [startSmall, setStartSmall] = useState(false);
   const [reviewFilter, setReviewFilter] = useState<"all" | "photos" | "verified">("all");
   const [showReviewModal, setShowReviewModal] = useState(false);
@@ -145,7 +151,17 @@ const ProductDetail = () => {
 
           <div className="flex gap-3">
             <button
-              onClick={() => addItem(product, startSmall)}
+              onClick={() => {
+                addItem(product, startSmall);
+                if (isAuthenticated) {
+                  const inkEarned = Math.floor(currentPrice * currentTier.earnMultiplier);
+                  toast({
+                    title: "Added to cart",
+                    description: `You'll earn ${inkEarned} Ink on this item`,
+                    duration: 3000,
+                  });
+                }
+              }}
               className="flex-1 inline-flex items-center justify-center gap-2 px-6 py-3 rounded-lg bg-primary text-primary-foreground font-medium text-sm hover:opacity-90 active:scale-95 transition-[opacity,transform]"
             >
               <ShoppingBag className="w-4 h-4" />

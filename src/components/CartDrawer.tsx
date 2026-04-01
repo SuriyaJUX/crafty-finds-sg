@@ -1,6 +1,8 @@
 import { useState } from "react";
-import { X, Minus, Plus, Trash2, ArrowRight, Check, EyeOff } from "lucide-react";
+import { X, Minus, Plus, Trash2, ArrowRight, Check, EyeOff, Sparkles } from "lucide-react";
 import { useCart } from "@/context/CartContext";
+import { useAuth } from "@/context/AuthContext";
+import { useInkPoints } from "@/context/InkPointsContext";
 import { products } from "@/data/products";
 import { Link, useNavigate } from "react-router-dom";
 import { Progress } from "@/components/ui/progress";
@@ -10,7 +12,20 @@ const SHIPPING_FEE = 3.50;
 
 const CartDrawer = () => {
   const { items, isCartOpen, setIsCartOpen, updateQuantity, removeItem, toggleSaved, subtotal } = useCart();
+  const { isAuthenticated } = useAuth();
+  const { currentTier, activeChallenges } = useInkPoints();
   const navigate = useNavigate();
+
+  const inkEarned = Math.floor(subtotal * currentTier.earnMultiplier);
+
+  // Seasonal challenge matches for items in cart
+  const challengeMatches = activeChallenges
+    .map(c => {
+      if (!c.categoryFilter) return null;
+      const match = items.find(i => i.product.category === c.categoryFilter);
+      return match ? { challenge: c, productName: match.product.name } : null;
+    })
+    .filter((m): m is NonNullable<typeof m> => m !== null);
   const [justWhatINeed, setJustWhatINeed] = useState(false);
   // Track which product id just got "saved to wishlist" confirmation
   const [savedConfirmId, setSavedConfirmId] = useState<string | null>(null);
@@ -214,6 +229,22 @@ const CartDrawer = () => {
                 You're saving S${totalSavings.toFixed(2)} on this order
               </p>
             )}
+
+            {/* Live Ink Points preview */}
+            {isAuthenticated && (
+              <div className="rounded-lg bg-secondary/10 border border-secondary/20 px-3 py-2.5">
+                <div className="flex items-center gap-1.5 text-sm font-medium text-secondary">
+                  <Sparkles className="w-3.5 h-3.5 flex-shrink-0" />
+                  You'll earn <span className="font-bold">{inkEarned} Ink</span> on this order
+                </div>
+                {challengeMatches.map(m => (
+                  <p key={m.challenge.id} className="text-xs text-muted-foreground mt-1 ml-5">
+                    Including {m.challenge.multiplier}× Ink on {m.productName.split(" ").slice(0, 3).join(" ")}
+                  </p>
+                ))}
+              </div>
+            )}
+
             <button
               onClick={() => { setIsCartOpen(false); navigate("/checkout/details"); }}
               className="w-full py-3 rounded-lg bg-primary text-primary-foreground font-medium text-sm hover:opacity-90 active:scale-95 transition-[opacity,transform]"

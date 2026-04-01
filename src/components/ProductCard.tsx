@@ -1,7 +1,9 @@
-import { Heart, Star } from "lucide-react";
+import { Heart, Star, Sparkles } from "lucide-react";
 import { Link } from "react-router-dom";
 import type { Product } from "@/data/products";
 import { useCart } from "@/context/CartContext";
+import { useAuth } from "@/context/AuthContext";
+import { useInkPoints } from "@/context/InkPointsContext";
 import { COLOR_MAP } from "@/components/ColorWheelFilter";
 
 const COLOR_HEX: Record<string, string> = {
@@ -19,6 +21,9 @@ const ProductCard = ({
   selectedColor?: string | null;
 }) => {
   const { addItem, toggleSaved, isSaved } = useCart();
+  const { isAuthenticated } = useAuth();
+  const { currentTier } = useInkPoints();
+  const inkEarned = Math.floor(product.price * currentTier.earnMultiplier);
   const saved = isSaved(product.id);
   const discount = product.originalPrice
     ? Math.round(((product.originalPrice - product.price) / product.originalPrice) * 100)
@@ -68,6 +73,12 @@ const ProductCard = ({
               </span>
             )}
           </div>
+          {isAuthenticated && (
+            <p className="flex items-center gap-0.5 text-xs text-secondary mt-0.5">
+              <Sparkles className="w-3 h-3" />
+              Earn {inkEarned} Ink
+            </p>
+          )}
 
           {/* Colour dots */}
           {showDots && (
