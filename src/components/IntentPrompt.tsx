@@ -106,7 +106,7 @@ const IntentPrompt = () => {
           What are you creating today?
         </h1>
         <p className="text-muted-foreground mb-8 text-lg">
-          Search for something specific or browse our curated collections.
+          Singapore's home for specialty stationery — notebooks, inks, and tools for every kind of maker.
         </p>
 
         <form onSubmit={handleSearch} className="relative max-w-xl mx-auto mb-3">

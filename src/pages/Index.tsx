@@ -1,5 +1,6 @@
 import { useState, useEffect } from "react";
-import { X } from "lucide-react";
+import { X, Truck, RefreshCw, ShieldCheck, Users } from "lucide-react";
+import { Link } from "react-router-dom";
 import DealsBanner from "@/components/DealsBanner";
 import IntentPrompt from "@/components/IntentPrompt";
 import FeaturedProducts from "@/components/FeaturedProducts";
@@ -9,6 +10,13 @@ import PersonalisedDeals from "@/components/PersonalisedDeals";
 import { useAuth } from "@/context/AuthContext";
 import { useInkPoints } from "@/context/InkPointsContext";
 import { Progress } from "@/components/ui/progress";
+
+const TRUST_BADGES = [
+  { icon: Truck,       label: "Free shipping",   sub: "on orders over S$50"   },
+  { icon: RefreshCw,   label: "14-day returns",  sub: "no questions asked"    },
+  { icon: Users,       label: "8,000+ crafters", sub: "in Singapore & beyond" },
+  { icon: ShieldCheck, label: "Secure checkout", sub: "SSL encrypted"         },
+];
 
 const STREAK_MILESTONES = [7, 30, 100];
 
@@ -126,24 +134,57 @@ const Index = () => {
               )}
 
               {/* Expiry nudge */}
-              {expiringTotal > 0 && earliestBatch && (
-                <p className="text-xs text-amber-600 dark:text-amber-400 mt-2 bg-amber-50 dark:bg-amber-950/30 rounded px-2 py-1">
-                  ⚠️ {expiringTotal} Ink expiring{" "}
-                  {new Date(earliestBatch.expiresAt).toLocaleDateString("en-SG", { day: "numeric", month: "short" })}
-                  {" "}— worth S${(expiringTotal / 200).toFixed(2)} off
-                </p>
+              {expiringTotal > 0 && earliestBatch ? (
+                <div className="mt-2 text-xs text-amber-600 dark:text-amber-400 bg-amber-50 dark:bg-amber-950/30 rounded px-2 py-1">
+                  <p>
+                    ⚠️ {expiringTotal} Ink expiring{" "}
+                    {new Date(earliestBatch.expiresAt).toLocaleDateString("en-SG", { day: "numeric", month: "short" })}
+                    {" "}— worth S${(expiringTotal / 200).toFixed(2)} off
+                  </p>
+                  <Link
+                    to="/shop"
+                    className="inline-flex items-center gap-1 mt-1 font-medium text-amber-700 dark:text-amber-300 hover:underline"
+                  >
+                    Use your Ink before it expires →
+                  </Link>
+                </div>
+              ) : (
+                <Link
+                  to="/shop"
+                  className="inline-flex items-center gap-1 mt-2 text-xs font-medium text-primary hover:underline"
+                >
+                  Shop now · use your Ink →
+                </Link>
               )}
             </div>
           </div>
         </div>
       )}
 
-      <DealsBanner />
-      <PersonalisedDeals />
       <IntentPrompt />
-      <FeaturedProducts />
-      <CommunityPick />
+
+      {/* ── Trust badges ── */}
+      <div className="border-y border-border bg-card">
+        <div className="container max-w-6xl mx-auto px-4 py-4">
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+            {TRUST_BADGES.map(({ icon: Icon, label, sub }) => (
+              <div key={label} className="flex items-center gap-3">
+                <Icon className="w-5 h-5 text-primary flex-shrink-0" />
+                <div>
+                  <p className="text-sm font-medium leading-tight">{label}</p>
+                  <p className="text-xs text-muted-foreground">{sub}</p>
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+      </div>
+
       <CreativePathsPreview />
+      <DealsBanner />
+      <FeaturedProducts />
+      <PersonalisedDeals />
+      <CommunityPick />
     </div>
   );
 };
