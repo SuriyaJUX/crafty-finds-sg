@@ -14,12 +14,14 @@ const Shop = () => {
   const initialCategory = searchParams.get("category") || "All";
   const initialQuery = searchParams.get("q") || "";
   const initialColor = searchParams.get("color") || null;
+  const initialPath = searchParams.get("path") || null;
 
   const [category, setCategory] = useState(initialCategory);
   const [sort, setSort] = useState<SortOption>("popular");
   const [query, setQuery] = useState(initialQuery);
   const [showDiscounted, setShowDiscounted] = useState(false);
   const [selectedColor, setSelectedColor] = useState<string | null>(initialColor);
+  const [selectedPath, setSelectedPath] = useState<string | null>(initialPath);
   const [colorDrawerOpen, setColorDrawerOpen] = useState(false);
   const [showImageSearch, setShowImageSearch] = useState(false);
   const navigate = useNavigate();
@@ -35,6 +37,9 @@ const Shop = () => {
 
     if (category !== "All") list = list.filter(p => p.category === category);
     if (showDiscounted) list = list.filter(p => p.originalPrice);
+    if (selectedPath) {
+      list = list.filter(p => p.creativePath === selectedPath);
+    }
     if (selectedColor) {
       list = list.filter(p => p.colors && p.colors.includes(selectedColor));
     }

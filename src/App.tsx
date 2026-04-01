@@ -13,7 +13,7 @@ import Footer from "@/components/Footer";
 import Index from "./pages/Index";
 import Shop from "./pages/Shop";
 import ProductDetail from "./pages/ProductDetail";
-import CreativePaths from "./pages/CreativePaths";
+
 import Promotions from "./pages/Promotions";
 import Wishlist from "./pages/Wishlist";
 import Login from "./pages/Login";
@@ -44,7 +44,7 @@ const App = () => (
                 <Route path="/" element={<Index />} />
                 <Route path="/shop" element={<Shop />} />
                 <Route path="/product/:id" element={<ProductDetail />} />
-                <Route path="/creative-paths" element={<CreativePaths />} />
+                
                 <Route path="/promotions" element={<Promotions />} />
                 <Route path="/wishlist" element={<Wishlist />} />
                 <Route path="/login" element={<Login />} />
