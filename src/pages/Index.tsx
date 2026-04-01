@@ -1,6 +1,5 @@
 import { useState, useEffect } from "react";
 import { X, Truck, RefreshCw, ShieldCheck, Users } from "lucide-react";
-import { Link } from "react-router-dom";
 import DealsBanner from "@/components/DealsBanner";
 import IntentPrompt from "@/components/IntentPrompt";
 import FeaturedProducts from "@/components/FeaturedProducts";
@@ -9,7 +8,6 @@ import CreativePathsPreview from "@/components/CreativePathsPreview";
 import PersonalisedDeals from "@/components/PersonalisedDeals";
 import { useAuth } from "@/context/AuthContext";
 import { useInkPoints } from "@/context/InkPointsContext";
-import { Progress } from "@/components/ui/progress";
 
 const TRUST_BADGES = [
   { icon: Truck,       label: "Free shipping",   sub: "on orders over S$50"   },
