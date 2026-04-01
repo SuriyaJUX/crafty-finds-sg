@@ -8,7 +8,6 @@ import { useState, useRef, useEffect } from "react";
 const navLinks = [
   { to: "/", label: "Home" },
   { to: "/shop", label: "Shop" },
-  { to: "/creative-paths", label: "Creative Paths" },
   { to: "/promotions", label: "Deals" },
   { to: "/about", label: "About" },
 ];

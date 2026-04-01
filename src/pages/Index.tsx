@@ -182,10 +182,10 @@ const Index = () => {
         </div>
       </div>
 
-      <CreativePathsPreview />
       <FeaturedProducts />
       <PersonalisedDeals />
       <CommunityPick />
+      <CreativePathsPreview />
     </div>
   );
 };

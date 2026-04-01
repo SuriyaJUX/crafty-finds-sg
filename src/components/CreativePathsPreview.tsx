@@ -39,7 +39,7 @@ const CreativePathsPreview = () => {
               style={{ transitionDelay: visible ? `${150 + index * 100}ms` : "0ms" }}
             >
               <Link
-                to={`/creative-paths?path=${p.key}`}
+                to={`/shop?path=${p.key}`}
                 className="group flex flex-col p-6 rounded-xl border border-border bg-card hover:border-primary/40 hover:-translate-y-1 hover:shadow-md transition-[border-color,box-shadow,transform] duration-300"
               >
                 <p.icon className="w-8 h-8 text-primary mb-4 transition-transform duration-300 group-hover:scale-110" />
