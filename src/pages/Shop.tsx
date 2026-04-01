@@ -37,6 +37,9 @@ const Shop = () => {
 
     if (category !== "All") list = list.filter(p => p.category === category);
     if (showDiscounted) list = list.filter(p => p.originalPrice);
+    if (selectedPath) {
+      list = list.filter(p => p.creativePath === selectedPath);
+    }
     if (selectedColor) {
       list = list.filter(p => p.colors && p.colors.includes(selectedColor));
     }
