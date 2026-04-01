@@ -21,6 +21,7 @@ const Shop = () => {
   const [query, setQuery] = useState(initialQuery);
   const [showDiscounted, setShowDiscounted] = useState(false);
   const [selectedColor, setSelectedColor] = useState<string | null>(initialColor);
+  const [selectedPath, setSelectedPath] = useState<string | null>(initialPath);
   const [colorDrawerOpen, setColorDrawerOpen] = useState(false);
   const [showImageSearch, setShowImageSearch] = useState(false);
   const navigate = useNavigate();
