@@ -13,7 +13,7 @@ import Footer from "@/components/Footer";
 import Index from "./pages/Index";
 import Shop from "./pages/Shop";
 import ProductDetail from "./pages/ProductDetail";
-import CreativePaths from "./pages/CreativePaths";
+
 import Promotions from "./pages/Promotions";
 import Wishlist from "./pages/Wishlist";
 import Login from "./pages/Login";
