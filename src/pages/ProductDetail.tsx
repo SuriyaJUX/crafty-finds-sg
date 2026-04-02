@@ -79,24 +79,41 @@ const ProductDetail = () => {
 
       <div className="grid md:grid-cols-2 gap-8 mb-16">
         {/* Image — fades + rises in */}
-        <div
-          className="relative aspect-square rounded-xl bg-muted overflow-hidden animate-fade-in"
-          style={{ animationDuration: "0.6s" }}
-        >
-          <img
-            src={product.images[0]}
-            alt={product.name}
-            className="w-full h-full object-cover transition-transform duration-500 hover:scale-105"
-          />
-          {product.isCommunityFavourite && (
-            <span className="absolute top-3 left-3 badge-community px-2.5 py-1 rounded-full text-xs font-semibold">
-              ❤️ Community Favourite
-            </span>
-          )}
-          {discount && (
-            <span className="absolute top-3 right-3 bg-primary text-primary-foreground px-2.5 py-1 rounded-full text-xs font-semibold">
-              {discount}% off
-            </span>
+        <div className="space-y-3">
+          <div
+            className="relative aspect-square rounded-xl bg-muted overflow-hidden animate-fade-in"
+            style={{ animationDuration: "0.6s" }}
+          >
+            <img
+              src={product.images[activeImage]}
+              alt={product.name}
+              className="w-full h-full object-cover transition-transform duration-500 hover:scale-105"
+            />
+            {product.isCommunityFavourite && (
+              <span className="absolute top-3 left-3 badge-community px-2.5 py-1 rounded-full text-xs font-semibold">
+                ❤️ Community Favourite
+              </span>
+            )}
+            {discount && (
+              <span className="absolute top-3 right-3 bg-primary text-primary-foreground px-2.5 py-1 rounded-full text-xs font-semibold">
+                {discount}% off
+              </span>
+            )}
+          </div>
+          {product.images.length > 1 && (
+            <div className="flex gap-2">
+              {product.images.map((img, idx) => (
+                <button
+                  key={idx}
+                  onClick={() => setActiveImage(idx)}
+                  className={`w-16 h-16 rounded-lg overflow-hidden border-2 transition-colors ${
+                    activeImage === idx ? "border-primary" : "border-border hover:border-primary/40"
+                  }`}
+                >
+                  <img src={img} alt={`${product.name} view ${idx + 1}`} className="w-full h-full object-cover" />
+                </button>
+              ))}
+            </div>
           )}
         </div>
 
