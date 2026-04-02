@@ -24,7 +24,6 @@ const ProductDetail = () => {
   const [showReviewModal, setShowReviewModal] = useState(false);
   const [localReviews, setLocalReviews] = useState<Review[]>([]);
   const [activeImage, setActiveImage] = useState(0);
-  const [localReviews, setLocalReviews] = useState<Review[]>([]);
 
   const reviewsReveal = useScrollReveal<HTMLElement>();
   const pairsReveal = useScrollReveal<HTMLElement>();
