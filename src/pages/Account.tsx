@@ -585,7 +585,7 @@ const Account = () => {
   const submittedReviews = getSubmittedReviews();
   const reviewedProductIds = new Set(submittedReviews.map(r => r.productId));
 
-  if (!user) return <Navigate to="/login" replace />;
+  if (!user) return <Navigate to="/login" state={{ from: "/account" }} replace />;
 
   const expiringBatches = getExpiringPoints(60);
 

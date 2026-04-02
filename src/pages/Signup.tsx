@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Link, useNavigate } from "react-router-dom";
+import { Link, useNavigate, useLocation } from "react-router-dom";
 import { useAuth } from "@/context/AuthContext";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
@@ -14,6 +14,7 @@ const Signup = () => {
   const [loading, setLoading] = useState(false);
   const { signup } = useAuth();
   const navigate = useNavigate();
+  const location = useLocation();
   const { toast } = useToast();
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -23,7 +24,7 @@ const Signup = () => {
     setLoading(false);
     if (success) {
       toast({ title: "Welcome to Paperly! 🎉", description: "You've earned 50 welcome bonus points!" });
-      navigate("/account");
+      navigate(location.state?.from ?? "/account");
     }
   };
 

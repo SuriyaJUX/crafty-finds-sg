@@ -249,7 +249,7 @@ const Navbar = () => {
                 )}
               </>
             ) : (
-              <Link to="/login" className="p-2 text-muted-foreground hover:text-foreground transition-colors">
+              <Link to="/login" state={{ from: location.pathname + location.search }} className="p-2 text-muted-foreground hover:text-foreground transition-colors">
                 <User className="w-5 h-5" />
               </Link>
             )}
