@@ -195,24 +195,6 @@ const ProductDetail = () => {
         </div>
       </div>
 
-      {/* What you can make */}
-      <section
-        ref={projectsReveal.ref}
-        className={`mb-16 transition-[opacity,transform] duration-700 ${projectsReveal.visible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-8"}`}
-      >
-        <h2 className="font-serif text-2xl mb-4">What you can make with this</h2>
-        <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
-          {[1, 2, 3].map((i, idx) => (
-            <div
-              key={i}
-              className={`aspect-[4/3] rounded-lg bg-muted flex items-center justify-center transition-[opacity,transform] duration-500 ${projectsReveal.visible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-4"}`}
-              style={{ transitionDelay: projectsReveal.visible ? `${idx * 80}ms` : "0ms" }}
-            >
-              <p className="text-xs text-muted-foreground">Community project {i}</p>
-            </div>
-          ))}
-        </div>
-      </section>
 
       {/* Reviews */}
       <section
