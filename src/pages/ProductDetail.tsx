@@ -27,7 +27,7 @@ const ProductDetail = () => {
 
   const reviewsReveal = useScrollReveal<HTMLElement>();
   const pairsReveal = useScrollReveal<HTMLElement>();
-  const projectsReveal = useScrollReveal<HTMLElement>();
+  
 
   if (!product) {
     return (
