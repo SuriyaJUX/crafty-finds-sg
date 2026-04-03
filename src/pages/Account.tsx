@@ -738,6 +738,13 @@ const Account = () => {
                         <CheckCircle2 className="w-3.5 h-3.5" /> All items reviewed
                       </p>
                     )}
+
+                    <Link
+                      to={`/order/${order.id}`}
+                      className="inline-flex items-center gap-1.5 text-xs text-primary hover:underline transition-colors mt-2"
+                    >
+                      <Truck className="w-3.5 h-3.5" /> Track Order <ChevronRight className="w-3 h-3" />
+                    </Link>
                   </div>
                 );
               })}

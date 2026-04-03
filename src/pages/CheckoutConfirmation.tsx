@@ -5,7 +5,7 @@ import { useAuth } from "@/context/AuthContext";
 import { useInkPoints } from "@/context/InkPointsContext";
 import { products } from "@/data/products";
 import ProductCard from "@/components/ProductCard";
-import { Check, CheckCircle2, MapPin, Bell, ArrowRight, Gift } from "lucide-react";
+import { Check, CheckCircle2, MapPin, Bell, ArrowRight, Gift, Package } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 import { getPurchasedProductIds, savePurchasedProductIds } from "@/components/WriteReviewModal";
@@ -419,11 +419,11 @@ const CheckoutConfirmation = () => {
 
       {/* CTA buttons */}
       <div className="flex flex-col sm:flex-row gap-3">
-        <Button onClick={() => navigate("/shop")} className="flex-1" size="lg">
-          Continue Shopping <ArrowRight className="w-4 h-4 ml-2" />
+        <Button onClick={() => navigate(`/order/${orderId}`)} className="flex-1" size="lg">
+          <Package className="w-4 h-4 mr-2" /> Track Order
         </Button>
-        <Button variant="outline" onClick={() => navigate("/account")} className="flex-1" size="lg">
-          View Order
+        <Button variant="outline" onClick={() => navigate("/shop")} className="flex-1" size="lg">
+          Continue Shopping <ArrowRight className="w-4 h-4 ml-2" />
         </Button>
       </div>
     </div>
