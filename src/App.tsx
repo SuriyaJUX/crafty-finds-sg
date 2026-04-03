@@ -22,6 +22,8 @@ import Account from "./pages/Account";
 import CheckoutDetails from "./pages/CheckoutDetails";
 import CheckoutPayment from "./pages/CheckoutPayment";
 import CheckoutConfirmation from "./pages/CheckoutConfirmation";
+import OrderTracking from "./pages/OrderTracking";
+import OrderReturn from "./pages/OrderReturn";
 import About from "./pages/About";
 import NotFound from "./pages/NotFound";
 
