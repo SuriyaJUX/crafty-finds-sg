@@ -5,7 +5,7 @@ import { useAuth } from "@/context/AuthContext";
 import { useInkPoints } from "@/context/InkPointsContext";
 import { products } from "@/data/products";
 import ProductCard from "@/components/ProductCard";
-import { Check, CheckCircle2, MapPin, Bell, ArrowRight, Gift } from "lucide-react";
+import { Check, CheckCircle2, MapPin, Bell, ArrowRight, Gift, Package } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 import { getPurchasedProductIds, savePurchasedProductIds } from "@/components/WriteReviewModal";
