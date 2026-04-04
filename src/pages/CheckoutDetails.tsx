@@ -4,7 +4,7 @@ import { useCart } from "@/context/CartContext";
 import { useAuth } from "@/context/AuthContext";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
-import { Check, MapPin, Plus, ChevronDown, ChevronUp, Sparkles, Package, BookUser } from "lucide-react";
+import { Check, MapPin, Plus, ChevronDown, ChevronUp, Sparkles, Package, BookUser, ArrowLeft } from "lucide-react";
 import { cn } from "@/lib/utils";
 
 interface DeliveryDetails {
