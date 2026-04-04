@@ -88,11 +88,15 @@ const ColorWheelFilter = ({ selectedColor, onColorSelect }: ColorWheelFilterProp
   // No gap — the gradient already provides visual separation between hues
   const gapDeg = 0.5;
 
+  // The conic-gradient uses `from -90deg`, placing red at the 9 o'clock position.
+  // SVG arcs must apply the same -90° offset so hit zones align with the visual ring.
+  const WHEEL_OFFSET = -90;
+
   const segments = useMemo(
     () =>
       SPECTRAL_COLORS.map((color, i) => {
-        const startAngle = i * segmentAngle + gapDeg;
-        const endAngle = (i + 1) * segmentAngle - gapDeg;
+        const startAngle = i * segmentAngle + gapDeg + WHEEL_OFFSET;
+        const endAngle = (i + 1) * segmentAngle - gapDeg + WHEEL_OFFSET;
         return {
           color,
           label: COLOR_MAP[color].label,

@@ -103,7 +103,7 @@ const ColorFilterDrawer = ({
   return (
     <div
       className="overflow-hidden transition-all duration-250 ease-in-out"
-      style={{ maxHeight: open ? "400px" : "0px" }}
+      style={{ maxHeight: open ? "700px" : "0px" }}
     >
       <div className="border border-border rounded-xl bg-card p-6 mb-4">
         <h3 className="font-serif text-lg mb-4">Filter by colour</h3>
