@@ -142,7 +142,11 @@ const CartDrawer = () => {
 
                 return (
                   <div key={product.id} className="group/item flex gap-3 py-3 border-b border-border last:border-0">
-                    <div className="w-16 h-16 rounded-md bg-muted flex-shrink-0" />
+                    <div className="w-16 h-16 rounded-md bg-muted flex-shrink-0 overflow-hidden">
+                      {product.images?.[0] && (
+                        <img src={product.images[0]} alt={product.name} className="w-full h-full object-cover" />
+                      )}
+                    </div>
                     <div className="flex-1 min-w-0">
                       <p className="text-sm font-medium truncate">{product.name}</p>
 
@@ -285,7 +289,11 @@ const PairSuggestion = ({ product }: { product: any }) => {
   const { addItem } = useCart();
   return (
     <div className="flex items-center gap-3 p-2 rounded-md bg-muted/50">
-      <div className="w-10 h-10 rounded bg-muted flex-shrink-0" />
+      <div className="w-10 h-10 rounded bg-muted flex-shrink-0 overflow-hidden">
+        {product.images?.[0] && (
+          <img src={product.images[0]} alt={product.name} className="w-full h-full object-cover" />
+        )}
+      </div>
       <div className="flex-1 min-w-0">
         <p className="text-xs font-medium truncate">{product.name}</p>
         <p className="text-xs text-muted-foreground">S${product.price.toFixed(2)}</p>
