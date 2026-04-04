@@ -24,6 +24,19 @@ const ProductDetail = () => {
   const [showReviewModal, setShowReviewModal] = useState(false);
   const [localReviews, setLocalReviews] = useState<Review[]>([]);
   const [activeImage, setActiveImage] = useState(0);
+  const [quantity, setQuantity] = useState(1);
+
+  const PRESETS = [1, 5, 10, 25, 50] as const;
+
+  const handleQuantityInput = (val: string) => {
+    const num = parseInt(val, 10);
+    if (val === "") setQuantity(1);
+    else if (!isNaN(num)) setQuantity(Math.max(1, Math.min(999, num)));
+  };
+
+  const handleQuantityBlur = () => {
+    if (quantity < 1 || isNaN(quantity)) setQuantity(1);
+  };
 
   const reviewsReveal = useScrollReveal<HTMLElement>();
   const pairsReveal = useScrollReveal<HTMLElement>();
