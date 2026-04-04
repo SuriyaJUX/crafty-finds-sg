@@ -60,11 +60,9 @@ const CartDrawer = () => {
   const handleSaveForLater = (productId: string, product: any) => {
     toggleSaved(product);
     setSavedConfirmId(productId);
-    // Remove after 2 s so the confirmation is visible inside the row first
     setTimeout(() => {
-      removeItem(productId);
       setSavedConfirmId(prev => (prev === productId ? null : prev));
-    }, 2000);
+    }, 3000);
   };
 
   return (
