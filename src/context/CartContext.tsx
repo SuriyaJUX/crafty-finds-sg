@@ -25,20 +25,6 @@ interface CartContextType {
 const CART_STORAGE_KEY = "paperly_cart";
 const SAVED_STORAGE_KEY = "paperly_saved";
 
-function loadCart(): CartItem[] {
-  try {
-    const raw = localStorage.getItem(CART_STORAGE_KEY);
-    if (!raw) return [];
-    const parsed = JSON.parse(raw) as Array<{ productId: string; quantity: number; isStartSmall?: boolean }>;
-    return parsed
-      .map(entry => {
-        const product = (await_products as any).__loaded ? undefined : undefined;
-        return { ...entry };
-      })
-      .filter(Boolean) as CartItem[];
-  } catch { return []; }
-}
-
 const CartContext = createContext<CartContextType | undefined>(undefined);
 
 export const CartProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
