@@ -44,6 +44,14 @@ export const CartProvider: React.FC<{ children: React.ReactNode }> = ({ children
     } catch { return []; }
   });
 
+  useEffect(() => {
+    localStorage.setItem(CART_STORAGE_KEY, JSON.stringify(items));
+  }, [items]);
+
+  useEffect(() => {
+    localStorage.setItem(SAVED_STORAGE_KEY, JSON.stringify(savedItems));
+  }, [savedItems]);
+
   const addItem = useCallback((product: Product, isStartSmall?: boolean) => {
     setItems(prev => {
       const existing = prev.find(i => i.product.id === product.id);
