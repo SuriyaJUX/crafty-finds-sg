@@ -6,7 +6,7 @@ import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import {
   Check, CreditCard, QrCode, Smartphone, Lock, Shield,
-  Tag, AlertCircle, Loader2, RefreshCw, ChevronDown, ChevronUp,
+  Tag, AlertCircle, Loader2, RefreshCw, ChevronDown, ChevronUp, ArrowLeft,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useToast } from "@/hooks/use-toast";
