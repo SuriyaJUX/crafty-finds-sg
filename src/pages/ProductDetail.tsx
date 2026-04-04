@@ -240,7 +240,7 @@ const ProductDetail = () => {
                   toast({
                     title: "Added to cart",
                     description: `You'll earn ${inkEarned} Ink on this ${quantity > 1 ? `${quantity} items` : "item"}`,
-                    duration: 3000,
+                    duration: 2000,
                   });
                 }
               }}

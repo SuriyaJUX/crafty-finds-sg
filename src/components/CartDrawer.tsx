@@ -199,10 +199,18 @@ const CartDrawer = () => {
 
                       {/* Save for later */}
                       <div className="mt-1.5">
-                        {isSavedConfirm ? (
-                          <span className="flex items-center gap-1 text-xs text-secondary font-medium">
-                            <Check className="w-3 h-3" /> Saved to wishlist
-                          </span>
+                      {isSavedConfirm ? (
+                          <div className="flex items-center gap-2">
+                            <span className="flex items-center gap-1 text-xs text-secondary font-medium">
+                              <Check className="w-3 h-3" /> Saved to wishlist
+                            </span>
+                            <button
+                              onClick={() => removeItem(product.id)}
+                              className="text-xs text-muted-foreground hover:text-destructive underline-offset-2 hover:underline"
+                            >
+                              Remove from cart
+                            </button>
+                          </div>
                         ) : (
                           <button
                             onClick={() => handleSaveForLater(product.id, product)}
