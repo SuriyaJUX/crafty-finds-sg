@@ -24,6 +24,19 @@ const ProductDetail = () => {
   const [showReviewModal, setShowReviewModal] = useState(false);
   const [localReviews, setLocalReviews] = useState<Review[]>([]);
   const [activeImage, setActiveImage] = useState(0);
+  const [quantity, setQuantity] = useState(1);
+
+  const PRESETS = [1, 5, 10, 25, 50] as const;
+
+  const handleQuantityInput = (val: string) => {
+    const num = parseInt(val, 10);
+    if (val === "") setQuantity(1);
+    else if (!isNaN(num)) setQuantity(Math.max(1, Math.min(999, num)));
+  };
+
+  const handleQuantityBlur = () => {
+    if (quantity < 1 || isNaN(quantity)) setQuantity(1);
+  };
 
   const reviewsReveal = useScrollReveal<HTMLElement>();
   const pairsReveal = useScrollReveal<HTMLElement>();
@@ -167,15 +180,66 @@ const ProductDetail = () => {
 
           <p className="text-muted-foreground text-sm leading-relaxed mb-6">{product.description}</p>
 
+          {/* Quantity selector */}
+          <div className="mb-4">
+            <label className="text-sm font-medium mb-2 block">Quantity</label>
+            <div className="flex items-center gap-2">
+              <button
+                onClick={() => setQuantity(q => Math.max(1, q - 1))}
+                className="p-2 rounded-lg border border-border hover:bg-muted transition-colors"
+              >
+                <span className="w-4 h-4 flex items-center justify-center text-sm font-medium">−</span>
+              </button>
+              <input
+                type="text"
+                inputMode="numeric"
+                value={quantity}
+                onChange={e => handleQuantityInput(e.target.value)}
+                onBlur={handleQuantityBlur}
+                onKeyDown={e => { if (e.key === "Enter") (e.target as HTMLInputElement).blur(); }}
+                className="w-14 h-10 text-center rounded-md border border-input bg-background text-sm font-medium focus:outline-none focus:ring-2 focus:ring-ring"
+              />
+              <button
+                onClick={() => setQuantity(q => Math.min(999, q + 1))}
+                className="p-2 rounded-lg border border-border hover:bg-muted transition-colors"
+              >
+                <span className="w-4 h-4 flex items-center justify-center text-sm font-medium">+</span>
+              </button>
+            </div>
+            {/* Preset pills */}
+            <div className="flex gap-1.5 mt-2">
+              {PRESETS.map(p => (
+                <button
+                  key={p}
+                  onClick={() => setQuantity(p)}
+                  className={`px-3 py-1 rounded-full text-xs font-medium border transition-colors ${
+                    quantity === p
+                      ? "bg-primary text-primary-foreground border-primary"
+                      : "border-border text-muted-foreground hover:border-primary/40 hover:text-foreground"
+                  }`}
+                >
+                  ×{p}
+                </button>
+              ))}
+            </div>
+            {/* Bulk nudge */}
+            {quantity >= 10 && (
+              <p className="flex items-center gap-1 text-xs text-secondary mt-2">
+                <Sparkles className="w-3 h-3" />
+                Buying in bulk? You'll earn {Math.floor(currentPrice * quantity * currentTier.earnMultiplier)} Ink Points on this order
+              </p>
+            )}
+          </div>
+
           <div className="flex gap-3">
             <button
               onClick={() => {
-                addItem(product, startSmall);
+                for (let i = 0; i < quantity; i++) addItem(product, startSmall);
                 if (isAuthenticated) {
-                  const inkEarned = Math.floor(currentPrice * currentTier.earnMultiplier);
+                  const inkEarned = Math.floor(currentPrice * quantity * currentTier.earnMultiplier);
                   toast({
                     title: "Added to cart",
-                    description: `You'll earn ${inkEarned} Ink on this item`,
+                    description: `You'll earn ${inkEarned} Ink on this ${quantity > 1 ? `${quantity} items` : "item"}`,
                     duration: 3000,
                   });
                 }
@@ -183,7 +247,7 @@ const ProductDetail = () => {
               className="flex-1 inline-flex items-center justify-center gap-2 px-6 py-3 rounded-lg bg-primary text-primary-foreground font-medium text-sm hover:opacity-90 active:scale-95 transition-[opacity,transform]"
             >
               <ShoppingBag className="w-4 h-4" />
-              Add to cart
+              Add to cart{quantity > 1 ? ` (${quantity})` : ""}
             </button>
             <button
               onClick={() => toggleSaved(product)}

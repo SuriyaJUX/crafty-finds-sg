@@ -3,7 +3,7 @@ import { Link, useNavigate, useLocation } from "react-router-dom";
 import { useAuth } from "@/context/AuthContext";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
-import { Eye, EyeOff, LogIn } from "lucide-react";
+import { Eye, EyeOff, LogIn, ArrowLeft } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 
 const Login = () => {
@@ -27,9 +27,21 @@ const Login = () => {
     }
   };
 
+  const fromCheckout = typeof location.state === "object" && location.state !== null &&
+    "from" in location.state && typeof (location.state as any).from === "string" &&
+    (location.state as any).from.includes("checkout");
+
   return (
     <div className="min-h-[80vh] flex items-center justify-center px-4">
       <div className="w-full max-w-md">
+        {fromCheckout && (
+          <button
+            onClick={() => navigate(-1)}
+            className="inline-flex items-center gap-1 text-sm text-muted-foreground hover:text-primary mb-6"
+          >
+            <ArrowLeft className="w-4 h-4" /> Back
+          </button>
+        )}
         <div className="text-center mb-8">
           <h1 className="font-serif text-3xl mb-2">Welcome back</h1>
           <p className="text-muted-foreground text-sm">Sign in to your Paperly account</p>

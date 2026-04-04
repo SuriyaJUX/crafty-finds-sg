@@ -4,7 +4,7 @@ import { useCart } from "@/context/CartContext";
 import { useAuth } from "@/context/AuthContext";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
-import { Check, MapPin, Plus, ChevronDown, ChevronUp, Sparkles, Package, BookUser } from "lucide-react";
+import { Check, MapPin, Plus, ChevronDown, ChevronUp, Sparkles, Package, BookUser, ArrowLeft } from "lucide-react";
 import { cn } from "@/lib/utils";
 
 interface DeliveryDetails {
@@ -164,6 +164,12 @@ const CheckoutDetails = () => {
   if (!isAuthenticated && !guestMode) {
     return (
       <div className="container max-w-6xl mx-auto px-4 py-8 animate-fade-in">
+        <button
+          onClick={() => navigate("/shop")}
+          className="inline-flex items-center gap-1 text-sm text-muted-foreground hover:text-primary mb-6"
+        >
+          <ArrowLeft className="w-4 h-4" /> Back to cart
+        </button>
         <CheckoutProgressBar active={1} />
         <h1 className="font-serif text-2xl mb-8 text-center">How would you like to continue?</h1>
         <div className="grid md:grid-cols-2 gap-5 max-w-3xl mx-auto">
@@ -258,6 +264,12 @@ const CheckoutDetails = () => {
 
   return (
     <div className="container max-w-6xl mx-auto px-4 py-8 animate-fade-in">
+      <button
+        onClick={() => navigate("/shop")}
+        className="inline-flex items-center gap-1 text-sm text-muted-foreground hover:text-primary mb-6"
+      >
+        <ArrowLeft className="w-4 h-4" /> Back to cart
+      </button>
       <CheckoutProgressBar active={1} />
 
       <div className="grid md:grid-cols-[1fr_360px] gap-8">

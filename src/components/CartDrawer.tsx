@@ -143,7 +143,7 @@ const CartDrawer = () => {
                 const isSavedConfirm = savedConfirmId === product.id;
 
                 return (
-                  <div key={product.id} className="flex gap-3 py-3 border-b border-border last:border-0">
+                  <div key={product.id} className="group/item flex gap-3 py-3 border-b border-border last:border-0">
                     <div className="w-16 h-16 rounded-md bg-muted flex-shrink-0" />
                     <div className="flex-1 min-w-0">
                       <p className="text-sm font-medium truncate">{product.name}</p>
@@ -180,6 +180,23 @@ const CartDrawer = () => {
                         >
                           <Trash2 className="w-4 h-4" />
                         </button>
+                      </div>
+
+                      {/* Preset quantity pills — visible on hover/focus */}
+                      <div className="hidden group-hover/item:flex group-focus-within/item:flex gap-1 mt-1.5">
+                        {[1, 5, 10, 25, 50].map(p => (
+                          <button
+                            key={p}
+                            onClick={() => updateQuantity(product.id, p)}
+                            className={`px-2 py-0.5 rounded-full text-xs font-medium border transition-colors ${
+                              quantity === p
+                                ? "bg-primary text-primary-foreground border-primary"
+                                : "border-border text-muted-foreground hover:border-primary/40 hover:text-foreground"
+                            }`}
+                          >
+                            ×{p}
+                          </button>
+                        ))}
                       </div>
 
                       {/* Save for later */}

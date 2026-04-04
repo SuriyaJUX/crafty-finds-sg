@@ -6,7 +6,7 @@ import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import {
   Check, CreditCard, QrCode, Smartphone, Lock, Shield,
-  Tag, AlertCircle, Loader2, RefreshCw, ChevronDown, ChevronUp,
+  Tag, AlertCircle, Loader2, RefreshCw, ChevronDown, ChevronUp, ArrowLeft,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useToast } from "@/hooks/use-toast";
@@ -384,6 +384,12 @@ const CheckoutPayment = () => {
 
   return (
     <div className="container max-w-6xl mx-auto px-4 py-8 animate-fade-in">
+      <button
+        onClick={() => navigate("/checkout/details", { state: { deliveryDetails, preserved: true } })}
+        className="inline-flex items-center gap-1 text-sm text-muted-foreground hover:text-primary mb-6"
+      >
+        <ArrowLeft className="w-4 h-4" /> Back to details
+      </button>
       <CheckoutProgressBar active={2} />
 
       <div className="grid md:grid-cols-[1fr_360px] gap-8">
