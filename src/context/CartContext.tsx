@@ -1,4 +1,4 @@
-import React, { createContext, useContext, useState, useCallback } from "react";
+import React, { createContext, useContext, useState, useCallback, useEffect } from "react";
 import type { Product } from "@/data/products";
 
 export interface CartItem {
@@ -22,12 +22,35 @@ interface CartContextType {
   isSaved: (productId: string) => boolean;
 }
 
+const CART_STORAGE_KEY = "paperly_cart";
+const SAVED_STORAGE_KEY = "paperly_saved";
+
 const CartContext = createContext<CartContextType | undefined>(undefined);
 
 export const CartProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
-  const [items, setItems] = useState<CartItem[]>([]);
+  const [items, setItems] = useState<CartItem[]>(() => {
+    try {
+      const raw = localStorage.getItem(CART_STORAGE_KEY);
+      if (!raw) return [];
+      return JSON.parse(raw) as CartItem[];
+    } catch { return []; }
+  });
   const [isCartOpen, setIsCartOpen] = useState(false);
-  const [savedItems, setSavedItems] = useState<Product[]>([]);
+  const [savedItems, setSavedItems] = useState<Product[]>(() => {
+    try {
+      const raw = localStorage.getItem(SAVED_STORAGE_KEY);
+      if (!raw) return [];
+      return JSON.parse(raw) as Product[];
+    } catch { return []; }
+  });
+
+  useEffect(() => {
+    localStorage.setItem(CART_STORAGE_KEY, JSON.stringify(items));
+  }, [items]);
+
+  useEffect(() => {
+    localStorage.setItem(SAVED_STORAGE_KEY, JSON.stringify(savedItems));
+  }, [savedItems]);
 
   const addItem = useCallback((product: Product, isStartSmall?: boolean) => {
     setItems(prev => {
