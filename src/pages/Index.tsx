@@ -1,6 +1,5 @@
 import { useState, useEffect } from "react";
 import { X, Truck, RefreshCw, ShieldCheck, Users, Clock } from "lucide-react";
-import { Link } from "react-router-dom";
 import DealsBanner from "@/components/DealsBanner";
 import IntentPrompt from "@/components/IntentPrompt";
 import FeaturedProducts from "@/components/FeaturedProducts";
