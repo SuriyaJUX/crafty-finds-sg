@@ -4,8 +4,12 @@ import { Link, useNavigate } from "react-router-dom";
 import { Tag, Heart, Star } from "lucide-react";
 import { COLOR_MAP } from "@/components/ColorWheelFilter";
 
+const COLOR_HEX: Record<string, string> = {
+  ...Object.fromEntries(Object.entries(COLOR_MAP).map(([k, v]) => [k, v.hex])),
+};
+
 const CompactDealsStrip = () => {
-  const { items } = useCart();
+  const { items, toggleSaved, isSaved } = useCart();
   const navigate = useNavigate();
 
   const discounted = products.filter(
