@@ -152,6 +152,17 @@ const CheckoutDetails = () => {
           <span className="text-muted-foreground">Shipping</span>
           <span className={shipping === 0 ? "text-secondary font-medium" : ""}>{shipping === 0 ? "Free" : `S$${shipping.toFixed(2)}`}</span>
         </div>
+        {shipping === 0 ? (
+          <div className="flex items-center gap-1.5 text-xs text-secondary font-medium bg-secondary/10 rounded-lg px-3 py-1.5">
+            <Check className="w-3.5 h-3.5 shrink-0" />
+            Free shipping — unlocked
+          </div>
+        ) : (
+          <div className="text-xs rounded-lg px-3 py-1.5 bg-amber-50 dark:bg-amber-900/20 text-amber-700 dark:text-amber-400">
+            <span className="font-semibold">S${(50 - subtotal).toFixed(2)}</span> away from free shipping on orders over S$50.
+            <button onClick={() => navigate("/shop")} className="ml-1 underline hover:no-underline font-medium">Add more items</button>
+          </div>
+        )}
         <div className="flex justify-between font-semibold pt-1 border-t border-border">
           <span>Estimated total</span>
           <span>S${(subtotal + shipping).toFixed(2)}</span>
