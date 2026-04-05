@@ -15,6 +15,7 @@ import WriteReviewModal, { getPurchasedProductIds } from "@/components/WriteRevi
 
 const ProductDetail = () => {
   const { id } = useParams();
+  const location = useLocation();
   const product = products.find(p => p.id === id);
   const { addItem, toggleSaved, isSaved } = useCart();
   const { isAuthenticated } = useAuth();
@@ -27,8 +28,24 @@ const ProductDetail = () => {
   const [activeImage, setActiveImage] = useState(0);
   const [quantity, setQuantity] = useState(1);
   const [selectedVariant, setSelectedVariant] = useState<string | null>(null);
+  const reviewsSectionRef = useRef<HTMLElement>(null);
 
   const PRESETS = [1, 5, 10, 25, 50] as const;
+
+  // Auto-open review modal when navigated with openReview state
+  useEffect(() => {
+    const state = location.state as { openReview?: boolean } | null;
+    if (state?.openReview && product) {
+      // Small delay to let the page render first
+      const timer = setTimeout(() => {
+        setShowReviewModal(true);
+        reviewsSectionRef.current?.scrollIntoView({ behavior: "smooth", block: "center" });
+      }, 400);
+      // Clear the state so it doesn't re-trigger
+      window.history.replaceState({}, document.title);
+      return () => clearTimeout(timer);
+    }
+  }, [location.state, product]);
 
   const handleQuantityInput = (val: string) => {
     const num = parseInt(val, 10);
