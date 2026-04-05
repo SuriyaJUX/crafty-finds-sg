@@ -13,7 +13,7 @@ const About = () => {
 
   return (
   <div className="container max-w-4xl mx-auto px-4 py-12">
-    <h1 className="font-serif text-3xl mb-2">About Paperly</h1>
+    <h1 className="font-serif text-3xl mb-2">About Note & Gale</h1>
     <p className="text-muted-foreground text-sm mb-12">
       Everything you'd like to know about us.
     </p>
@@ -27,7 +27,7 @@ const About = () => {
 
       <div className="space-y-5 text-sm text-muted-foreground leading-relaxed">
         <p>
-          Paperly is a Singapore-based online stationery store dedicated to makers,
+          Note & Gale is a Singapore-based online stationery store dedicated to makers,
           journalers, students, and anyone who believes the right pen changes everything.
           We curate pens, notebooks, markers, watercolour sets, art supplies, and craft
           materials — sourced from trusted brands including Muji, Staedtler, Tombow,
@@ -81,10 +81,10 @@ const About = () => {
           <div>
             <p className="text-sm font-medium">General enquiries</p>
             <a
-              href="mailto:hello@paperly.sg"
+              href="mailto:hello@noteandgale.sg"
               className="text-sm text-primary hover:underline"
             >
-              hello@paperly.sg
+              hello@noteandgale.sg
             </a>
           </div>
         </div>
@@ -94,10 +94,10 @@ const About = () => {
           <div>
             <p className="text-sm font-medium">Order & delivery support</p>
             <a
-              href="mailto:orders@paperly.sg"
+              href="mailto:orders@noteandgale.sg"
               className="text-sm text-primary hover:underline"
             >
-              orders@paperly.sg
+              orders@noteandgale.sg
             </a>
           </div>
         </div>
@@ -125,7 +125,7 @@ const About = () => {
       </div>
 
       <p className="text-xs text-muted-foreground mt-6">
-        Paperly is registered and operated in Singapore. All prices on this site
+        Note & Gale is registered and operated in Singapore. All prices on this site
         are in Singapore Dollars (SGD) and inclusive of GST where applicable.
       </p>
     </section>

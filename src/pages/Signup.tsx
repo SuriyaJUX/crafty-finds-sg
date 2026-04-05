@@ -25,7 +25,7 @@ const Signup = () => {
     const success = await signup(email, password, displayName);
     setLoading(false);
     if (success) {
-      toast({ title: "Welcome to Paperly! 🎉", description: "You've earned 50 welcome bonus points!" });
+      toast({ title: "Welcome to Note & Gale! 🎉", description: "You've earned 50 welcome bonus points!" });
       setShowOnboarding(true);
     }
   };
@@ -39,7 +39,7 @@ const Signup = () => {
     <div className="min-h-[80vh] flex items-center justify-center px-4">
       <div className="w-full max-w-md">
         <div className="text-center mb-8">
-          <h1 className="font-serif text-3xl mb-2">Join Paperly</h1>
+          <h1 className="font-serif text-3xl mb-2">Join Note & Gale</h1>
           <p className="text-muted-foreground text-sm">Create an account and start earning rewards</p>
         </div>
 

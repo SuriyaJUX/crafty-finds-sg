@@ -31,7 +31,7 @@ const SCENARIO_LABELS: Record<DeliveryScenario, string> = {
 
 // ── Storage helpers ────────────────────────────────────────────────────────
 
-const TRACKING_KEY = "paperly_order_tracking";
+const TRACKING_KEY = "note_gale_order_tracking";
 
 interface StoredTracking {
   orderId: string;

@@ -22,8 +22,8 @@ interface CartContextType {
   isSaved: (productId: string) => boolean;
 }
 
-const CART_STORAGE_KEY = "paperly_cart";
-const SAVED_STORAGE_KEY = "paperly_saved";
+const CART_STORAGE_KEY = "note_gale_cart";
+const SAVED_STORAGE_KEY = "note_gale_saved";
 
 const CartContext = createContext<CartContextType | undefined>(undefined);
 

@@ -32,7 +32,7 @@ const Login = () => {
       }
 
       // Check if user has a points goal set — read from localStorage mock user
-      const stored = localStorage.getItem("paperly_user");
+      const stored = localStorage.getItem("note_gale_user");
       if (stored) {
         try {
           const userData = JSON.parse(stored);
@@ -85,7 +85,7 @@ const Login = () => {
 
         <div className="text-center mb-8">
           <h1 className="font-serif text-3xl mb-2">Welcome back</h1>
-          <p className="text-muted-foreground text-sm">Sign in to your Paperly account</p>
+          <p className="text-muted-foreground text-sm">Sign in to your Note & Gale account</p>
         </div>
 
         <form onSubmit={handleSubmit} className="space-y-4">

@@ -54,7 +54,7 @@ const OUTCOMES: { id: ReturnOutcome; label: string; description: string; eligibl
   },
 ];
 
-const RETURN_STORAGE_KEY = "paperly_returns";
+const RETURN_STORAGE_KEY = "note_gale_returns";
 
 interface StoredReturn {
   orderId: string;

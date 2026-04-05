@@ -6,9 +6,9 @@ const Footer = () => (
     <div className="container max-w-6xl mx-auto px-4">
       <div className="grid grid-cols-2 md:grid-cols-4 gap-8">
         <div>
-          <h4 className="font-serif text-lg mb-3">Paperly</h4>
+          <h4 className="font-serif text-lg mb-3">Note & Gale</h4>
           <p className="text-sm text-muted-foreground leading-relaxed mb-4">
-            Singapore's home for stationery lovers and art makers.
+            Where Ideas Take Flight — Singapore's home for stationery lovers and art makers.
           </p>
           <Link
             to="/about#contact"
@@ -32,7 +32,7 @@ const Footer = () => (
             <li><Link to="/about#contact" className="hover:text-primary transition-colors font-medium">Contact Us</Link></li>
             <li><a href="#" className="hover:text-primary transition-colors">Shipping & Returns</a></li>
             <li><a href="#" className="hover:text-primary transition-colors">FAQ</a></li>
-            <li><Link to="/about" className="hover:text-primary transition-colors">About Paperly</Link></li>
+            <li><Link to="/about" className="hover:text-primary transition-colors">About Note & Gale</Link></li>
           </ul>
         </div>
         <div>
@@ -45,7 +45,7 @@ const Footer = () => (
         </div>
       </div>
       <div className="mt-10 pt-6 border-t border-border text-center text-xs text-muted-foreground">
-        © {new Date().getFullYear()} Paperly. All prices in SGD.
+        © {new Date().getFullYear()} Note & Gale. All prices in SGD.
       </div>
     </div>
   </footer>

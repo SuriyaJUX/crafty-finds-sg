@@ -108,7 +108,7 @@ const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
 // ── Seed data ───────────────────────────────────────────────────────────────
 
-const STORAGE_KEY = "paperly_auth";
+const STORAGE_KEY = "note_gale_auth";
 
 const createRachelNg = (): MockUser => {
   const now = new Date();
@@ -174,7 +174,7 @@ const createRachelNg = (): MockUser => {
     pointsHistory: [
       {
         id: "lp-1",
-        label: "Welcome bonus — thanks for joining Paperly!",
+        label: "Welcome bonus — thanks for joining Note & Gale!",
         points: 50,
         date: twoWeeksAgo.toISOString(),
         icon: "gift",
