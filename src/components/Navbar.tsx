@@ -25,6 +25,7 @@ const Navbar = () => {
   const { totalItems, setIsCartOpen, savedItems } = useCart();
   const { user, isAuthenticated, logout } = useAuth();
   const { currentTier } = useInkPoints();
+  const { theme, setTheme } = useTheme();
   const location = useLocation();
   const navigate = useNavigate();
   const [mobileOpen, setMobileOpen] = useState(false);
