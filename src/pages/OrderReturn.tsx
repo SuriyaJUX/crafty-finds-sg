@@ -78,7 +78,7 @@ function saveReturn(data: StoredReturn) {
 const OrderReturn = () => {
   const { orderId } = useParams<{ orderId: string }>();
   const navigate = useNavigate();
-  const { user } = useAuth();
+  const { user, addPoints } = useAuth();
 
   const order = user?.orderHistory.find(o => o.id === orderId);
 
