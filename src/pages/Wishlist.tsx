@@ -1,3 +1,4 @@
+import { useState, useEffect } from "react";
 import { useCart } from "@/context/CartContext";
 import { useAuth } from "@/context/AuthContext";
 import ProductCard from "@/components/ProductCard";
@@ -14,6 +15,7 @@ const REDEMPTION_RATE = 200;
 const Wishlist = () => {
   const { savedItems } = useCart();
   const { user, isAuthenticated, patchUser } = useAuth();
+  const [justSetGoalId, setJustSetGoalId] = useState<string | null>(null);
 
   const goalProductId = user?.pointsGoal?.targetProductId ?? null;
   const goalProduct = goalProductId
@@ -26,6 +28,7 @@ const Wishlist = () => {
   const remaining = Math.max(0, totalPtsNeeded - currentPts);
 
   const setGoal = (productId: string, price: number) => {
+    setJustSetGoalId(productId);
     patchUser(prev => ({
       ...prev,
       pointsGoal: {
@@ -36,8 +39,17 @@ const Wishlist = () => {
   };
 
   const clearGoal = () => {
+    setJustSetGoalId(null);
     patchUser(prev => ({ ...prev, pointsGoal: null }));
   };
+
+  // Clear the "just set" animation after it plays
+  useEffect(() => {
+    if (justSetGoalId) {
+      const t = setTimeout(() => setJustSetGoalId(null), 600);
+      return () => clearTimeout(t);
+    }
+  }, [justSetGoalId]);
 
   return (
     <div className="container max-w-6xl mx-auto px-4 py-8">
@@ -46,7 +58,7 @@ const Wishlist = () => {
 
       {/* Goal progress banner */}
       {isAuthenticated && goalProduct && savedItems.some(s => s.id === goalProductId) && (
-        <Card className="mb-6 border-primary/20 bg-primary/[0.03]">
+        <Card className="mb-6 border-primary/20 bg-primary/[0.03] animate-fade-in">
           <CardContent className="p-4 flex items-center gap-4">
             <img
               src={goalProduct.images[0]}
@@ -55,17 +67,19 @@ const Wishlist = () => {
             />
             <div className="flex-1 min-w-0">
               <div className="flex items-center gap-2 mb-1">
-                <Target className="w-4 h-4 text-primary shrink-0" />
+                <Target className="w-4 h-4 text-primary shrink-0 animate-pulse" />
                 <span className="text-sm font-medium truncate">Saving for {goalProduct.name}</span>
               </div>
-              <Progress value={progressPct} className="h-2 mb-1" />
+              <Progress value={progressPct} className="h-2 mb-1 [&>div]:transition-all [&>div]:duration-700" />
               <p className="text-xs text-muted-foreground">
                 {currentPts.toLocaleString()} / {totalPtsNeeded.toLocaleString()} pts
                 {remaining > 0 && <span> · {remaining.toLocaleString()} pts to go</span>}
-                {remaining === 0 && <span className="text-primary font-medium"> · Ready to redeem!</span>}
+                {remaining === 0 && (
+                  <span className="text-primary font-medium animate-pulse"> · Ready to redeem!</span>
+                )}
               </p>
             </div>
-            <Button variant="ghost" size="icon" className="shrink-0" onClick={clearGoal}>
+            <Button variant="ghost" size="icon" className="shrink-0 hover:scale-110 transition-transform" onClick={clearGoal}>
               <X className="w-4 h-4" />
             </Button>
           </CardContent>
@@ -74,24 +88,35 @@ const Wishlist = () => {
 
       {savedItems.length > 0 ? (
         <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 md:gap-6">
-          {savedItems.map(product => {
+          {savedItems.map((product, index) => {
             const isGoal = goalProductId === product.id;
+            const wasJustSet = justSetGoalId === product.id;
             return (
-              <div key={product.id} className="flex flex-col">
-                <div className={isGoal ? "ring-2 ring-primary/30 rounded-lg" : ""}>
+              <div
+                key={product.id}
+                className="flex flex-col animate-fade-in"
+                style={{ animationDelay: `${index * 80}ms`, animationFillMode: "backwards" }}
+              >
+                <div
+                  className={`transition-all duration-300 rounded-lg ${
+                    isGoal
+                      ? `ring-2 ring-primary/30 ${wasJustSet ? "animate-scale-in" : ""}`
+                      : ""
+                  }`}
+                >
                   <ProductCard product={product} />
                 </div>
                 {isAuthenticated ? (
                   isGoal ? (
-                    <Badge className="mt-2 self-start bg-primary/10 text-primary border-primary/20 hover:bg-primary/10">
+                    <Badge className="mt-2 self-start bg-primary/10 text-primary border-primary/20 hover:bg-primary/10 animate-fade-in">
                       <Target className="w-3 h-3 mr-1" /> Current Goal
                     </Badge>
                   ) : (
                     <button
                       onClick={() => setGoal(product.id, product.price)}
-                      className="mt-2 self-start inline-flex items-center gap-1.5 text-xs text-muted-foreground hover:text-primary transition-colors"
+                      className="group mt-2 self-start inline-flex items-center gap-1.5 text-xs border border-border rounded-full px-3 py-1 text-muted-foreground opacity-70 hover:opacity-100 hover:scale-105 hover:border-primary hover:text-primary transition-all duration-200"
                     >
-                      <Target className="w-3.5 h-3.5" />
+                      <Target className="w-3.5 h-3.5 transition-transform duration-200 group-hover:rotate-45" />
                       Set as Ink Goal
                     </button>
                   )
@@ -101,7 +126,7 @@ const Wishlist = () => {
           })}
         </div>
       ) : (
-        <div className="text-center py-20">
+        <div className="text-center py-20 animate-fade-in">
           <Heart className="w-10 h-10 text-muted mx-auto mb-4" />
           <p className="text-muted-foreground mb-4">You haven't saved any items yet.</p>
           <Link to="/shop" className="text-sm text-primary font-medium hover:underline">
@@ -112,7 +137,7 @@ const Wishlist = () => {
 
       {/* Guest hint */}
       {!isAuthenticated && savedItems.length > 0 && (
-        <div className="mt-6 text-center">
+        <div className="mt-6 text-center animate-fade-in">
           <Link to="/login" className="inline-flex items-center gap-1.5 text-sm text-muted-foreground hover:text-primary transition-colors">
             <LogIn className="w-4 h-4" />
             Log in to set savings goals
