@@ -327,6 +327,13 @@ const Navbar = () => {
                 </span>
               </div>
             )}
+            <Link
+              to="/about#contact"
+              onClick={() => setMobileOpen(false)}
+              className="text-sm font-medium py-2 text-muted-foreground flex items-center gap-2"
+            >
+              <HelpCircle className="w-4 h-4" /> Help &amp; Support
+            </Link>
           </nav>
         </div>
       )}
