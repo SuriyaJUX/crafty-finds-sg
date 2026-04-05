@@ -1,4 +1,4 @@
-import { Search, Compass, Camera } from "lucide-react";
+import { Search, Compass, Camera, Clock, X } from "lucide-react";
 import CompactDealsStrip from "@/components/CompactDealsStrip";
 import { useState, useEffect, useRef } from "react";
 import { useNavigate } from "react-router-dom";
@@ -23,7 +23,14 @@ const CATEGORY_BUTTONS = [
   { label: "Paints", path: "/shop?category=Paints" },
 ];
 
-const IntentPrompt = () => {
+interface IntentPromptProps {
+  expiringTotal?: number;
+  earliestExpiry?: { expiresAt: string; amount: number } | null;
+  expiryDismissed?: boolean;
+  onDismissExpiry?: () => void;
+}
+
+const IntentPrompt = ({ expiringTotal = 0, earliestExpiry, expiryDismissed, onDismissExpiry }: IntentPromptProps) => {
   const [query, setQuery] = useState("");
   const [currentImage, setCurrentImage] = useState(0);
   const [leavingImage, setLeavingImage] = useState<number | null>(null);
@@ -202,6 +209,29 @@ const IntentPrompt = () => {
             ))}
           </div>
         </div>
+
+        {/* Expiry reminder pill */}
+        {isAuthenticated && !expiryDismissed && expiringTotal > 0 && earliestExpiry && (
+          <div className="flex justify-center pb-3 animate-fade-in">
+            <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full backdrop-blur-md bg-amber-500/10 border border-amber-300/30 text-sm">
+              <Clock className="w-4 h-4 text-amber-500 shrink-0" />
+              <span className="text-foreground">
+                <span className="font-semibold">{expiringTotal} Ink</span> expiring soon — worth{" "}
+                <span className="font-semibold">S${(expiringTotal / 200).toFixed(2)}</span> off
+              </span>
+              <a href="/shop" className="text-primary font-medium hover:underline whitespace-nowrap">
+                Shop now →
+              </a>
+              <button
+                onClick={onDismissExpiry}
+                className="text-muted-foreground hover:text-foreground shrink-0 ml-1"
+                aria-label="Dismiss"
+              >
+                <X className="w-3.5 h-3.5" />
+              </button>
+            </div>
+          </div>
+        )}
 
         {/* Compact deals strip at bottom of hero */}
         <div className="pb-6">
