@@ -1,7 +1,8 @@
 import { products } from "@/data/products";
 import { useCart } from "@/context/CartContext";
 import { Link, useNavigate } from "react-router-dom";
-import { Tag } from "lucide-react";
+import { Tag, Heart, Star } from "lucide-react";
+import { COLOR_MAP } from "@/components/ColorWheelFilter";
 
 const CompactDealsStrip = () => {
   const { items } = useCart();
