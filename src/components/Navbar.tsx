@@ -1,8 +1,9 @@
 import { Link, useLocation } from "react-router-dom";
-import { ShoppingBag, Heart, Search, Menu, X, User, LogOut } from "lucide-react";
+import { ShoppingBag, Heart, Search, Menu, X, User, LogOut, Target } from "lucide-react";
 import { useCart } from "@/context/CartContext";
 import { useAuth } from "@/context/AuthContext";
 import { useInkPoints } from "@/context/InkPointsContext";
+import { products } from "@/data/products";
 import { useState, useRef, useEffect } from "react";
 
 const navLinks = [
