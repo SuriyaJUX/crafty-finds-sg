@@ -1,4 +1,4 @@
-import { Search, Compass, Camera, Clock, X } from "lucide-react";
+import { Search, Compass, Camera, X } from "lucide-react";
 import CompactDealsStrip from "@/components/CompactDealsStrip";
 import { useState, useEffect, useRef } from "react";
 import { useNavigate } from "react-router-dom";
@@ -132,6 +132,15 @@ const IntentPrompt = ({ expiringTotal = 0, earliestExpiry, expiryDismissed, onDi
                   ✦ Highest tier
                 </p>
               )}
+              {!expiryDismissed && expiringTotal > 0 && (
+                <div className="flex items-center gap-1 text-[11px] text-amber-600 dark:text-amber-400 animate-fade-in">
+                  <span>⏳ {expiringTotal} Ink expiring ·</span>
+                  <a href="/shop" className="font-medium hover:underline">Shop →</a>
+                  <button onClick={onDismissExpiry} className="ml-auto text-muted-foreground hover:text-foreground" aria-label="Dismiss">
+                    <X className="w-3 h-3" />
+                  </button>
+                </div>
+              )}
             </div>
           </div>
         )}
@@ -140,7 +149,7 @@ const IntentPrompt = ({ expiringTotal = 0, earliestExpiry, expiryDismissed, onDi
         <div className="container max-w-2xl mx-auto px-4 text-center pt-6 pb-4">
           {/* Mobile-only compact greeting */}
           {isAuthenticated && user && (
-            <div className="md:hidden mb-4 animate-fade-in">
+            <div className="md:hidden mb-4 animate-fade-in flex flex-wrap justify-center gap-1.5">
               <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-card/70 backdrop-blur-sm border border-border/50 text-xs">
                 <span className="text-foreground">Hi, <span className="font-semibold">{firstName}</span></span>
                 <span className="text-muted-foreground">·</span>
@@ -152,6 +161,12 @@ const IntentPrompt = ({ expiringTotal = 0, earliestExpiry, expiryDismissed, onDi
                   {currentTier.badge}
                 </span>
               </span>
+              {!expiryDismissed && expiringTotal > 0 && (
+                <span className="inline-flex items-center gap-1 px-3 py-1 rounded-full bg-amber-500/10 border border-amber-300/30 text-xs animate-fade-in">
+                  <span className="text-amber-600 dark:text-amber-400">⏳ {expiringTotal} Ink expiring</span>
+                  <a href="/shop" className="font-medium text-primary hover:underline">Shop →</a>
+                </span>
+              )}
             </div>
           )}
 
@@ -210,28 +225,8 @@ const IntentPrompt = ({ expiringTotal = 0, earliestExpiry, expiryDismissed, onDi
           </div>
         </div>
 
-        {/* Expiry reminder pill */}
-        {isAuthenticated && !expiryDismissed && expiringTotal > 0 && earliestExpiry && (
-          <div className="flex justify-center pb-3 animate-fade-in">
-            <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full backdrop-blur-md bg-amber-500/10 border border-amber-300/30 text-sm">
-              <Clock className="w-4 h-4 text-amber-500 shrink-0" />
-              <span className="text-foreground">
-                <span className="font-semibold">{expiringTotal} Ink</span> expiring soon — worth{" "}
-                <span className="font-semibold">S${(expiringTotal / 200).toFixed(2)}</span> off
-              </span>
-              <a href="/shop" className="text-primary font-medium hover:underline whitespace-nowrap">
-                Shop now →
-              </a>
-              <button
-                onClick={onDismissExpiry}
-                className="text-muted-foreground hover:text-foreground shrink-0 ml-1"
-                aria-label="Dismiss"
-              >
-                <X className="w-3.5 h-3.5" />
-              </button>
-            </div>
-          </div>
-        )}
+
+
 
         {/* Compact deals strip at bottom of hero */}
         <div className="pb-6">
