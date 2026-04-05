@@ -23,7 +23,13 @@ const Login = () => {
     const success = await login(email, password);
     setLoading(false);
     if (success) {
-      toast({ title: "Welcome back! 🎉", description: "You've earned +10 loyalty points for logging in." });
+      // Only award daily login points once per calendar day
+      const today = new Date().toISOString().slice(0, 10);
+      const lastAwarded = localStorage.getItem("lastLoginAwardDate");
+      if (lastAwarded !== today) {
+        localStorage.setItem("lastLoginAwardDate", today);
+        toast({ title: "Welcome back! 🎉", description: "You've earned +10 loyalty points for logging in." });
+      }
 
       // Check if user has a points goal set — read from localStorage mock user
       const stored = localStorage.getItem("paperly_user");
