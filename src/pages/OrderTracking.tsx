@@ -573,46 +573,92 @@ const OrderTracking = () => {
       {/* Post-delivery actions */}
       {isTerminal && (
         <div className="rounded-xl border border-border bg-card p-6 mb-6">
-          <h2 className="font-serif text-lg mb-4">What would you like to do?</h2>
-
-          {tracking.receiptConfirmed ? (
-            <div className="flex items-center gap-2 p-3 rounded-lg bg-emerald-50 dark:bg-emerald-900/20 border border-emerald-200 dark:border-emerald-800 mb-4">
-              <ShieldCheck className="w-5 h-5 text-emerald-600 shrink-0" />
-              <p className="text-sm text-emerald-800 dark:text-emerald-300 font-medium">
-                Receipt confirmed — thank you!
-              </p>
-            </div>
-          ) : (
-            <Button onClick={confirmReceipt} className="mb-4 mr-3" variant="outline">
-              <CheckCircle2 className="w-4 h-4 mr-2" /> Confirm Receipt
-            </Button>
-          )}
-
-          <div className="flex flex-wrap gap-3">
-            <Button
-              variant="outline"
-              onClick={() => navigate(`/product/${order?.items[0]?.productId}`, { state: { openReview: true } })}
-              disabled={!order?.items[0]}
-            >
-              <Star className="w-4 h-4 mr-2" /> Leave a Review
-            </Button>
-            {tracking.issueReported ? (
-              <div className="flex items-center gap-2 px-3 py-2 rounded-lg bg-amber-50 dark:bg-amber-900/20 border border-amber-200 dark:border-amber-800">
-                <AlertTriangle className="w-4 h-4 text-amber-600 shrink-0" />
-                <p className="text-sm text-amber-800 dark:text-amber-300 font-medium">Issue reported — we'll follow up via email</p>
-              </div>
-            ) : (
-              <Button variant="outline" onClick={reportIssue}>
-                <MessageSquare className="w-4 h-4 mr-2" /> Report Issue
-              </Button>
-            )}
-            <Button
-              variant="outline"
-              onClick={() => navigate(`/order/${orderId}/return`)}
-            >
-              <RotateCcw className="w-4 h-4 mr-2" /> Request Return
-            </Button>
+          <div className="border-b border-border pb-4 mb-5">
+            <h2 className="font-serif text-lg">What would you like to do?</h2>
           </div>
+
+          {!tracking.receiptConfirmed ? (
+            <>
+              {/* Pre-confirmation: only Confirm Receipt + problem link */}
+              <Button onClick={confirmReceipt} className="w-full mb-4" size="lg">
+                <CheckCircle2 className="w-5 h-5 mr-2" /> Confirm Receipt
+              </Button>
+              <button
+                onClick={() => navigate(`/order/${orderId}/return`)}
+                className="flex items-center justify-center gap-2 w-full text-sm text-muted-foreground hover:text-foreground transition-colors py-2"
+              >
+                <AlertTriangle className="w-4 h-4" />
+                I have a problem with this delivery
+              </button>
+            </>
+          ) : (
+            <div className="animate-fade-in space-y-4">
+              {/* Confirmation banner */}
+              <div className="flex items-center gap-2 p-3 rounded-lg bg-emerald-50 dark:bg-emerald-900/20 border border-emerald-200 dark:border-emerald-800">
+                <ShieldCheck className="w-5 h-5 text-emerald-600 shrink-0" />
+                <p className="text-sm text-emerald-800 dark:text-emerald-300 font-medium">
+                  Receipt confirmed — thank you!
+                </p>
+              </div>
+
+              {/* Review prompt card */}
+              <div className="rounded-xl border border-primary/30 bg-primary/5 p-5">
+                <p className="text-sm font-medium text-foreground mb-1">How was your order?</p>
+                <p className="text-xs text-muted-foreground mb-3">Your review helps other buyers.</p>
+                <Button
+                  size="sm"
+                  onClick={() => navigate(`/product/${order?.items[0]?.productId}`, { state: { openReview: true } })}
+                  disabled={!order?.items[0]}
+                >
+                  <Star className="w-4 h-4 mr-2" /> Write a Review
+                </Button>
+              </div>
+
+              {/* Action cards */}
+              <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+                <button
+                  onClick={() => navigate(`/product/${order?.items[0]?.productId}`, { state: { openReview: true } })}
+                  disabled={!order?.items[0]}
+                  className="flex flex-col items-center gap-2 p-4 rounded-xl border border-border bg-card hover:border-primary/40 hover:bg-muted/50 transition-colors text-center"
+                >
+                  <div className="w-10 h-10 rounded-full bg-secondary/10 flex items-center justify-center">
+                    <Star className="w-5 h-5 text-secondary" />
+                  </div>
+                  <span className="text-sm font-medium">Leave a Review</span>
+                </button>
+
+                {tracking.issueReported ? (
+                  <div className="flex flex-col items-center gap-2 p-4 rounded-xl border border-amber-200 dark:border-amber-800 bg-amber-50 dark:bg-amber-900/20 text-center">
+                    <div className="w-10 h-10 rounded-full bg-amber-100 dark:bg-amber-900/30 flex items-center justify-center">
+                      <AlertTriangle className="w-5 h-5 text-amber-600" />
+                    </div>
+                    <span className="text-sm font-medium text-amber-800 dark:text-amber-300">Issue Reported</span>
+                    <span className="text-xs text-muted-foreground">We'll follow up via email</span>
+                  </div>
+                ) : (
+                  <button
+                    onClick={reportIssue}
+                    className="flex flex-col items-center gap-2 p-4 rounded-xl border border-border bg-card hover:border-primary/40 hover:bg-muted/50 transition-colors text-center"
+                  >
+                    <div className="w-10 h-10 rounded-full bg-amber-100 dark:bg-amber-900/30 flex items-center justify-center">
+                      <MessageSquare className="w-5 h-5 text-amber-600" />
+                    </div>
+                    <span className="text-sm font-medium">Report an Issue</span>
+                  </button>
+                )}
+
+                <button
+                  onClick={() => navigate(`/order/${orderId}/return`)}
+                  className="flex flex-col items-center gap-2 p-4 rounded-xl border border-border bg-card hover:border-primary/40 hover:bg-muted/50 transition-colors text-center"
+                >
+                  <div className="w-10 h-10 rounded-full bg-muted flex items-center justify-center">
+                    <RotateCcw className="w-5 h-5 text-muted-foreground" />
+                  </div>
+                  <span className="text-sm font-medium">Request a Return</span>
+                </button>
+              </div>
+            </div>
+          )}
         </div>
       )}
 
