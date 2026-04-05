@@ -97,7 +97,7 @@ const IntentPrompt = () => {
     .sort((a, b) => new Date(a.expiresAt).getTime() - new Date(b.expiresAt).getTime())[0];
 
   return (
-    <section className="relative min-h-[85vh] flex flex-col justify-center overflow-hidden">
+    <section className="relative min-h-[70vh] flex flex-col justify-center overflow-hidden">
       {/* Cycling background images */}
       {heroImages.map((src, index) => {
         const isActive = currentImage === index;
