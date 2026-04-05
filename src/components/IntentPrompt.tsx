@@ -1,4 +1,5 @@
 import { Search, Compass, Camera } from "lucide-react";
+import CompactDealsStrip from "@/components/CompactDealsStrip";
 import { useState, useEffect, useRef } from "react";
 import { useNavigate, Link } from "react-router-dom";
 import heroBg1 from "@/assets/hero-bg-1.jpg";
@@ -96,7 +97,7 @@ const IntentPrompt = () => {
     .sort((a, b) => new Date(a.expiresAt).getTime() - new Date(b.expiresAt).getTime())[0];
 
   return (
-    <section className="relative min-h-[85vh] flex flex-col justify-center overflow-hidden">
+    <section className="relative min-h-[70vh] flex flex-col justify-center overflow-hidden">
       {/* Cycling background images */}
       {heroImages.map((src, index) => {
         const isActive = currentImage === index;
@@ -251,6 +252,11 @@ const IntentPrompt = () => {
             </div>
           </div>
         )}
+
+        {/* Compact deals strip at bottom of hero */}
+        <div className="pb-6">
+          <CompactDealsStrip />
+        </div>
       </div>
 
       <ImageSearchModal
