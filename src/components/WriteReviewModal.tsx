@@ -377,14 +377,17 @@ const WriteReviewModal = ({
                 )}
                 <span
                   className={`text-xs ${
-                    text.trim().length < 20
+                    text.trim().length < 10
                       ? "text-muted-foreground"
                       : "text-secondary"
                   }`}
                 >
-                  {text.trim().length} / 20 min
+                  {text.trim().length} / 10 min
                 </span>
               </div>
+              <p className="text-xs text-muted-foreground mt-1.5">
+                Reviews with more detail help other buyers make confident decisions — and earn you <span className="font-semibold text-primary">50 Ink Points</span>.
+              </p>
             </div>
 
             {/* Photo attachment */}

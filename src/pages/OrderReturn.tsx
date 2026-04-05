@@ -336,6 +336,21 @@ const OrderReturn = () => {
             </div>
           </div>
 
+          {/* Store credit confirmation */}
+          {outcome === "store_credit" && user && (
+            <div className="rounded-lg bg-primary/5 border border-primary/20 p-4 flex items-start gap-3 text-left mb-6 animate-fade-in">
+              <Sparkles className="w-5 h-5 text-primary mt-0.5 shrink-0" />
+              <div>
+                <p className="text-sm font-semibold text-foreground">
+                  S${storeCreditAmount.toFixed(2)} store credit has been added to your Ink Points balance.
+                </p>
+                <p className="text-xs text-muted-foreground mt-1">
+                  Your new balance is <span className="font-semibold text-primary">{user.loyaltyPoints} Ink</span>. You can use these points on your next purchase.
+                </p>
+              </div>
+            </div>
+          )}
+
           <div className="rounded-lg bg-amber-50 dark:bg-amber-900/20 border border-amber-200 dark:border-amber-800 p-3 flex items-start gap-2.5 text-left mb-6">
             <Package className="w-4 h-4 text-amber-600 mt-0.5 shrink-0" />
             <div>
