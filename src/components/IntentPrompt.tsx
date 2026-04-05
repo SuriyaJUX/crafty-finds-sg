@@ -225,28 +225,8 @@ const IntentPrompt = ({ expiringTotal = 0, earliestExpiry, expiryDismissed, onDi
           </div>
         </div>
 
-        {/* Expiry reminder pill */}
-        {isAuthenticated && !expiryDismissed && expiringTotal > 0 && earliestExpiry && (
-          <div className="flex justify-center pb-3 animate-fade-in">
-            <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full backdrop-blur-md bg-amber-500/10 border border-amber-300/30 text-sm">
-              <Clock className="w-4 h-4 text-amber-500 shrink-0" />
-              <span className="text-foreground">
-                <span className="font-semibold">{expiringTotal} Ink</span> expiring soon — worth{" "}
-                <span className="font-semibold">S${(expiringTotal / 200).toFixed(2)}</span> off
-              </span>
-              <a href="/shop" className="text-primary font-medium hover:underline whitespace-nowrap">
-                Shop now →
-              </a>
-              <button
-                onClick={onDismissExpiry}
-                className="text-muted-foreground hover:text-foreground shrink-0 ml-1"
-                aria-label="Dismiss"
-              >
-                <X className="w-3.5 h-3.5" />
-              </button>
-            </div>
-          </div>
-        )}
+
+
 
         {/* Compact deals strip at bottom of hero */}
         <div className="pb-6">
