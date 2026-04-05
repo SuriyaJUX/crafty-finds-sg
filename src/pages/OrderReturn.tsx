@@ -2,6 +2,7 @@ import { useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { useAuth } from "@/context/AuthContext";
 import { products } from "@/data/products";
+import { Sparkles } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 import {
@@ -77,7 +78,7 @@ function saveReturn(data: StoredReturn) {
 const OrderReturn = () => {
   const { orderId } = useParams<{ orderId: string }>();
   const navigate = useNavigate();
-  const { user } = useAuth();
+  const { user, addPoints } = useAuth();
 
   const order = user?.orderHistory.find(o => o.id === orderId);
 
@@ -106,6 +107,9 @@ const OrderReturn = () => {
     .filter(i => selectedItems.includes(i.productId))
     .reduce((s, i) => s + i.price * i.quantity, 0);
 
+  const storeCreditAmount = refundTotal * 1.1;
+  const storeCreditPoints = Math.round(storeCreditAmount * 200);
+
   const handleSubmit = () => {
     if (!reason || !outcome) return;
     const rid = `RT-${Date.now().toString(36).toUpperCase()}`;
@@ -118,6 +122,17 @@ const OrderReturn = () => {
       outcome,
       createdAt: new Date().toISOString(),
     });
+
+    // Immediately add store credit to Ink Points balance
+    if (outcome === "store_credit" && user) {
+      addPoints(
+        storeCreditPoints,
+        `Store credit from return ${rid} (S$${storeCreditAmount.toFixed(2)})`,
+        "star",
+        "return_credit"
+      );
+    }
+
     setStep("confirmation");
   };
 
@@ -320,6 +335,21 @@ const OrderReturn = () => {
               <span>S${outcome === "store_credit" ? (refundTotal * 1.1).toFixed(2) : refundTotal.toFixed(2)}</span>
             </div>
           </div>
+
+          {/* Store credit confirmation */}
+          {outcome === "store_credit" && user && (
+            <div className="rounded-lg bg-primary/5 border border-primary/20 p-4 flex items-start gap-3 text-left mb-6 animate-fade-in">
+              <Sparkles className="w-5 h-5 text-primary mt-0.5 shrink-0" />
+              <div>
+                <p className="text-sm font-semibold text-foreground">
+                  S${storeCreditAmount.toFixed(2)} store credit has been added to your Ink Points balance.
+                </p>
+                <p className="text-xs text-muted-foreground mt-1">
+                  Your new balance is <span className="font-semibold text-primary">{user.loyaltyPoints} Ink</span>. You can use these points on your next purchase.
+                </p>
+              </div>
+            </div>
+          )}
 
           <div className="rounded-lg bg-amber-50 dark:bg-amber-900/20 border border-amber-200 dark:border-amber-800 p-3 flex items-start gap-2.5 text-left mb-6">
             <Package className="w-4 h-4 text-amber-600 mt-0.5 shrink-0" />

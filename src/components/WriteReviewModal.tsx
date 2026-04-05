@@ -207,8 +207,8 @@ const WriteReviewModal = ({
   const validate = () => {
     const e: typeof errors = {};
     if (rating === 0) e.rating = "Please select a star rating.";
-    if (text.trim().length < 20)
-      e.text = "Please write at least 20 characters.";
+    if (text.trim().length < 10)
+      e.text = "Please write at least 10 characters.";
     setErrors(e);
     return Object.keys(e).length === 0;
   };
@@ -377,14 +377,17 @@ const WriteReviewModal = ({
                 )}
                 <span
                   className={`text-xs ${
-                    text.trim().length < 20
+                    text.trim().length < 10
                       ? "text-muted-foreground"
                       : "text-secondary"
                   }`}
                 >
-                  {text.trim().length} / 20 min
+                  {text.trim().length} / 10 min
                 </span>
               </div>
+              <p className="text-xs text-muted-foreground mt-1.5">
+                Reviews with more detail help other buyers make confident decisions — and earn you <span className="font-semibold text-primary">50 Ink Points</span>.
+              </p>
             </div>
 
             {/* Photo attachment */}

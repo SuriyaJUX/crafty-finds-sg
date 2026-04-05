@@ -604,13 +604,13 @@ const OrderTracking = () => {
               {/* Review prompt card */}
               <div className="rounded-xl border border-primary/30 bg-primary/5 p-5">
                 <p className="text-sm font-medium text-foreground mb-1">How was your order?</p>
-                <p className="text-xs text-muted-foreground mb-3">Your review helps other buyers.</p>
+                <p className="text-xs text-muted-foreground mb-3">Your review helps other buyers make confident decisions.</p>
                 <Button
-                  size="sm"
                   onClick={() => navigate(`/product/${order?.items[0]?.productId}`, { state: { openReview: true } })}
                   disabled={!order?.items[0]}
+                  className="w-full sm:w-auto"
                 >
-                  <Star className="w-4 h-4 mr-2" /> Write a Review
+                  <Star className="w-4 h-4 mr-2" /> Write a review — earn 50 Ink Points
                 </Button>
               </div>
 
