@@ -132,6 +132,15 @@ const IntentPrompt = ({ expiringTotal = 0, earliestExpiry, expiryDismissed, onDi
                   ✦ Highest tier
                 </p>
               )}
+              {!expiryDismissed && expiringTotal > 0 && (
+                <div className="flex items-center gap-1 text-[11px] text-amber-600 dark:text-amber-400 animate-fade-in">
+                  <span>⏳ {expiringTotal} Ink expiring ·</span>
+                  <a href="/shop" className="font-medium hover:underline">Shop →</a>
+                  <button onClick={onDismissExpiry} className="ml-auto text-muted-foreground hover:text-foreground" aria-label="Dismiss">
+                    <X className="w-3 h-3" />
+                  </button>
+                </div>
+              )}
             </div>
           </div>
         )}
