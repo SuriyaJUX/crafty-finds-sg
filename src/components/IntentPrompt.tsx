@@ -149,7 +149,7 @@ const IntentPrompt = ({ expiringTotal = 0, earliestExpiry, expiryDismissed, onDi
         <div className="container max-w-2xl mx-auto px-4 text-center pt-6 pb-4">
           {/* Mobile-only compact greeting */}
           {isAuthenticated && user && (
-            <div className="md:hidden mb-4 animate-fade-in">
+            <div className="md:hidden mb-4 animate-fade-in flex flex-wrap justify-center gap-1.5">
               <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-card/70 backdrop-blur-sm border border-border/50 text-xs">
                 <span className="text-foreground">Hi, <span className="font-semibold">{firstName}</span></span>
                 <span className="text-muted-foreground">·</span>
@@ -161,6 +161,12 @@ const IntentPrompt = ({ expiringTotal = 0, earliestExpiry, expiryDismissed, onDi
                   {currentTier.badge}
                 </span>
               </span>
+              {!expiryDismissed && expiringTotal > 0 && (
+                <span className="inline-flex items-center gap-1 px-3 py-1 rounded-full bg-amber-500/10 border border-amber-300/30 text-xs animate-fade-in">
+                  <span className="text-amber-600 dark:text-amber-400">⏳ {expiringTotal} Ink expiring</span>
+                  <a href="/shop" className="font-medium text-primary hover:underline">Shop →</a>
+                </span>
+              )}
             </div>
           )}
 
