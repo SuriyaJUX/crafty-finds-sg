@@ -57,7 +57,7 @@ const CompactDealsStrip = () => {
               <div
                 key={p.id}
                 className="group relative flex-none cursor-pointer
-                  w-16 md:w-[72px] md:hover:w-[180px]
+                  w-20 md:w-[88px] md:hover:w-[180px]
                   transition-all duration-[400ms] ease-out
                   overflow-hidden rounded-xl border border-border bg-card shadow-sm
                   md:hover:shadow-lg md:hover:border-primary/40 md:hover:rounded-2xl"
