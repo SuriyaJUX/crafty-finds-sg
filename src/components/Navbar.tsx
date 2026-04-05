@@ -232,6 +232,14 @@ const Navbar = () => {
               </div>
             )}
           </div>
+          {/* ── Dark mode toggle ── */}
+          <button
+            onClick={() => setTheme(theme === "dark" ? "light" : "dark")}
+            className="p-2 text-muted-foreground hover:text-foreground transition-colors"
+            aria-label="Toggle dark mode"
+          >
+            {theme === "dark" ? <Sun className="w-5 h-5" /> : <Moon className="w-5 h-5" />}
+          </button>
           <Link
             to="/about#contact"
             className="flex p-2 text-muted-foreground hover:text-foreground transition-colors relative group"
