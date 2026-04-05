@@ -1,10 +1,15 @@
 import { products } from "@/data/products";
 import { useCart } from "@/context/CartContext";
 import { Link, useNavigate } from "react-router-dom";
-import { Tag } from "lucide-react";
+import { Tag, Heart, Star } from "lucide-react";
+import { COLOR_MAP } from "@/components/ColorWheelFilter";
+
+const COLOR_HEX: Record<string, string> = {
+  ...Object.fromEntries(Object.entries(COLOR_MAP).map(([k, v]) => [k, v.hex])),
+};
 
 const CompactDealsStrip = () => {
-  const { items } = useCart();
+  const { items, toggleSaved, isSaved } = useCart();
   const navigate = useNavigate();
 
   const discounted = products.filter(
@@ -73,7 +78,7 @@ const CompactDealsStrip = () => {
                 </div>
 
                 {/* Expanded card — desktop hover only */}
-                <div className="hidden md:block absolute bottom-full left-1/2 -translate-x-1/2 mb-2 w-48 translate-y-2 opacity-0 scale-95 pointer-events-none group-hover:translate-y-0 group-hover:opacity-100 group-hover:scale-100 group-hover:pointer-events-auto transition-all duration-[400ms] ease-out z-50">
+                <div className="hidden md:block absolute bottom-full left-1/2 -translate-x-1/2 mb-2 w-56 translate-y-2 opacity-0 scale-95 pointer-events-none group-hover:translate-y-0 group-hover:opacity-100 group-hover:scale-100 group-hover:pointer-events-auto transition-all duration-[400ms] ease-out z-50">
                   <div className="rounded-2xl border border-border bg-card shadow-xl backdrop-blur-sm overflow-hidden">
                     <div className="aspect-square w-full overflow-hidden relative">
                       <img
@@ -82,20 +87,39 @@ const CompactDealsStrip = () => {
                         className="w-full h-full object-cover"
                         loading="lazy"
                       />
-                      {/* Gradient overlay for contrast */}
                       <div className="absolute inset-x-0 bottom-0 h-1/3 bg-gradient-to-t from-black/30 to-transparent" />
-                      {/* Discount badge on expanded card */}
-                      {discountPercent > 0 && (
-                        <span className="absolute top-2 right-2 bg-destructive text-destructive-foreground text-[10px] font-bold px-1.5 py-0.5 rounded-full leading-none">
-                          -{discountPercent}%
-                        </span>
-                      )}
+                      {/* Badges top-left */}
+                      <div className="absolute top-2 left-2 flex flex-col gap-1">
+                        {p.isCommunityFavourite && (
+                          <span className="badge-community px-2 py-0.5 rounded-full text-[10px] font-semibold">
+                            ❤️ Community Favourite
+                          </span>
+                        )}
+                        {discountPercent > 0 && (
+                          <span className="bg-primary text-primary-foreground px-2 py-0.5 rounded-full text-[10px] font-semibold">
+                            {discountPercent}% off
+                          </span>
+                        )}
+                      </div>
+                      {/* Wishlist heart top-right */}
+                      <button
+                        onClick={(e) => { e.stopPropagation(); toggleSaved(p); }}
+                        className="absolute top-2 right-2 p-1.5 rounded-full bg-background/80 backdrop-blur hover:bg-background transition-colors"
+                      >
+                        <Heart className={`w-4 h-4 ${isSaved(p.id) ? "fill-primary text-primary" : "text-muted-foreground"}`} />
+                      </button>
                     </div>
                     <div className="p-3">
                       <p className="text-xs font-medium text-foreground line-clamp-2 leading-tight mb-1.5">
                         {p.name}
                       </p>
-                      <div className="flex items-baseline gap-1.5 mb-2">
+                      <div className="flex items-center gap-1 mb-1.5">
+                        <Star className="w-3.5 h-3.5 fill-badge-community text-badge-community" />
+                        <span className="text-[11px] text-muted-foreground">
+                          {p.rating} ({p.reviewCount})
+                        </span>
+                      </div>
+                      <div className="flex items-baseline gap-1.5 mb-1.5">
                         <span className="text-sm font-bold text-foreground">
                           S${p.price.toFixed(2)}
                         </span>
@@ -105,9 +129,21 @@ const CompactDealsStrip = () => {
                           </span>
                         )}
                       </div>
-                      <span className="text-[11px] font-medium text-primary">
-                        View →
-                      </span>
+                      {/* Color swatches */}
+                      {p.colors && p.colors.length > 1 && (
+                        <div className="flex items-center gap-1">
+                          {p.colors.slice(0, 4).map(c => (
+                            <span
+                              key={c}
+                              className="w-2.5 h-2.5 rounded-full border border-border shrink-0"
+                              style={{ background: COLOR_HEX[c] || "#ccc" }}
+                            />
+                          ))}
+                          {p.colors.length > 4 && (
+                            <span className="text-[9px] text-muted-foreground">+{p.colors.length - 4}</span>
+                          )}
+                        </div>
+                      )}
                     </div>
                   </div>
                 </div>
