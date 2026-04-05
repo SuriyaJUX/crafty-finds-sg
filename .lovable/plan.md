@@ -2,46 +2,65 @@
 
 ## Problem
 
-The confirmation page stacks everything in a single narrow column: hero → order summary → ink points → tier upgrade → guest upsell → notification toggle → product recommendation → CTA buttons. The "Track Order" button and notification toggle end up far below the fold.
+The order tracking page has three issues:
+
+1. **Stiff timeline** — The tracking timeline is a static vertical list with no sense of progression or phase transitions. It feels like a plain list, not a journey.
+
+2. **"What would you like to do?" buried below fold** — Users must scroll past the timeline and order items to reach post-delivery actions.
+
+3. **Duplicate review CTAs** — After confirming receipt, there's both a prominent review card AND a "Leave a Review" tile in the action grid. Also, clicking "Write a review" navigates to the product page but doesn't scroll to or open the review section.
+
+---
 
 ## Solution
 
-Restructure into a **two-column layout** (desktop) so primary actions are immediately visible, and compact the hero card.
+### 1. Dynamic phase-based timeline
 
-### Layout
+Replace the vertical list timeline with a **horizontal stepper** that shows the current phase as a prominent "card" with animated transitions between phases.
 
-```text
-┌─────────────────────────┬──────────────────────┐
-│  Confirmation Hero      │  Track Order + CTAs   │
-│  (compact: icon+title   │  Notification toggle  │
-│   + order ID + address  │  Ink Points earned    │
-│   + delivery date)      │  (or Guest upsell)    │
-│─────────────────────────│                       │
-│  Order Summary          │                       │
-│  (collapsible)          │                       │
-└─────────────────────────┴──────────────────────┘
-│  Below fold: Tier upgrade, Recommendation       │
-└─────────────────────────────────────────────────┘
-```
+- **Horizontal step indicators** at the top: small circles/dots connected by a progress bar, showing all phases at a glance
+- **Active phase card** below: a larger card showing the current step's icon (animated pulse), label, description, and timestamp — this replaces the vertical list
+- When advancing, the card **cross-fades** (fade-out old → fade-in new) for a smooth phase transition feel
+- "Show full timeline" becomes a collapsible vertical detail log below the phase card, for users who want granular history
+- Use existing `animate-fade-in` and `animate-scale-in` keyframes for transitions
 
-### Key changes
+### 2. Two-column layout with sticky actions sidebar
 
-1. **Two-column grid on `md:`** — Left column: hero card + order summary. Right column: CTA buttons, notification toggle, Ink Points card (or guest upsell). Right column is `sticky top-24` so it stays visible while scrolling.
+Restructure into `grid md:grid-cols-[1fr_280px]` when the order is delivered:
 
-2. **Compact the hero card** — Reduce the checkmark icon from `w-16 h-16` to `w-10 h-10`. Reduce heading from `text-3xl` to `text-2xl`. Tighten padding from `p-8` to `p-5`. This saves ~80px of vertical space.
+- **Left column**: Header card → Phase timeline → Order items
+- **Right column** (sticky): "What would you like to do?" card — always visible without scrolling
 
-3. **Move CTA buttons to right column top** — "Track Order" and "Continue Shopping" become the first thing in the right column, immediately visible on load.
+On mobile: reorder so the actions card appears **immediately after the header**, before the timeline.
 
-4. **Notification toggle moves to right column** — sits right below the CTAs, naturally discoverable.
+### 3. Remove review duplication & fix navigation
 
-5. **Ink Points / Guest upsell in right column** — below the notification toggle in the sidebar.
+- **Remove** the "Leave a Review" tile from the 3-column action grid (lines 619-628) — the prominent review card above it is sufficient
+- The action grid becomes 2 columns: "Report an Issue" and "Request a Return"
+- **Fix the review navigation**: In `ProductDetail.tsx`, consume `location.state.openReview`:
+  - Auto-open the `WriteReviewModal` when `openReview` is true
+  - Scroll the reviews section into view with `scrollIntoView({ behavior: 'smooth', block: 'center' })`
 
-6. **Order summary becomes collapsible** — wrapped in a `<details>` element, open by default but saves space if user collapses it.
+### 4. Entrance animations
 
-7. **Below the grid**: Tier upgrade panel and product recommendation remain full-width below the two-column area (secondary content).
+- Action cards in the "What would you like to do?" section get staggered `animate-fade-in` with increasing delays
+- The phase card uses `animate-scale-in` on mount and cross-fades on phase change
 
-8. **Mobile**: Single column, but reorder so CTAs + notification toggle come **immediately after** the hero card, before the order summary.
+---
 
-### Files changed
-- `src/pages/CheckoutConfirmation.tsx` — restructure layout to two-column grid, reorder elements, compact hero
+## Files changed
+
+**`src/pages/OrderTracking.tsx`**
+- Replace vertical timeline with horizontal stepper + active phase card with cross-fade
+- Restructure to two-column grid (desktop) with sticky right sidebar for actions
+- Mobile: move actions section above timeline
+- Remove duplicate "Leave a Review" tile from action grid
+- Add staggered animations to action cards
+
+**`src/pages/ProductDetail.tsx`**
+- Read `location.state?.openReview` via `useLocation`
+- If true, auto-open `WriteReviewModal` and scroll reviews section into view on mount
+
+**`tailwind.config.ts`**
+- Add `cross-fade-in` keyframe if needed for the phase card transition
 
