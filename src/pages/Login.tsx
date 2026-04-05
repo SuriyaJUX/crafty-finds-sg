@@ -85,7 +85,7 @@ const Login = () => {
 
         <div className="text-center mb-8">
           <h1 className="font-serif text-3xl mb-2">Welcome back</h1>
-          <p className="text-muted-foreground text-sm">Sign in to your Paperly account</p>
+          <p className="text-muted-foreground text-sm">Sign in to your Note & Gale account</p>
         </div>
 
         <form onSubmit={handleSubmit} className="space-y-4">
