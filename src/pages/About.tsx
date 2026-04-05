@@ -13,7 +13,7 @@ const About = () => {
 
   return (
   <div className="container max-w-4xl mx-auto px-4 py-12">
-    <h1 className="font-serif text-3xl mb-2">About Paperly</h1>
+    <h1 className="font-serif text-3xl mb-2">About Note & Gale</h1>
     <p className="text-muted-foreground text-sm mb-12">
       Everything you'd like to know about us.
     </p>
