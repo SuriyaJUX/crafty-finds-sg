@@ -104,8 +104,6 @@ const Index = () => {
 
       <IntentPrompt />
 
-      <IntentPrompt />
-
       <FeaturedProducts />
       <CommunityPick />
       <CreativePathsPreview />

@@ -252,6 +252,11 @@ const IntentPrompt = () => {
             </div>
           </div>
         )}
+
+        {/* Compact deals strip at bottom of hero */}
+        <div className="pb-6">
+          <CompactDealsStrip />
+        </div>
       </div>
 
       <ImageSearchModal
