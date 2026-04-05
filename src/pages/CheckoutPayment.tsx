@@ -145,42 +145,6 @@ const CheckoutPayment = () => {
     .filter(d => d.code && VOUCHER_MAP[d.code])
     .map(d => VOUCHER_MAP[d.code!]);
 
-  // Auto-apply voucher claimed from the Promotions page
-  useEffect(() => {
-    const pending = localStorage.getItem("pendingVoucher");
-    if (pending) {
-      const code = pending.trim().toUpperCase();
-      const result = VOUCHER_MAP[code];
-      if (result) {
-        setVoucherApplied(result);
-        setVoucherCode(code);
-        pendingVoucherCode.current = code;
-        toast({
-          title: `Voucher ${code} applied from your deals page`,
-          description: result.label,
-        });
-      }
-      localStorage.removeItem("pendingVoucher");
-    }
-  // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
-
-  // PayNow countdown
-  useEffect(() => {
-    if (expandedMethod === "paynow") {
-      setPayNowTimeLeft(600);
-      payNowInterval.current = setInterval(() => {
-        setPayNowTimeLeft(t => {
-          if (t <= 1) { clearInterval(payNowInterval.current!); return 0; }
-          return t - 1;
-        });
-      }, 1000);
-    } else {
-      if (payNowInterval.current) clearInterval(payNowInterval.current);
-    }
-    return () => { if (payNowInterval.current) clearInterval(payNowInterval.current); };
-  }, [expandedMethod]);
-
   // Price calculations
   const shipping = subtotal >= 50 ? 0 : 3.50;
   const voucherDeduction = voucherApplied
