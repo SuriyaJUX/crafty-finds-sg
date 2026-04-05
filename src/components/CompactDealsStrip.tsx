@@ -57,7 +57,7 @@ const CompactDealsStrip = () => {
                 {/* Compact pill — always visible */}
                 <div className="relative w-16 h-16 md:w-[72px] md:h-[72px] rounded-xl overflow-hidden border border-border bg-card shadow-sm transition-all duration-300 group-hover:shadow-lg group-hover:border-primary/40">
                   <img
-                    src={p.image}
+src={p.images[0]}
                     alt={p.name}
                     className="w-full h-full object-cover"
                     loading="lazy"
