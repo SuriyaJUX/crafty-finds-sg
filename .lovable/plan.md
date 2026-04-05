@@ -2,31 +2,46 @@
 
 ## Problem
 
-The Savings & Rewards card is embedded **inside the left payment column** (after the payment method panel), forcing the page to scroll. The goal is to fit the entire payment page in a single viewport.
+The confirmation page stacks everything in a single narrow column: hero → order summary → ink points → tier upgrade → guest upsell → notification toggle → product recommendation → CTA buttons. The "Track Order" button and notification toggle end up far below the fold.
 
 ## Solution
 
-Move the Savings & Rewards card to the **right sidebar**, stacked below the Order Summary. This removes significant vertical bulk from the left column and uses the empty space on the right.
+Restructure into a **two-column layout** (desktop) so primary actions are immediately visible, and compact the hero card.
 
-### Layout changes
+### Layout
 
-**Right column** (desktop): Stack Order Summary + Savings & Rewards inside the sticky sidebar, both in a single scrollable container if needed.
+```text
+┌─────────────────────────┬──────────────────────┐
+│  Confirmation Hero      │  Track Order + CTAs   │
+│  (compact: icon+title   │  Notification toggle  │
+│   + order ID + address  │  Ink Points earned    │
+│   + delivery date)      │  (or Guest upsell)    │
+│─────────────────────────│                       │
+│  Order Summary          │                       │
+│  (collapsible)          │                       │
+└─────────────────────────┴──────────────────────┘
+│  Below fold: Tier upgrade, Recommendation       │
+└─────────────────────────────────────────────────┘
+```
 
-**Left column**: Remove the inline `<SavingsRewardsCard />` call (line 633) and the confirmation nudge (lines 636-662). The left column becomes: payment method selection → trust badges → error display → Place Order button. This should comfortably fit in one viewport.
+### Key changes
 
-**Mobile**: Keep Savings & Rewards below the mobile order summary accordion (since there's no right column on mobile).
+1. **Two-column grid on `md:`** — Left column: hero card + order summary. Right column: CTA buttons, notification toggle, Ink Points card (or guest upsell). Right column is `sticky top-24` so it stays visible while scrolling.
 
-### Additional improvements
+2. **Compact the hero card** — Reduce the checkmark icon from `w-16 h-16` to `w-10 h-10`. Reduce heading from `text-3xl` to `text-2xl`. Tighten padding from `p-8` to `p-5`. This saves ~80px of vertical space.
 
-1. **Compact the right sidebar** — combine Order Summary and Savings & Rewards under a single card with a subtle divider, reducing border/padding overhead.
-2. **Sticky "Place Order" on mobile** — add a fixed bottom bar on small screens so the user never has to scroll to find the CTA.
-3. **Savings badge on Place Order button** — if savings are applied, show a small "You save S$X.XX" line below the button total, reinforcing the value without needing the nudge card.
+3. **Move CTA buttons to right column top** — "Track Order" and "Continue Shopping" become the first thing in the right column, immediately visible on load.
+
+4. **Notification toggle moves to right column** — sits right below the CTAs, naturally discoverable.
+
+5. **Ink Points / Guest upsell in right column** — below the notification toggle in the sidebar.
+
+6. **Order summary becomes collapsible** — wrapped in a `<details>` element, open by default but saves space if user collapses it.
+
+7. **Below the grid**: Tier upgrade panel and product recommendation remain full-width below the two-column area (secondary content).
+
+8. **Mobile**: Single column, but reorder so CTAs + notification toggle come **immediately after** the hero card, before the order summary.
 
 ### Files changed
-
-**`src/pages/CheckoutPayment.tsx`**
-- Move `<SavingsRewardsCard />` from left column (line 633) into the right sidebar `div` (after `<OrderSummary />`), wrapped with a `<Separator />` or `border-t`
-- Remove the confirmation nudge block (lines 636-662) — savings are now always visible in the sidebar
-- Add mobile rendering of `<SavingsRewardsCard />` inside the mobile summary accordion area
-- Optionally add a sticky mobile bottom bar with the Place Order button
+- `src/pages/CheckoutConfirmation.tsx` — restructure layout to two-column grid, reorder elements, compact hero
 
