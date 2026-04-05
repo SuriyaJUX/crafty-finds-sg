@@ -102,7 +102,7 @@ const Index = () => {
         </div>
       )}
 
-      <PersonalisedDeals />
+      <IntentPrompt />
 
       <IntentPrompt />
 
