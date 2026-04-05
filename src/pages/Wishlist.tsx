@@ -49,7 +49,7 @@ const Wishlist = () => {
         <Card className="mb-6 border-primary/20 bg-primary/[0.03]">
           <CardContent className="p-4 flex items-center gap-4">
             <img
-              src={goalProduct.image}
+              src={goalProduct.images[0]}
               alt={goalProduct.name}
               className="w-14 h-14 rounded-md object-cover shrink-0"
             />
