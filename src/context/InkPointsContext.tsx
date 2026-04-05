@@ -179,6 +179,12 @@ export const InkPointsProvider: React.FC<{ children: React.ReactNode }> = ({ chi
   const checkAndUpdateStreak = useCallback((): number => {
     if (!user) return 0;
 
+    // Only award once per calendar day
+    const today = new Date().toISOString().slice(0, 10);
+    const lastAwarded = localStorage.getItem("lastLoginAwardDate");
+    if (lastAwarded === today) return 0;
+    localStorage.setItem("lastLoginAwardDate", today);
+
     const newStreak    = (user.currentStreak ?? 0) + 1;
     const longestStreak = Math.max(user.longestStreak ?? 0, newStreak);
     // Cap daily login bonus at 100 pts
