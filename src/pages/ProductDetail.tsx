@@ -7,6 +7,7 @@ import { useInkPoints } from "@/context/InkPointsContext";
 import { useToast } from "@/hooks/use-toast";
 import { Star, Heart, ShoppingBag, ArrowLeft, Users, Camera, Sparkles, AlertTriangle } from "lucide-react";
 import { useState } from "react";
+import type { ProductVariant } from "@/data/types";
 import ProductCard from "@/components/ProductCard";
 import ProductQA from "@/components/ProductQA";
 import { useScrollReveal } from "@/hooks/use-scroll-reveal";
