@@ -75,6 +75,17 @@ const Shop = () => {
       ? COLOR_MAP[selectedColor]?.label
       : null;
 
+  const hasCompoundFilter = query.trim() !== "" && category !== "All";
+  const hasAnyFilter = query.trim() !== "" || category !== "All" || selectedColor !== null || showDiscounted;
+
+  const clearAllFilters = () => {
+    setQuery("");
+    setCategory("All");
+    setSelectedColor(null);
+    setShowDiscounted(false);
+    setSelectedPath(null);
+  };
+
   return (
     <>
     <div className="container max-w-6xl mx-auto px-4 py-8">
@@ -90,6 +101,14 @@ const Shop = () => {
           placeholder="Search products..."
           className="w-full pl-10 pr-10 py-2.5 rounded-lg border border-border bg-card text-sm placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-primary/30"
         />
+        {query && (
+          <button
+            onClick={() => setQuery("")}
+            className="absolute right-10 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground transition-colors"
+          >
+            <X className="w-3.5 h-3.5" />
+          </button>
+        )}
         <button
           type="button"
           onClick={() => setShowImageSearch(true)}
@@ -116,6 +135,62 @@ const Shop = () => {
           </button>
         ))}
       </div>
+
+      {/* Compound filter pill row */}
+      {hasCompoundFilter && (
+        <div className="flex flex-wrap items-center gap-2 mb-4 animate-fade-in">
+          <span className="text-xs text-muted-foreground">Showing results for</span>
+          <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-primary/10 text-primary text-xs font-medium">
+            "{query}"
+            <button onClick={() => setQuery("")} className="hover:text-destructive transition-colors">
+              <X className="w-3 h-3" />
+            </button>
+          </span>
+          <span className="text-xs text-muted-foreground">in</span>
+          <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-secondary/10 text-secondary text-xs font-medium">
+            {category}
+            <button onClick={() => setCategory("All")} className="hover:text-destructive transition-colors">
+              <X className="w-3 h-3" />
+            </button>
+          </span>
+          <button
+            onClick={clearAllFilters}
+            className="text-xs text-muted-foreground hover:text-foreground underline ml-2 transition-colors"
+          >
+            Clear all filters
+          </button>
+        </div>
+      )}
+
+      {/* Single filter indicators (non-compound) */}
+      {!hasCompoundFilter && hasAnyFilter && (
+        <div className="flex flex-wrap items-center gap-2 mb-4">
+          {query.trim() && (
+            <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-primary/10 text-primary text-xs font-medium">
+              Search: "{query}"
+              <button onClick={() => setQuery("")} className="hover:text-destructive transition-colors">
+                <X className="w-3 h-3" />
+              </button>
+            </span>
+          )}
+          {(query.trim() || selectedColor || showDiscounted) && category !== "All" && (
+            <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-secondary/10 text-secondary text-xs font-medium">
+              {category}
+              <button onClick={() => setCategory("All")} className="hover:text-destructive transition-colors">
+                <X className="w-3 h-3" />
+              </button>
+            </span>
+          )}
+          {(query.trim() || category !== "All" || selectedColor || showDiscounted) && (
+            <button
+              onClick={clearAllFilters}
+              className="text-xs text-muted-foreground hover:text-foreground underline ml-1 transition-colors"
+            >
+              Clear all filters
+            </button>
+          )}
+        </div>
+      )}
 
       {/* Colour filter drawer / panel */}
       <ColorFilterDrawer
@@ -228,7 +303,13 @@ const Shop = () => {
       ) : (
         <div className="text-center py-16 text-muted-foreground">
           <p className="text-lg mb-2">No products found</p>
-          <p className="text-sm">Try adjusting your search or filters</p>
+          <p className="text-sm mb-4">Try adjusting your search or filters</p>
+          <button
+            onClick={clearAllFilters}
+            className="text-sm text-primary hover:underline font-medium"
+          >
+            Clear all filters
+          </button>
         </div>
       )}
     </div>
