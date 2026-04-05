@@ -23,7 +23,14 @@ const CATEGORY_BUTTONS = [
   { label: "Paints", path: "/shop?category=Paints" },
 ];
 
-const IntentPrompt = () => {
+interface IntentPromptProps {
+  expiringTotal?: number;
+  earliestExpiry?: { expiresAt: string; amount: number } | null;
+  expiryDismissed?: boolean;
+  onDismissExpiry?: () => void;
+}
+
+const IntentPrompt = ({ expiringTotal = 0, earliestExpiry, expiryDismissed, onDismissExpiry }: IntentPromptProps) => {
   const [query, setQuery] = useState("");
   const [currentImage, setCurrentImage] = useState(0);
   const [leavingImage, setLeavingImage] = useState<number | null>(null);
