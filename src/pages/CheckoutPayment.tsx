@@ -97,7 +97,7 @@ const CheckoutPayment = () => {
   const [placing, setPlacing] = useState(false);
   const [paymentError, setPaymentError] = useState<string | null>(null);
   const [summaryOpen, setSummaryOpen] = useState(false);
-  const [savingsNudgeDismissed, setSavingsNudgeDismissed] = useState(false);
+  const [_savingsNudgeDismissed, _setSavingsNudgeDismissed] = useState(false);
   const [isFromPendingVoucher, setIsFromPendingVoucher] = useState(false);
   const payNowInterval = useRef<ReturnType<typeof setInterval> | null>(null);
   const pendingVoucherCode = useRef<string | null>(null);
