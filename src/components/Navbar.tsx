@@ -154,7 +154,7 @@ const Navbar = () => {
               >
                 {link.label}
                 {isDeals && !isActive && (
-                  <span className="ml-1 inline-block w-1.5 h-1.5 rounded-full bg-primary align-middle -mt-0.5" />
+                  <span className="ml-1 inline-block w-1.5 h-1.5 rounded-full bg-deals-banner align-middle -mt-0.5" />
                 )}
               </Link>
             );

@@ -115,7 +115,7 @@ const ProductCard = ({
         onClick={(e) => { e.preventDefault(); toggleSaved(product); }}
         className="absolute top-2 right-2 p-1.5 rounded-full bg-background/80 backdrop-blur hover:bg-background transition-colors"
       >
-        <Heart className={`w-4 h-4 ${saved ? "fill-primary text-primary" : "text-muted-foreground"}`} />
+        <Heart className={`w-4 h-4 ${saved ? "fill-destructive/80 text-destructive/80" : "text-muted-foreground"}`} />
       </button>
 
       {/* Quick add */}
