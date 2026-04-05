@@ -1,4 +1,5 @@
 import { Search, Compass, Camera } from "lucide-react";
+import CompactDealsStrip from "@/components/CompactDealsStrip";
 import { useState, useEffect, useRef } from "react";
 import { useNavigate, Link } from "react-router-dom";
 import heroBg1 from "@/assets/hero-bg-1.jpg";
