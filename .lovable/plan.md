@@ -2,30 +2,29 @@
 
 ## Problem
 
-The "Set as Ink Goal" button is a tiny, unstyled text link that blends into the page. The goal progress banner appears without animation. There's no visual feedback when setting/clearing a goal, and the overall goal feature feels static and forgettable.
+The ink expiry warning sits as a standalone card between the streak banner and the hero (`IntentPrompt`), breaking the visual flow. It's a separate block with its own container padding that disrupts the hero-to-content rhythm.
 
 ## Solution
 
-Make the goal system feel alive with hover effects, animated transitions, and visual feedback.
+Integrate the expiry reminder **into the hero section itself** as a subtle, non-intrusive overlay rather than a separate page-level block.
 
-### Changes to `src/pages/Wishlist.tsx`
+### Approach
 
-1. **Animated goal banner entrance** — Wrap the goal progress card in a `animate-fade-in` transition so it slides in smoothly when a goal is set. Add a pulsing glow on the Target icon (`animate-pulse`). When progress reaches 100%, add a celebratory shimmer effect on the "Ready to redeem!" text.
+Move the expiry warning from `Index.tsx` into the `IntentPrompt` hero component, rendered as a slim inline banner anchored near the bottom of the hero (just above the `CompactDealsStrip`). This keeps it visible but part of the hero's visual language — glass-morphism style, matching existing loyalty sidebar aesthetics — instead of a separate amber card that breaks the layout.
 
-2. **"Set as Ink Goal" button upgrade** — Replace the plain text link with a styled pill button that has:
-   - A subtle border and rounded-full shape so it's visually distinct
-   - Hover: scale up slightly (`hover:scale-105`) + border color transition to primary
-   - The Target icon rotates on hover (`group-hover:rotate-45 transition-transform`)
-   - Opacity transition on the entire card group: the button starts at lower opacity and becomes fully visible on card hover
+### Changes
 
-3. **Goal-setting animation** — When a user clicks "Set as Ink Goal", use React state to trigger a brief scale-in animation (`animate-scale-in`) on the ring border appearing around the card, and animate the badge appearing with `animate-fade-in`.
+**`src/pages/Index.tsx`**
+- Remove the expiring points warning block (lines 79-103)
+- Pass `expiringTotal`, `earliestExpiry`, `expiryDismissed`, and `setExpiryDismissed` as props to `IntentPrompt`
 
-4. **Goal card ring animation** — The `ring-2 ring-primary/30` on the active goal card transitions in with a CSS transition instead of appearing instantly. Add `transition-all duration-300` to the card wrapper so the ring animates on/off.
-
-5. **Staggered grid entrance** — Add staggered `animate-fade-in` with incremental `animation-delay` to each product card in the grid for a cascading load effect.
-
-6. **Progress bar animation** — Add `transition-all duration-700` to the Progress component value so it animates when points change.
+**`src/components/IntentPrompt.tsx`**
+- Accept the expiry props
+- Render a slim glass-morphism pill/banner inside the hero (positioned above the deals strip or below the search bar) with the expiry message, "Shop now →" link, and dismiss button
+- Style: `backdrop-blur-md bg-amber-500/10 border border-amber-300/30 rounded-full` — blends with the hero instead of breaking flow
+- Animate in with `animate-fade-in`
 
 ### Files changed
-- `src/pages/Wishlist.tsx` — All animation and interaction enhancements above
+- `src/pages/Index.tsx`
+- `src/components/IntentPrompt.tsx`
 
