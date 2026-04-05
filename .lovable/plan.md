@@ -2,33 +2,61 @@
 
 ## Problem
 
-The current hover effect uses an **absolute-positioned popup floating above** the thumbnail, which gets clipped by the hero section above it. The user wants an **inline expansion** — when hovering over a thumbnail, it smoothly expands in-place into a full product card within the row, pushing siblings aside. This matches the reference images exactly.
+When authenticated, the hero stacks **9 distinct elements** vertically in a narrow center column:
+1. Greeting pill (name + Ink balance + tier badge)
+2. Headline
+3. Subtitle
+4. Search bar
+5. Image search hint
+6. Category buttons
+7. Tier progress strip (streak + progress bar)
+8. Expiring ink nudge link
+9. CompactDealsStrip
 
-## Approach
+This creates a cramped, noisy layout that pushes the hero well past its ideal height.
 
-Replace the floating popup with an **inline width/height transition** on the item itself:
+## Redistribution Strategy
 
-### How it works
+### Keep in hero center (priority elements)
+- Headline
+- Search bar + camera icon
+- Category buttons (Just browsing, Pens & Markers, etc.)
+- CompactDealsStrip (at the bottom, untouched)
 
-1. **Default state**: Each item is a small `w-[72px] h-[72px]` rounded thumbnail (same as now)
-2. **Hovered state (desktop)**: The hovered item smoothly expands to `w-[180px]` with auto height, becoming a mini product card showing image, badges, heart, name, rating, price, and color swatches — all **inline in the flex row**, not floating
-3. **Other items stay as thumbnails** — the row naturally reflows as one item grows
-4. The flex container uses `items-start` so expanded cards align from the top
+### Move: Greeting + loyalty info → left-anchored sidebar card
+Instead of a center-aligned pill above the headline, render a small **glass-morphism card anchored to the left edge** of the hero (vertically centered). Contains:
+- "Welcome back, {name}" heading
+- Ink balance + tier badge on one line
+- Streak count as a subtle line
+- Tier progress bar (compact)
 
-### Technical details in `CompactDealsStrip.tsx`
+This uses the empty left side of the hero and removes 3 elements from the vertical stack.
 
-- **Remove**: The entire absolute-positioned floating card (lines 80-149) and the hover-lift effects on the pill
-- **Replace with**: A single `div` per item that transitions `width` and `height` via CSS `transition-all duration-400 ease-out`. On `group-hover`, width goes from `72px` to `180px`, overflow becomes visible, and the details section (name, rating, price, swatches) fades in with `opacity-0 → opacity-100` and a slight delay
-- The image stays `aspect-square` at the top, badges overlay the image, details render below
-- Use `overflow-hidden` on non-hovered state to clip the details section, which is always rendered but hidden when collapsed
-- The flex container changes from `justify-center` to `justify-center` with `items-start` alignment
+### Remove from hero entirely
+- **Expiring ink nudge** — already duplicated as the amber warning card in `Index.tsx` (lines 80-103), so the hero version (lines 242-251) is redundant. Remove it.
 
-### Animation
+### Subtitle → smaller, integrated with headline
+Reduce the subtitle from `text-lg` to `text-sm text-muted-foreground` and tighten the margin, making it feel like a tagline rather than a separate block.
 
-- `transition-all duration-[400ms] ease-out` on the card wrapper for smooth width/height expansion
-- Details section uses `opacity-0 group-hover:opacity-100 transition-opacity delay-150` so text fades in after the card starts expanding
-- No translate/scale — pure dimensional growth for a clean, non-clumsy feel
+### Animations
+- Left loyalty card: `animate-fade-in` with a slight horizontal slide (enters from left)
+- Category buttons: staggered fade-in using inline `animation-delay` on each button
+- Search bar: subtle scale-in on mount
+
+## Technical Details
 
 ### Files changed
-- `src/components/CompactDealsStrip.tsx` — rewrite the card markup to use inline expansion instead of floating popup
+
+**`src/components/IntentPrompt.tsx`**
+- Restructure the content div from single centered column to a relative layout:
+  - Center: headline + subtitle + search + buttons (narrower `max-w-2xl`)
+  - Left side: authenticated loyalty card, absolutely positioned at `left-4 md:left-8 top-1/2 -translate-y-1/2`
+- Remove the tier progress strip (lines 218-254) and the greeting pill above the headline (lines 129-146)
+- Add the new left-anchored card: ~160px wide glass card with `bg-card/60 backdrop-blur-md border border-border/40 rounded-2xl p-4`
+- Add staggered animation delays to category buttons
+- Reduce subtitle size
+- The left card only renders on `md:` and up; on mobile, show a compact single-line greeting above the headline (much smaller than current)
+
+**`tailwind.config.ts`** (if needed)
+- Add a `slide-in-left` keyframe for the loyalty card entrance animation
 
