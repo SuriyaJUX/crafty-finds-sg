@@ -1,3 +1,9 @@
+export interface ProductVariant {
+  label: string;
+  value: string;
+  colorHex?: string; // for colour swatches
+}
+
 export interface Product {
   id: string;
   name: string;
@@ -17,6 +23,7 @@ export interface Product {
   pairsWellWith?: string[];
   colors?: string[];
   inStock: boolean;
+  variants?: ProductVariant[];
 }
 
 export interface Review {
