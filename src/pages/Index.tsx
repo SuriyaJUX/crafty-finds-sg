@@ -6,7 +6,6 @@ import IntentPrompt from "@/components/IntentPrompt";
 import FeaturedProducts from "@/components/FeaturedProducts";
 import CommunityPick from "@/components/CommunityPick";
 import CreativePathsPreview from "@/components/CreativePathsPreview";
-import PersonalisedDeals from "@/components/PersonalisedDeals";
 import { useAuth } from "@/context/AuthContext";
 import { useInkPoints } from "@/context/InkPointsContext";
 import { format } from "date-fns";
