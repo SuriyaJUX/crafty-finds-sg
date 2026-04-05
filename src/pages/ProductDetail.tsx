@@ -324,7 +324,10 @@ const ProductDetail = () => {
 
       {/* Reviews */}
       <section
-        ref={reviewsReveal.ref}
+        ref={(el) => {
+          reviewsReveal.ref(el);
+          (reviewsSectionRef as React.MutableRefObject<HTMLElement | null>).current = el;
+        }}
         className={`mb-16 transition-[opacity,transform] duration-700 ${reviewsReveal.visible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-8"}`}
       >
         <div className="flex items-end justify-between mb-4">
