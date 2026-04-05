@@ -629,37 +629,10 @@ const CheckoutPayment = () => {
                   </div>
                 )}
 
-                {/* Savings & Rewards card — prominently visible */}
-                <SavingsRewardsCard />
-
-                {/* Confirmation nudge */}
-                {showNudge && (
-                  <div className="rounded-lg border border-secondary/30 bg-secondary/5 px-4 py-3 animate-fade-in">
-                    <p className="text-sm text-foreground mb-2">
-                      Would you like to apply any vouchers or points before placing your order?
-                      {user && user.loyaltyPoints > 0 && (
-                        <span className="text-secondary font-medium"> You have {user.loyaltyPoints} pts (S${(user.loyaltyPoints / 200).toFixed(2)}) available.</span>
-                      )}
-                    </p>
-                    <div className="flex gap-2">
-                      <button
-                        onClick={() => {
-                          // Scroll to savings card
-                          setSavingsNudgeDismissed(true);
-                        }}
-                        className="px-3 py-1 rounded-md bg-secondary text-white text-xs font-medium hover:opacity-90 transition-opacity"
-                      >
-                        Yes, apply savings
-                      </button>
-                      <button
-                        onClick={() => setSavingsNudgeDismissed(true)}
-                        className="px-3 py-1 rounded-md border border-border text-xs text-muted-foreground hover:text-foreground transition-colors"
-                      >
-                        Skip
-                      </button>
-                    </div>
-                  </div>
-                )}
+                {/* Savings & Rewards visible on mobile only (desktop uses sidebar) */}
+                <div className="md:hidden">
+                  <SavingsRewardsCard />
+                </div>
 
                 {/* Place Order */}
                 <Button
