@@ -101,6 +101,16 @@ const Navbar = () => {
           <Link to="/shop" className="p-2 text-muted-foreground hover:text-foreground transition-colors">
             <Search className="w-5 h-5" />
           </Link>
+          <Link
+            to="/about#contact"
+            className="hidden md:flex p-2 text-muted-foreground hover:text-foreground transition-colors relative group"
+            title="Help & support"
+          >
+            <HelpCircle className="w-5 h-5" />
+            <span className="absolute top-full mt-1 left-1/2 -translate-x-1/2 px-2 py-1 rounded bg-foreground text-background text-[10px] font-medium opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap pointer-events-none">
+              Help &amp; support
+            </span>
+          </Link>
           <Link to="/wishlist" className="p-2 text-muted-foreground hover:text-foreground transition-colors relative">
             <Heart className="w-5 h-5" />
             {savedItems.length > 0 && (
