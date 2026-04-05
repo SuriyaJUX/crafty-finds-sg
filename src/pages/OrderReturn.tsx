@@ -107,6 +107,9 @@ const OrderReturn = () => {
     .filter(i => selectedItems.includes(i.productId))
     .reduce((s, i) => s + i.price * i.quantity, 0);
 
+  const storeCreditAmount = refundTotal * 1.1;
+  const storeCreditPoints = Math.round(storeCreditAmount * 200);
+
   const handleSubmit = () => {
     if (!reason || !outcome) return;
     const rid = `RT-${Date.now().toString(36).toUpperCase()}`;
@@ -119,6 +122,17 @@ const OrderReturn = () => {
       outcome,
       createdAt: new Date().toISOString(),
     });
+
+    // Immediately add store credit to Ink Points balance
+    if (outcome === "store_credit" && user) {
+      addPoints(
+        storeCreditPoints,
+        `Store credit from return ${rid} (S$${storeCreditAmount.toFixed(2)})`,
+        "star",
+        "return_credit"
+      );
+    }
+
     setStep("confirmation");
   };
 
