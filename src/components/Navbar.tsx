@@ -1,5 +1,6 @@
 import { Link, useLocation, useNavigate } from "react-router-dom";
-import { ShoppingBag, Heart, Search, Menu, X, User, LogOut, Target, HelpCircle } from "lucide-react";
+import { ShoppingBag, Heart, Search, Menu, X, User, LogOut, Target, HelpCircle, Sun, Moon } from "lucide-react";
+import { useTheme } from "next-themes";
 import { useCart } from "@/context/CartContext";
 import { useAuth } from "@/context/AuthContext";
 import { useInkPoints } from "@/context/InkPointsContext";
@@ -24,6 +25,7 @@ const Navbar = () => {
   const { totalItems, setIsCartOpen, savedItems } = useCart();
   const { user, isAuthenticated, logout } = useAuth();
   const { currentTier } = useInkPoints();
+  const { theme, setTheme } = useTheme();
   const location = useLocation();
   const navigate = useNavigate();
   const [mobileOpen, setMobileOpen] = useState(false);
@@ -230,6 +232,14 @@ const Navbar = () => {
               </div>
             )}
           </div>
+          {/* ── Dark mode toggle ── */}
+          <button
+            onClick={() => setTheme(theme === "dark" ? "light" : "dark")}
+            className="p-2 text-muted-foreground hover:text-foreground transition-colors"
+            aria-label="Toggle dark mode"
+          >
+            {theme === "dark" ? <Sun className="w-5 h-5" /> : <Moon className="w-5 h-5" />}
+          </button>
           <Link
             to="/about#contact"
             className="flex p-2 text-muted-foreground hover:text-foreground transition-colors relative group"
