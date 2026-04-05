@@ -39,7 +39,7 @@ const Signup = () => {
     <div className="min-h-[80vh] flex items-center justify-center px-4">
       <div className="w-full max-w-md">
         <div className="text-center mb-8">
-          <h1 className="font-serif text-3xl mb-2">Join Paperly</h1>
+          <h1 className="font-serif text-3xl mb-2">Join Note & Gale</h1>
           <p className="text-muted-foreground text-sm">Create an account and start earning rewards</p>
         </div>
 

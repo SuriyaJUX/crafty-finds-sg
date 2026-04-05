@@ -174,7 +174,7 @@ const createRachelNg = (): MockUser => {
     pointsHistory: [
       {
         id: "lp-1",
-        label: "Welcome bonus — thanks for joining Paperly!",
+        label: "Welcome bonus — thanks for joining Note & Gale!",
         points: 50,
         date: twoWeeksAgo.toISOString(),
         icon: "gift",

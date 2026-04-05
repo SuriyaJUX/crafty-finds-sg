@@ -32,7 +32,7 @@ const Login = () => {
       }
 
       // Check if user has a points goal set — read from localStorage mock user
-      const stored = localStorage.getItem("paperly_user");
+      const stored = localStorage.getItem("note_gale_user");
       if (stored) {
         try {
           const userData = JSON.parse(stored);

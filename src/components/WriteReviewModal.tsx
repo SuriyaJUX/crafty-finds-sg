@@ -41,7 +41,7 @@ export interface SubmittedReviewRecord {
   pointsEarned: number;
 }
 
-const SUBMITTED_REVIEWS_KEY = "paperly_submitted_reviews";
+const SUBMITTED_REVIEWS_KEY = "note_gale_submitted_reviews";
 
 export function getSubmittedReviews(): SubmittedReviewRecord[] {
   try {

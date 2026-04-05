@@ -125,7 +125,7 @@ const About = () => {
       </div>
 
       <p className="text-xs text-muted-foreground mt-6">
-        Paperly is registered and operated in Singapore. All prices on this site
+        Note & Gale is registered and operated in Singapore. All prices on this site
         are in Singapore Dollars (SGD) and inclusive of GST where applicable.
       </p>
     </section>

@@ -45,7 +45,7 @@ const Footer = () => (
         </div>
       </div>
       <div className="mt-10 pt-6 border-t border-border text-center text-xs text-muted-foreground">
-        © {new Date().getFullYear()} Paperly. All prices in SGD.
+        © {new Date().getFullYear()} Note & Gale. All prices in SGD.
       </div>
     </div>
   </footer>
