@@ -26,6 +26,7 @@ const ProductDetail = () => {
   const [localReviews, setLocalReviews] = useState<Review[]>([]);
   const [activeImage, setActiveImage] = useState(0);
   const [quantity, setQuantity] = useState(1);
+  const [selectedVariant, setSelectedVariant] = useState<string | null>(null);
 
   const PRESETS = [1, 5, 10, 25, 50] as const;
 
