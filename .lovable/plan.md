@@ -2,29 +2,26 @@
 
 ## Problem
 
-The ink expiry warning sits as a standalone card between the streak banner and the hero (`IntentPrompt`), breaking the visual flow. It's a separate block with its own container padding that disrupts the hero-to-content rhythm.
+The expiry reminder pill floats as a separate element in the hero's vertical flow — between the category buttons and the deals strip. It adds visual noise to the central content area and competes with the search bar and CTAs for attention.
 
 ## Solution
 
-Integrate the expiry reminder **into the hero section itself** as a subtle, non-intrusive overlay rather than a separate page-level block.
+Move the expiry warning **into the existing loyalty sidebar** (desktop) and **into the mobile greeting pill** (mobile) — the natural home for Ink-related information. This eliminates the standalone pill entirely.
 
-### Approach
+### Changes to `src/components/IntentPrompt.tsx`
 
-Move the expiry warning from `Index.tsx` into the `IntentPrompt` hero component, rendered as a slim inline banner anchored near the bottom of the hero (just above the `CompactDealsStrip`). This keeps it visible but part of the hero's visual language — glass-morphism style, matching existing loyalty sidebar aesthetics — instead of a separate amber card that breaks the layout.
+1. **Desktop: Add expiry line to loyalty sidebar** — Below the streak line in the left-anchored glass card (lines 106-136), add a compact amber-tinted row: `⏳ 150 Ink expiring · Shop →`. Same `text-[11px]` size as existing sidebar content. The "Shop" link navigates to `/shop`. Include a small dismiss X. This keeps all loyalty info in one place.
 
-### Changes
+2. **Mobile: Append to greeting pill** — Extend the mobile greeting chip (lines 143-155) with a second line or adjacent pill when expiry is active: `⏳ 150 Ink expiring soon · Shop →` in the same compact style.
 
-**`src/pages/Index.tsx`**
-- Remove the expiring points warning block (lines 79-103)
-- Pass `expiringTotal`, `earliestExpiry`, `expiryDismissed`, and `setExpiryDismissed` as props to `IntentPrompt`
+3. **Remove the standalone expiry pill** — Delete lines 213-234 (the centered `backdrop-blur-md bg-amber-500/10` block). No more floating element in the hero flow.
 
-**`src/components/IntentPrompt.tsx`**
-- Accept the expiry props
-- Render a slim glass-morphism pill/banner inside the hero (positioned above the deals strip or below the search bar) with the expiry message, "Shop now →" link, and dismiss button
-- Style: `backdrop-blur-md bg-amber-500/10 border border-amber-300/30 rounded-full` — blends with the hero instead of breaking flow
-- Animate in with `animate-fade-in`
+### Why this works
+- Loyalty sidebar already shows points, tier, and streak — expiry is contextually related
+- No new visual element added to the hero; information density stays the same
+- Mobile gets a subtle addition to an existing chip rather than a separate banner
+- The hero's headline → search → categories → deals flow remains uninterrupted
 
-### Files changed
-- `src/pages/Index.tsx`
+### File changed
 - `src/components/IntentPrompt.tsx`
 
