@@ -163,8 +163,7 @@ const IntentPrompt = ({ expiringTotal = 0, earliestExpiry, expiryDismissed, onDi
               </span>
               {!expiryDismissed && expiringTotal > 0 && (
                 <span className="inline-flex items-center gap-1 px-3 py-1 rounded-full bg-amber-500/10 border border-amber-300/30 text-xs animate-fade-in">
-                  <span className="text-amber-600 dark:text-amber-400">⏳ {expiringTotal} Ink expiring</span>
-                  <a href="/shop" className="font-medium text-primary hover:underline">Shop →</a>
+                  <span className="text-amber-600 dark:text-amber-400">⏳ <span className="font-semibold">{expiringTotal} Ink</span> expires in 60 days</span>
                 </span>
               )}
             </div>
