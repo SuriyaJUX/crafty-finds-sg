@@ -2,65 +2,31 @@
 
 ## Problem
 
-The order tracking page has three issues:
-
-1. **Stiff timeline** — The tracking timeline is a static vertical list with no sense of progression or phase transitions. It feels like a plain list, not a journey.
-
-2. **"What would you like to do?" buried below fold** — Users must scroll past the timeline and order items to reach post-delivery actions.
-
-3. **Duplicate review CTAs** — After confirming receipt, there's both a prominent review card AND a "Leave a Review" tile in the action grid. Also, clicking "Write a review" navigates to the product page but doesn't scroll to or open the review section.
-
----
+The Wishlist page is a plain grid of saved products with no connection to the Ink Points goal system. Users currently have to navigate to the Account page to set a product as their points goal — there's no way to do it from the page where they've already bookmarked items they want.
 
 ## Solution
 
-### 1. Dynamic phase-based timeline
+Add a "Set as Goal" action to each saved product on the Wishlist page, and show a goal progress card at the top when a goal is active.
 
-Replace the vertical list timeline with a **horizontal stepper** that shows the current phase as a prominent "card" with animated transitions between phases.
+### Changes
 
-- **Horizontal step indicators** at the top: small circles/dots connected by a progress bar, showing all phases at a glance
-- **Active phase card** below: a larger card showing the current step's icon (animated pulse), label, description, and timestamp — this replaces the vertical list
-- When advancing, the card **cross-fades** (fade-out old → fade-in new) for a smooth phase transition feel
-- "Show full timeline" becomes a collapsible vertical detail log below the phase card, for users who want granular history
-- Use existing `animate-fade-in` and `animate-scale-in` keyframes for transitions
+**`src/pages/Wishlist.tsx`**
 
-### 2. Two-column layout with sticky actions sidebar
+1. **Goal progress banner** — When the user has an active `pointsGoal` that matches a saved item, show a compact progress card at the top of the page (product thumbnail, name, progress bar, points needed vs current balance, estimated orders to go). Include a "Clear goal" button.
 
-Restructure into `grid md:grid-cols-[1fr_280px]` when the order is delivered:
+2. **"Set as Goal" button on each product card** — Below each `ProductCard` in the grid, render a small button/link: a target icon + "Set as Ink Goal". If that product is already the active goal, show a highlighted "Current Goal" badge instead. Clicking sets `pointsGoal` via `patchUser`.
 
-- **Left column**: Header card → Phase timeline → Order items
-- **Right column** (sticky): "What would you like to do?" card — always visible without scrolling
+3. **Goal-set product visually distinguished** — The card for the active goal product gets a subtle accent ring/border (e.g. `ring-2 ring-primary/30`) so it stands out in the grid.
 
-On mobile: reorder so the actions card appears **immediately after the header**, before the timeline.
+4. **Auth gate** — Only show goal functionality for authenticated users. For guests, optionally show a small "Log in to set goals" hint.
 
-### 3. Remove review duplication & fix navigation
+### Technical details
 
-- **Remove** the "Leave a Review" tile from the 3-column action grid (lines 619-628) — the prominent review card above it is sufficient
-- The action grid becomes 2 columns: "Report an Issue" and "Request a Return"
-- **Fix the review navigation**: In `ProductDetail.tsx`, consume `location.state.openReview`:
-  - Auto-open the `WriteReviewModal` when `openReview` is true
-  - Scroll the reviews section into view with `scrollIntoView({ behavior: 'smooth', block: 'center' })`
+- Import `useAuth` and `patchUser` + the `REDEMPTION_RATE` constant from existing modules
+- Reuse the same `pointsGoal` shape already on `MockUser`: `{ targetAmount, targetProductId }`
+- The goal progress calculation mirrors what `Account.tsx` already does (lines 347-351)
+- No new context or data model changes needed — everything plugs into existing infrastructure
 
-### 4. Entrance animations
-
-- Action cards in the "What would you like to do?" section get staggered `animate-fade-in` with increasing delays
-- The phase card uses `animate-scale-in` on mount and cross-fades on phase change
-
----
-
-## Files changed
-
-**`src/pages/OrderTracking.tsx`**
-- Replace vertical timeline with horizontal stepper + active phase card with cross-fade
-- Restructure to two-column grid (desktop) with sticky right sidebar for actions
-- Mobile: move actions section above timeline
-- Remove duplicate "Leave a Review" tile from action grid
-- Add staggered animations to action cards
-
-**`src/pages/ProductDetail.tsx`**
-- Read `location.state?.openReview` via `useLocation`
-- If true, auto-open `WriteReviewModal` and scroll reviews section into view on mount
-
-**`tailwind.config.ts`**
-- Add `cross-fade-in` keyframe if needed for the phase card transition
+### File changed
+- `src/pages/Wishlist.tsx`
 
