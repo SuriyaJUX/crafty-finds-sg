@@ -2,31 +2,30 @@
 
 ## Problem
 
-The Wishlist page is a plain grid of saved products with no connection to the Ink Points goal system. Users currently have to navigate to the Account page to set a product as their points goal — there's no way to do it from the page where they've already bookmarked items they want.
+The "Set as Ink Goal" button is a tiny, unstyled text link that blends into the page. The goal progress banner appears without animation. There's no visual feedback when setting/clearing a goal, and the overall goal feature feels static and forgettable.
 
 ## Solution
 
-Add a "Set as Goal" action to each saved product on the Wishlist page, and show a goal progress card at the top when a goal is active.
+Make the goal system feel alive with hover effects, animated transitions, and visual feedback.
 
-### Changes
+### Changes to `src/pages/Wishlist.tsx`
 
-**`src/pages/Wishlist.tsx`**
+1. **Animated goal banner entrance** — Wrap the goal progress card in a `animate-fade-in` transition so it slides in smoothly when a goal is set. Add a pulsing glow on the Target icon (`animate-pulse`). When progress reaches 100%, add a celebratory shimmer effect on the "Ready to redeem!" text.
 
-1. **Goal progress banner** — When the user has an active `pointsGoal` that matches a saved item, show a compact progress card at the top of the page (product thumbnail, name, progress bar, points needed vs current balance, estimated orders to go). Include a "Clear goal" button.
+2. **"Set as Ink Goal" button upgrade** — Replace the plain text link with a styled pill button that has:
+   - A subtle border and rounded-full shape so it's visually distinct
+   - Hover: scale up slightly (`hover:scale-105`) + border color transition to primary
+   - The Target icon rotates on hover (`group-hover:rotate-45 transition-transform`)
+   - Opacity transition on the entire card group: the button starts at lower opacity and becomes fully visible on card hover
 
-2. **"Set as Goal" button on each product card** — Below each `ProductCard` in the grid, render a small button/link: a target icon + "Set as Ink Goal". If that product is already the active goal, show a highlighted "Current Goal" badge instead. Clicking sets `pointsGoal` via `patchUser`.
+3. **Goal-setting animation** — When a user clicks "Set as Ink Goal", use React state to trigger a brief scale-in animation (`animate-scale-in`) on the ring border appearing around the card, and animate the badge appearing with `animate-fade-in`.
 
-3. **Goal-set product visually distinguished** — The card for the active goal product gets a subtle accent ring/border (e.g. `ring-2 ring-primary/30`) so it stands out in the grid.
+4. **Goal card ring animation** — The `ring-2 ring-primary/30` on the active goal card transitions in with a CSS transition instead of appearing instantly. Add `transition-all duration-300` to the card wrapper so the ring animates on/off.
 
-4. **Auth gate** — Only show goal functionality for authenticated users. For guests, optionally show a small "Log in to set goals" hint.
+5. **Staggered grid entrance** — Add staggered `animate-fade-in` with incremental `animation-delay` to each product card in the grid for a cascading load effect.
 
-### Technical details
+6. **Progress bar animation** — Add `transition-all duration-700` to the Progress component value so it animates when points change.
 
-- Import `useAuth` and `patchUser` + the `REDEMPTION_RATE` constant from existing modules
-- Reuse the same `pointsGoal` shape already on `MockUser`: `{ targetAmount, targetProductId }`
-- The goal progress calculation mirrors what `Account.tsx` already does (lines 347-351)
-- No new context or data model changes needed — everything plugs into existing infrastructure
-
-### File changed
-- `src/pages/Wishlist.tsx`
+### Files changed
+- `src/pages/Wishlist.tsx` — All animation and interaction enhancements above
 
