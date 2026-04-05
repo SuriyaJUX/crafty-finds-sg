@@ -1,5 +1,5 @@
 import { Link, useLocation } from "react-router-dom";
-import { ShoppingBag, Heart, Search, Menu, X, User, LogOut, Target } from "lucide-react";
+import { ShoppingBag, Heart, Search, Menu, X, User, LogOut, Target, HelpCircle } from "lucide-react";
 import { useCart } from "@/context/CartContext";
 import { useAuth } from "@/context/AuthContext";
 import { useInkPoints } from "@/context/InkPointsContext";
