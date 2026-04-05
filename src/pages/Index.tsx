@@ -103,7 +103,13 @@ const Index = () => {
         </div>
       )}
 
+      <PersonalisedDeals />
+
       <IntentPrompt />
+
+      <FeaturedProducts />
+      <CommunityPick />
+      <CreativePathsPreview />
 
       {/* ── Trust badges ── */}
       <div className="border-y border-border bg-card">
@@ -121,11 +127,6 @@ const Index = () => {
           </div>
         </div>
       </div>
-
-      <PersonalisedDeals />
-      <FeaturedProducts />
-      <CommunityPick />
-      <CreativePathsPreview />
     </div>
   );
 };

@@ -98,10 +98,11 @@ const CheckoutPayment = () => {
   const [paymentError, setPaymentError] = useState<string | null>(null);
   const [summaryOpen, setSummaryOpen] = useState(false);
   const [savingsNudgeDismissed, setSavingsNudgeDismissed] = useState(false);
+  const [isFromPendingVoucher, setIsFromPendingVoucher] = useState(false);
   const payNowInterval = useRef<ReturnType<typeof setInterval> | null>(null);
   const pendingVoucherCode = useRef<string | null>(null);
 
-  // Auto-apply voucher claimed from the Promotions page
+  // Pre-select voucher claimed from the Promotions page as a tile (do not silently apply)
   useEffect(() => {
     if (!deliveryDetails) return;
     const pending = localStorage.getItem("pendingVoucher");
@@ -109,15 +110,20 @@ const CheckoutPayment = () => {
       const code = pending.trim().toUpperCase();
       const result = VOUCHER_MAP[code];
       if (result) {
+        // Voucher matches a tile — pre-select it visually without clearing localStorage yet
         setVoucherApplied(result);
         setVoucherCode(code);
         pendingVoucherCode.current = code;
+        setIsFromPendingVoucher(true);
+        // localStorage is cleared only on Place Order or explicit deselect
+      } else {
+        // No matching tile — fall back to silent apply with toast
+        localStorage.removeItem("pendingVoucher");
         toast({
           title: `Voucher ${code} applied from your deals page`,
-          description: result.label,
+          description: "Voucher has been applied to your order.",
         });
       }
-      localStorage.removeItem("pendingVoucher");
     }
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
@@ -204,6 +210,8 @@ const CheckoutPayment = () => {
 
     setPaymentError(null);
     setPlacing(true);
+    // Clear any pending voucher from localStorage now that the order is being placed
+    if (isFromPendingVoucher) localStorage.removeItem("pendingVoucher");
     await new Promise(r => setTimeout(r, 1200));
 
     if (confirmedMethod !== "paynow" && Math.random() < 0.1) {
@@ -362,6 +370,14 @@ const CheckoutPayment = () => {
         <h2 className="font-serif text-lg">Savings & Rewards</h2>
       </div>
 
+      {/* Pending voucher banner */}
+      {isFromPendingVoucher && voucherApplied && (
+        <div className="flex items-center gap-2 rounded-lg bg-secondary/10 border border-secondary/30 px-3 py-2 text-secondary text-xs font-medium">
+          <Tag className="w-3.5 h-3.5 shrink-0" />
+          A voucher from your deals page has been pre-selected for you
+        </div>
+      )}
+
       {/* Voucher tiles */}
       <div>
         <p className="text-xs text-muted-foreground mb-2 font-medium uppercase tracking-wide">Available vouchers</p>
@@ -375,9 +391,14 @@ const CheckoutPayment = () => {
                 onClick={() => {
                   if (isSelected) {
                     setVoucherApplied(null);
+                    if (isFromPendingVoucher) {
+                      localStorage.removeItem("pendingVoucher");
+                      setIsFromPendingVoucher(false);
+                    }
                   } else {
                     setVoucherApplied(v);
                     setVoucherCode(v.code);
+                    setIsFromPendingVoucher(false);
                   }
                 }}
                 className={cn(

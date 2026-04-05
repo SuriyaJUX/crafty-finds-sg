@@ -25,13 +25,13 @@ const DealsBanner = () => {
   const doubled = [...deals, ...deals];
 
   return (
-    <div className="deals-banner py-4 overflow-hidden group relative min-h-[56px]">
-      <div className="flex items-center">
+    <div className="deals-banner py-4 px-6 overflow-hidden group relative min-h-[80px] md:min-h-[96px] flex items-center">
+      <div className="flex items-center w-full gap-4">
         {/* Scrolling deals */}
         <div className="flex-1 overflow-hidden">
           <div className="flex animate-marquee whitespace-nowrap group-hover:[animation-play-state:paused]">
             {doubled.map((deal, i) => (
-              <span key={i} className="mx-8 text-base font-semibold">
+              <span key={i} className="mx-8 text-sm md:text-base font-semibold">
                 {deal.text}
                 {deal.code === "FLASH" && (
                   <span className="ml-2 font-mono text-sm tracking-tight opacity-90">
@@ -48,10 +48,10 @@ const DealsBanner = () => {
           </div>
         </div>
 
-        {/* View all deals CTA */}
+        {/* View all deals CTA — visible at all viewport sizes */}
         <Link
           to="/promotions"
-          className="hidden sm:flex items-center gap-1 px-4 py-1.5 mr-4 rounded-full text-sm font-semibold bg-primary-foreground/20 hover:bg-primary-foreground/30 transition-colors shrink-0"
+          className="flex items-center gap-1 px-4 py-1.5 mr-4 rounded-full text-sm font-semibold bg-primary-foreground/20 hover:bg-primary-foreground/30 transition-colors shrink-0 whitespace-nowrap"
         >
           View all deals
           <ChevronRight className="w-4 h-4" />

@@ -103,7 +103,7 @@ const Navbar = () => {
           </Link>
           <Link
             to="/about#contact"
-            className="hidden md:flex p-2 text-muted-foreground hover:text-foreground transition-colors relative group"
+            className="flex p-2 text-muted-foreground hover:text-foreground transition-colors relative group"
             title="Help & support"
           >
             <HelpCircle className="w-5 h-5" />

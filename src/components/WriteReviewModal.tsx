@@ -207,8 +207,9 @@ const WriteReviewModal = ({
   const validate = () => {
     const e: typeof errors = {};
     if (rating === 0) e.rating = "Please select a star rating.";
-    if (text.trim().length < 10)
-      e.text = "Please write at least 10 characters.";
+    const wordCount = text.trim() === "" ? 0 : text.trim().split(/\s+/).length;
+    if (wordCount < 15)
+      e.text = "Please write at least 15 words.";
     setErrors(e);
     return Object.keys(e).length === 0;
   };
@@ -377,12 +378,12 @@ const WriteReviewModal = ({
                 )}
                 <span
                   className={`text-xs ${
-                    text.trim().length < 10
+                    (text.trim() === "" ? 0 : text.trim().split(/\s+/).length) < 15
                       ? "text-muted-foreground"
                       : "text-secondary"
                   }`}
                 >
-                  {text.trim().length} / 10 min
+                  {text.trim() === "" ? 0 : text.trim().split(/\s+/).length} / 15 words minimum
                 </span>
               </div>
               <p className="text-xs text-muted-foreground mt-1.5">

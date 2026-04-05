@@ -1,6 +1,17 @@
+import { useEffect } from "react";
+import { useLocation } from "react-router-dom";
 import { Mail, Globe, Clock, Info } from "lucide-react";
 
-const About = () => (
+const About = () => {
+  const location = useLocation();
+
+  useEffect(() => {
+    if ((location.state as { scrollTo?: string } | null)?.scrollTo === "contact") {
+      document.getElementById("contact-section")?.scrollIntoView({ behavior: "smooth" });
+    }
+  }, [location.state]);
+
+  return (
   <div className="container max-w-4xl mx-auto px-4 py-12">
     <h1 className="font-serif text-3xl mb-2">About Paperly</h1>
     <p className="text-muted-foreground text-sm mb-12">
@@ -53,7 +64,7 @@ const About = () => (
     </section>
 
     {/* Business Contact Information */}
-    <section>
+    <section id="contact-section">
       <div className="flex items-center gap-2 mb-5">
         <Mail className="w-5 h-5 text-primary" />
         <h2 className="font-serif text-2xl">Contact Us</h2>
@@ -119,6 +130,7 @@ const About = () => (
       </p>
     </section>
   </div>
-);
+  );
+};
 
 export default About;
