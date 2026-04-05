@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { useAuth } from "@/context/AuthContext";
 import { products } from "@/data/products";
@@ -89,7 +89,7 @@ interface TimelineStep {
   status: TrackingStatus;
   label: string;
   Icon: typeof Package;
-  bizDays: number; // business days from order date
+  bizDays: number;
 }
 
 const STEPS: TimelineStep[] = [
@@ -108,7 +108,6 @@ function statusIndex(s: TrackingStatus): number {
   return STATUS_ORDER.indexOf(s);
 }
 
-// Build a full timeline that merges STEPS with any delayed/failed events, in chronological order
 function buildFullTimeline(tracking: StoredTracking): Array<{
   status: TrackingStatus;
   label: string;
@@ -135,7 +134,6 @@ function buildFullTimeline(tracking: StoredTracking): Array<{
     const isReached = activeIdx >= i;
     const matchingEvent = [...tracking.events].reverse().find(e => e.status === step.status);
 
-    // Extra biz days for delayed scenario after the delay point
     let adjustedBizDays = step.bizDays;
     if (isDelayedScenario && delayedEvent && step.bizDays >= 3) {
       adjustedBizDays = step.bizDays + 2;
@@ -154,7 +152,6 @@ function buildFullTimeline(tracking: StoredTracking): Array<{
       estimatedDate: getDynamicTimestamp(adjustedBizDays),
     });
 
-    // Insert delayed step between shipped and out_for_delivery
     if (step.status === "shipped" && delayedEvent) {
       const delayIsActive = tracking.currentStatus === "delayed";
       const delayIsReached = delayIsActive || activeIdx > i;
@@ -172,7 +169,6 @@ function buildFullTimeline(tracking: StoredTracking): Array<{
       });
     }
 
-    // Insert failed step between out_for_delivery and delivered
     if (step.status === "out_for_delivery" && failedEvent) {
       const failIsActive = tracking.currentStatus === "failed";
       const failIsReached = failIsActive || tracking.currentStatus === "delivered";
@@ -262,8 +258,6 @@ function generateNextEvent(current: TrackingStatus, scenario: DeliveryScenario):
   };
 }
 
-// ── Delivery estimate ──────────────────────────────────────────────────────
-
 function estimateDelivery(scenario: DeliveryScenario): string {
   const bizDays = scenario === "delayed" ? 6 : scenario === "failed" ? 5 : 4;
   return formatDateLong(addBusinessDays(new Date(), bizDays));
@@ -292,10 +286,20 @@ const OrderTracking = () => {
   });
 
   const [showFullTimeline, setShowFullTimeline] = useState(false);
+  const [phaseKey, setPhaseKey] = useState(0);
+  const prevStatusRef = useRef(tracking.currentStatus);
 
   useEffect(() => {
     if (tracking.orderId) saveTracking(tracking);
   }, [tracking]);
+
+  // Trigger phase card animation on status change
+  useEffect(() => {
+    if (prevStatusRef.current !== tracking.currentStatus) {
+      setPhaseKey(k => k + 1);
+      prevStatusRef.current = tracking.currentStatus;
+    }
+  }, [tracking.currentStatus]);
 
   const isTerminal = tracking.currentStatus === "delivered";
   const isFailed = tracking.currentStatus === "failed";
@@ -303,30 +307,17 @@ const OrderTracking = () => {
   const deliveryEstimate = estimateDelivery(tracking.scenario);
 
   const fullTimeline = buildFullTimeline(tracking);
-  // Reverse: most recent first
-  const reversedTimeline = [...fullTimeline].reverse();
 
-  // Find current step index in reversed list
-  const currentReversedIdx = reversedTimeline.findIndex(s => s.isCurrent);
-  // For terminal (delivered), show the top 3
-  const anchorIdx = currentReversedIdx >= 0 ? currentReversedIdx : 0;
+  // Find the current active step in chronological order
+  const currentStepIdx = fullTimeline.findIndex(s => s.isCurrent);
+  const activeStep = currentStepIdx >= 0 ? fullTimeline[currentStepIdx] : (isTerminal ? fullTimeline[fullTimeline.length - 1] : fullTimeline[0]);
 
-  // Window: prev completed (below current in reversed = anchorIdx+1), current, next upcoming (above = anchorIdx-1)
-  const visibleIndices = new Set<number>();
-  visibleIndices.add(anchorIdx);
-  if (anchorIdx > 0) visibleIndices.add(anchorIdx - 1); // next upcoming (above in reversed)
-  if (anchorIdx < reversedTimeline.length - 1) visibleIndices.add(anchorIdx + 1); // prev completed (below in reversed)
-  // If terminal show top 3
-  if (isTerminal) {
-    visibleIndices.clear();
-    visibleIndices.add(0);
-    visibleIndices.add(1);
-    visibleIndices.add(2);
-  }
-
-  const displayedTimeline = showFullTimeline
-    ? reversedTimeline
-    : reversedTimeline.filter((_, i) => visibleIndices.has(i));
+  // Build the horizontal stepper from the core 5 steps (no delayed/failed in stepper)
+  const coreSteps = STEPS.map((step, i) => {
+    const reached = statusIndex(tracking.currentStatus) >= i;
+    const current = statusIndex(tracking.currentStatus) === i && !isTerminal;
+    return { ...step, isReached: reached, isCurrent: current };
+  });
 
   const advanceStatus = () => {
     const nextEvent = generateNextEvent(tracking.currentStatus, tracking.scenario);
@@ -367,8 +358,109 @@ const OrderTracking = () => {
     );
   }
 
+  // ── Actions sidebar content ──────────────────────────────────────────────
+  const ActionsContent = () => (
+    <div className="rounded-xl border border-border bg-card p-5">
+      <h2 className="font-serif text-lg mb-4">What would you like to do?</h2>
+
+      {isTerminal ? (
+        !tracking.receiptConfirmed ? (
+          <div className="space-y-3">
+            <Button onClick={confirmReceipt} className="w-full" size="lg">
+              <CheckCircle2 className="w-5 h-5 mr-2" /> Confirm Receipt
+            </Button>
+            <button
+              onClick={() => navigate(`/order/${orderId}/return`)}
+              className="flex items-center justify-center gap-2 w-full text-sm text-muted-foreground hover:text-foreground transition-colors py-2"
+            >
+              <AlertTriangle className="w-4 h-4" />
+              I have a problem with this delivery
+            </button>
+          </div>
+        ) : (
+          <div className="space-y-3 animate-fade-in">
+            {/* Confirmation banner */}
+            <div className="flex items-center gap-2 p-3 rounded-lg bg-emerald-50 dark:bg-emerald-900/20 border border-emerald-200 dark:border-emerald-800">
+              <ShieldCheck className="w-4 h-4 text-emerald-600 shrink-0" />
+              <p className="text-sm text-emerald-800 dark:text-emerald-300 font-medium">
+                Receipt confirmed
+              </p>
+            </div>
+
+            {/* Review prompt */}
+            <div className="rounded-lg border border-primary/30 bg-primary/5 p-4">
+              <p className="text-sm font-medium text-foreground mb-1">How was your order?</p>
+              <p className="text-xs text-muted-foreground mb-3">Help other buyers with a review.</p>
+              <Button
+                onClick={() => navigate(`/product/${order?.items[0]?.productId}`, { state: { openReview: true } })}
+                disabled={!order?.items[0]}
+                size="sm"
+                className="w-full"
+              >
+                <Star className="w-4 h-4 mr-1.5" /> Write a review
+              </Button>
+            </div>
+
+            {/* Action cards — 2 items only, no duplicate review */}
+            <div className="space-y-2">
+              {tracking.issueReported ? (
+                <div
+                  className="flex items-center gap-3 p-3 rounded-lg border border-amber-200 dark:border-amber-800 bg-amber-50 dark:bg-amber-900/20 animate-fade-in"
+                  style={{ animationDelay: "100ms", animationFillMode: "backwards" }}
+                >
+                  <div className="w-8 h-8 rounded-full bg-amber-100 dark:bg-amber-900/30 flex items-center justify-center shrink-0">
+                    <AlertTriangle className="w-4 h-4 text-amber-600" />
+                  </div>
+                  <div>
+                    <span className="text-sm font-medium text-amber-800 dark:text-amber-300">Issue Reported</span>
+                    <p className="text-xs text-muted-foreground">We'll follow up via email</p>
+                  </div>
+                </div>
+              ) : (
+                <button
+                  onClick={reportIssue}
+                  className="flex items-center gap-3 p-3 rounded-lg border border-border bg-card hover:border-primary/40 hover:bg-muted/50 transition-colors w-full text-left animate-fade-in"
+                  style={{ animationDelay: "100ms", animationFillMode: "backwards" }}
+                >
+                  <div className="w-8 h-8 rounded-full bg-amber-100 dark:bg-amber-900/30 flex items-center justify-center shrink-0">
+                    <MessageSquare className="w-4 h-4 text-amber-600" />
+                  </div>
+                  <span className="text-sm font-medium">Report an Issue</span>
+                </button>
+              )}
+
+              <button
+                onClick={() => navigate(`/order/${orderId}/return`)}
+                className="flex items-center gap-3 p-3 rounded-lg border border-border bg-card hover:border-primary/40 hover:bg-muted/50 transition-colors w-full text-left animate-fade-in"
+                style={{ animationDelay: "200ms", animationFillMode: "backwards" }}
+              >
+                <div className="w-8 h-8 rounded-full bg-muted flex items-center justify-center shrink-0">
+                  <RotateCcw className="w-4 h-4 text-muted-foreground" />
+                </div>
+                <span className="text-sm font-medium">Request a Return</span>
+              </button>
+            </div>
+          </div>
+        )
+      ) : (
+        /* Non-delivered: simple nav links */
+        <div className="space-y-2">
+          <Button variant="outline" onClick={() => navigate("/shop")} className="w-full" size="sm">
+            Continue Shopping <ChevronRight className="w-4 h-4 ml-1" />
+          </Button>
+          <Button variant="ghost" onClick={() => navigate("/account")} className="w-full" size="sm">
+            <Home className="w-4 h-4 mr-2" /> My Account
+          </Button>
+        </div>
+      )}
+    </div>
+  );
+
+  // Reversed timeline for the collapsible detail log
+  const reversedTimeline = [...fullTimeline].reverse();
+
   return (
-    <div className="container max-w-3xl mx-auto px-4 py-8 animate-fade-in">
+    <div className="container max-w-5xl mx-auto px-4 py-8 animate-fade-in">
       {/* Back */}
       <button
         onClick={() => navigate(-1)}
@@ -378,8 +470,8 @@ const OrderTracking = () => {
       </button>
 
       {/* Header */}
-      <div className="rounded-xl border border-border bg-card p-6 mb-6">
-        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+      <div className="rounded-xl border border-border bg-card p-5 mb-6">
+        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
           <div>
             <h1 className="font-serif text-2xl mb-1">Order Tracking</h1>
             <p className="text-sm text-muted-foreground font-mono">{orderId}</p>
@@ -406,14 +498,19 @@ const OrderTracking = () => {
         </div>
 
         {!isTerminal && (
-          <div className="flex items-center gap-1.5 text-sm text-muted-foreground mt-4">
+          <div className="flex items-center gap-1.5 text-sm text-muted-foreground mt-3">
             <MapPin className="w-4 h-4" />
             <span>Estimated delivery by <span className="font-medium text-foreground">{deliveryEstimate}</span></span>
           </div>
         )}
       </div>
 
-      {/* Scenario switcher (for demo) */}
+      {/* Mobile: Actions immediately after header */}
+      <div className="md:hidden mb-6">
+        <ActionsContent />
+      </div>
+
+      {/* Scenario switcher (demo) */}
       <div className="rounded-xl border border-dashed border-border bg-muted/30 p-4 mb-6">
         <p className="text-xs text-muted-foreground uppercase tracking-wide font-medium mb-3">
           🧪 Simulate delivery scenario
@@ -446,230 +543,212 @@ const OrderTracking = () => {
         </Button>
       </div>
 
-      {/* Visual timeline — reversed, windowed */}
-      <div className="rounded-xl border border-border bg-card p-6 mb-6">
-        <h2 className="font-serif text-lg mb-6">Tracking Timeline</h2>
-        <div className="relative">
-          {displayedTimeline.map((step, i) => {
-            const StepIcon = step.Icon;
-            const displayDate = step.event
-              ? formatDateShort(step.event.timestamp)
-              : formatDateShort(step.estimatedDate);
+      {/* Two-column layout */}
+      <div className="grid md:grid-cols-[1fr_280px] gap-6">
+        {/* Left column */}
+        <div className="space-y-6">
+          {/* ── Horizontal Stepper + Active Phase Card ── */}
+          <div className="rounded-xl border border-border bg-card p-5">
+            <h2 className="font-serif text-lg mb-5">Tracking Timeline</h2>
 
-            return (
-              <div key={`${step.status}-${i}`} className="flex gap-4 relative">
-                {/* Vertical line */}
-                {i < displayedTimeline.length - 1 && (
-                  <div
-                    className={cn(
-                      "absolute left-[17px] top-[36px] w-0.5 h-[calc(100%-12px)]",
-                      step.isReached ? "bg-secondary" : "bg-border"
+            {/* Horizontal stepper */}
+            <div className="flex items-center mb-6">
+              {coreSteps.map((step, i) => {
+                const StepIcon = step.Icon;
+                return (
+                  <div key={step.status} className="flex items-center flex-1 last:flex-none">
+                    {/* Step dot */}
+                    <div className="flex flex-col items-center">
+                      <div
+                        className={cn(
+                          "w-9 h-9 rounded-full flex items-center justify-center border-2 transition-all duration-500",
+                          step.isCurrent && "ring-4 ring-secondary/20 bg-secondary border-secondary text-secondary-foreground scale-110",
+                          step.isReached && !step.isCurrent && "bg-secondary border-secondary text-secondary-foreground",
+                          !step.isReached && "bg-muted border-border text-muted-foreground",
+                          isTerminal && i === coreSteps.length - 1 && "bg-emerald-500 border-emerald-500 text-primary-foreground ring-4 ring-emerald-500/20"
+                        )}
+                      >
+                        <StepIcon className="w-4 h-4" />
+                      </div>
+                      <span className={cn(
+                        "text-[10px] mt-1.5 text-center leading-tight max-w-[64px]",
+                        (step.isReached || step.isCurrent) ? "text-foreground font-medium" : "text-muted-foreground"
+                      )}>
+                        {step.label}
+                      </span>
+                    </div>
+                    {/* Connector line */}
+                    {i < coreSteps.length - 1 && (
+                      <div className="flex-1 mx-1 relative h-0.5 self-start mt-[18px]">
+                        <div className="absolute inset-0 bg-border rounded-full" />
+                        <div
+                          className={cn(
+                            "absolute inset-y-0 left-0 bg-secondary rounded-full transition-all duration-700",
+                            step.isReached ? "w-full" : "w-0"
+                          )}
+                        />
+                      </div>
                     )}
-                  />
-                )}
+                  </div>
+                );
+              })}
+            </div>
 
-                {/* Icon circle */}
+            {/* Active Phase Card */}
+            <div
+              key={phaseKey}
+              className="rounded-lg border border-border bg-muted/30 p-4 animate-scale-in"
+            >
+              <div className="flex items-start gap-3">
                 <div
                   className={cn(
-                    "relative z-10 w-[36px] h-[36px] rounded-full flex items-center justify-center shrink-0 border-2 transition-colors",
-                    step.isDelayed
-                      ? "bg-amber-500 border-amber-500 text-white"
-                      : step.isFailed
-                        ? "bg-destructive border-destructive text-white"
-                        : step.isReached
-                          ? "bg-secondary border-secondary text-white"
-                          : "bg-muted border-border text-muted-foreground",
-                    step.isCurrent && !step.isDelayed && !step.isFailed && "ring-4 ring-secondary/20",
-                    step.isCurrent && step.isDelayed && "ring-4 ring-amber-500/20",
-                    step.isCurrent && step.isFailed && "ring-4 ring-destructive/20"
+                    "w-10 h-10 rounded-full flex items-center justify-center shrink-0",
+                    activeStep.isDelayed ? "bg-amber-500 text-primary-foreground" :
+                    activeStep.isFailed ? "bg-destructive text-destructive-foreground" :
+                    isTerminal ? "bg-emerald-500 text-primary-foreground" :
+                    "bg-secondary text-secondary-foreground",
+                    activeStep.isCurrent && "animate-pulse"
                   )}
                 >
-                  <StepIcon className="w-4 h-4" />
+                  <activeStep.Icon className="w-5 h-5" />
                 </div>
-
-                {/* Content */}
-                <div className={cn("pb-8 flex-1 min-w-0", i === displayedTimeline.length - 1 && "pb-0")}>
+                <div className="flex-1 min-w-0">
                   <p className={cn(
-                    "text-sm font-medium",
-                    step.isDelayed ? "text-amber-700 dark:text-amber-400" :
-                    step.isFailed ? "text-destructive" :
-                    step.isReached ? "text-foreground" : "text-muted-foreground"
+                    "font-medium",
+                    activeStep.isDelayed ? "text-amber-700 dark:text-amber-400" :
+                    activeStep.isFailed ? "text-destructive" :
+                    "text-foreground"
                   )}>
-                    {step.label}
+                    {activeStep.label}
                   </p>
-                  <p className="text-xs text-muted-foreground mt-0.5">
-                    {step.event ? displayDate : `Est. ${displayDate}`}
-                  </p>
-                  {step.event?.description && (
-                    <p className={cn(
-                      "text-xs mt-1",
-                      step.isDelayed ? "text-amber-600 dark:text-amber-400" : "text-muted-foreground"
-                    )}>
-                      {step.event.description}
+                  {activeStep.event?.timestamp && (
+                    <p className="text-xs text-muted-foreground mt-0.5">
+                      {formatDateShort(activeStep.event.timestamp)}
                     </p>
                   )}
-                  {/* Show updated delivery estimate on delayed step */}
-                  {step.isDelayed && step.event && (
-                    <p className="text-xs mt-1.5 font-medium text-amber-700 dark:text-amber-300">
+                  {activeStep.event?.description && (
+                    <p className={cn(
+                      "text-sm mt-2 leading-relaxed",
+                      activeStep.isDelayed ? "text-amber-600 dark:text-amber-400" : "text-muted-foreground"
+                    )}>
+                      {activeStep.event.description}
+                    </p>
+                  )}
+                  {activeStep.isDelayed && activeStep.event && (
+                    <p className="text-xs mt-2 font-medium text-amber-700 dark:text-amber-300">
                       Updated delivery estimate: {estimateDelivery("delayed")}
                     </p>
                   )}
                 </div>
               </div>
-            );
-          })}
-        </div>
+            </div>
 
-        {/* Show full timeline toggle */}
-        {!showFullTimeline && reversedTimeline.length > 3 && (
-          <button
-            onClick={() => setShowFullTimeline(true)}
-            className="flex items-center gap-1.5 text-sm text-secondary hover:text-secondary/80 font-medium mt-4 transition-colors"
-          >
-            <ChevronDown className="w-4 h-4" />
-            Show full timeline
-          </button>
-        )}
-        {showFullTimeline && (
-          <button
-            onClick={() => setShowFullTimeline(false)}
-            className="flex items-center gap-1.5 text-sm text-muted-foreground hover:text-foreground font-medium mt-4 transition-colors"
-          >
-            Show less
-          </button>
-        )}
-      </div>
-
-      {/* Order items */}
-      {order && (
-        <div className="rounded-xl border border-border bg-card p-5 mb-6">
-          <h2 className="font-serif text-lg mb-4">Order Items</h2>
-          <div className="space-y-3">
-            {order.items.map(item => {
-              const product = products.find(p => p.id === item.productId);
-              return (
-                <div key={item.productId} className="flex items-center gap-3">
-                  {product && (
-                    <div className="w-12 h-12 rounded-lg overflow-hidden bg-muted shrink-0 border border-border">
-                      <img src={product.images[0]} alt={item.name} className="w-full h-full object-cover" />
-                    </div>
-                  )}
-                  <div className="flex-1 min-w-0">
-                    <p className="text-sm font-medium truncate">{item.name}</p>
-                    <p className="text-xs text-muted-foreground">Qty: {item.quantity}</p>
-                  </div>
-                  <span className="text-sm font-medium shrink-0">S${(item.price * item.quantity).toFixed(2)}</span>
-                </div>
-              );
-            })}
-          </div>
-          <div className="border-t border-border mt-4 pt-3 flex justify-between font-semibold text-sm">
-            <span>Total</span>
-            <span>S${order.total.toFixed(2)}</span>
-          </div>
-        </div>
-      )}
-
-      {/* Post-delivery actions */}
-      {isTerminal && (
-        <div className="rounded-xl border border-border bg-card p-6 mb-6">
-          <div className="border-b border-border pb-4 mb-5">
-            <h2 className="font-serif text-lg">What would you like to do?</h2>
-          </div>
-
-          {!tracking.receiptConfirmed ? (
-            <>
-              {/* Pre-confirmation: only Confirm Receipt + problem link */}
-              <Button onClick={confirmReceipt} className="w-full mb-4" size="lg">
-                <CheckCircle2 className="w-5 h-5 mr-2" /> Confirm Receipt
-              </Button>
+            {/* Collapsible full timeline log */}
+            <div className="mt-4">
               <button
-                onClick={() => navigate(`/order/${orderId}/return`)}
-                className="flex items-center justify-center gap-2 w-full text-sm text-muted-foreground hover:text-foreground transition-colors py-2"
+                onClick={() => setShowFullTimeline(!showFullTimeline)}
+                className="flex items-center gap-1.5 text-sm text-secondary hover:text-secondary/80 font-medium transition-colors"
               >
-                <AlertTriangle className="w-4 h-4" />
-                I have a problem with this delivery
+                <ChevronDown className={cn("w-4 h-4 transition-transform duration-300", showFullTimeline && "rotate-180")} />
+                {showFullTimeline ? "Hide full timeline" : "Show full timeline"}
               </button>
-            </>
-          ) : (
-            <div className="animate-fade-in space-y-4">
-              {/* Confirmation banner */}
-              <div className="flex items-center gap-2 p-3 rounded-lg bg-emerald-50 dark:bg-emerald-900/20 border border-emerald-200 dark:border-emerald-800">
-                <ShieldCheck className="w-5 h-5 text-emerald-600 shrink-0" />
-                <p className="text-sm text-emerald-800 dark:text-emerald-300 font-medium">
-                  Receipt confirmed — thank you!
-                </p>
-              </div>
 
-              {/* Review prompt card */}
-              <div className="rounded-xl border border-primary/30 bg-primary/5 p-5">
-                <p className="text-sm font-medium text-foreground mb-1">How was your order?</p>
-                <p className="text-xs text-muted-foreground mb-3">Your review helps other buyers make confident decisions.</p>
-                <Button
-                  onClick={() => navigate(`/product/${order?.items[0]?.productId}`, { state: { openReview: true } })}
-                  disabled={!order?.items[0]}
-                  className="w-full sm:w-auto"
-                >
-                  <Star className="w-4 h-4 mr-2" /> Write a review — earn 50 Ink Points
-                </Button>
-              </div>
+              {showFullTimeline && (
+                <div className="mt-4 pl-2 border-l-2 border-border space-y-0 animate-fade-in">
+                  {reversedTimeline.map((step, i) => {
+                    const StepIcon = step.Icon;
+                    const displayDate = step.event
+                      ? formatDateShort(step.event.timestamp)
+                      : formatDateShort(step.estimatedDate);
 
-              {/* Action cards */}
-              <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
-                <button
-                  onClick={() => navigate(`/product/${order?.items[0]?.productId}`, { state: { openReview: true } })}
-                  disabled={!order?.items[0]}
-                  className="flex flex-col items-center gap-2 p-4 rounded-xl border border-border bg-card hover:border-primary/40 hover:bg-muted/50 transition-colors text-center"
-                >
-                  <div className="w-10 h-10 rounded-full bg-secondary/10 flex items-center justify-center">
-                    <Star className="w-5 h-5 text-secondary" />
-                  </div>
-                  <span className="text-sm font-medium">Leave a Review</span>
-                </button>
+                    return (
+                      <div key={`${step.status}-${i}`} className="flex gap-3 py-2 pl-3 relative">
+                        {/* Dot on the border */}
+                        <div
+                          className={cn(
+                            "absolute -left-[5px] top-[14px] w-2 h-2 rounded-full",
+                            step.isDelayed ? "bg-amber-500" :
+                            step.isFailed ? "bg-destructive" :
+                            step.isReached ? "bg-secondary" : "bg-border"
+                          )}
+                        />
+                        <StepIcon className={cn(
+                          "w-4 h-4 shrink-0 mt-0.5",
+                          step.isDelayed ? "text-amber-500" :
+                          step.isFailed ? "text-destructive" :
+                          step.isReached ? "text-secondary" : "text-muted-foreground"
+                        )} />
+                        <div className="min-w-0">
+                          <p className={cn(
+                            "text-sm font-medium",
+                            step.isDelayed ? "text-amber-700 dark:text-amber-400" :
+                            step.isFailed ? "text-destructive" :
+                            step.isReached ? "text-foreground" : "text-muted-foreground"
+                          )}>
+                            {step.label}
+                          </p>
+                          <p className="text-xs text-muted-foreground">
+                            {step.event ? displayDate : `Est. ${displayDate}`}
+                          </p>
+                          {step.event?.description && (
+                            <p className="text-xs text-muted-foreground mt-0.5">{step.event.description}</p>
+                          )}
+                        </div>
+                      </div>
+                    );
+                  })}
+                </div>
+              )}
+            </div>
+          </div>
 
-                {tracking.issueReported ? (
-                  <div className="flex flex-col items-center gap-2 p-4 rounded-xl border border-amber-200 dark:border-amber-800 bg-amber-50 dark:bg-amber-900/20 text-center">
-                    <div className="w-10 h-10 rounded-full bg-amber-100 dark:bg-amber-900/30 flex items-center justify-center">
-                      <AlertTriangle className="w-5 h-5 text-amber-600" />
+          {/* Order items */}
+          {order && (
+            <div className="rounded-xl border border-border bg-card p-5">
+              <h2 className="font-serif text-lg mb-4">Order Items</h2>
+              <div className="space-y-3">
+                {order.items.map(item => {
+                  const product = products.find(p => p.id === item.productId);
+                  return (
+                    <div key={item.productId} className="flex items-center gap-3">
+                      {product && (
+                        <div className="w-12 h-12 rounded-lg overflow-hidden bg-muted shrink-0 border border-border">
+                          <img src={product.images[0]} alt={item.name} className="w-full h-full object-cover" />
+                        </div>
+                      )}
+                      <div className="flex-1 min-w-0">
+                        <p className="text-sm font-medium truncate">{item.name}</p>
+                        <p className="text-xs text-muted-foreground">Qty: {item.quantity}</p>
+                      </div>
+                      <span className="text-sm font-medium shrink-0">S${(item.price * item.quantity).toFixed(2)}</span>
                     </div>
-                    <span className="text-sm font-medium text-amber-800 dark:text-amber-300">Issue Reported</span>
-                    <span className="text-xs text-muted-foreground">We'll follow up via email</span>
-                  </div>
-                ) : (
-                  <button
-                    onClick={reportIssue}
-                    className="flex flex-col items-center gap-2 p-4 rounded-xl border border-border bg-card hover:border-primary/40 hover:bg-muted/50 transition-colors text-center"
-                  >
-                    <div className="w-10 h-10 rounded-full bg-amber-100 dark:bg-amber-900/30 flex items-center justify-center">
-                      <MessageSquare className="w-5 h-5 text-amber-600" />
-                    </div>
-                    <span className="text-sm font-medium">Report an Issue</span>
-                  </button>
-                )}
-
-                <button
-                  onClick={() => navigate(`/order/${orderId}/return`)}
-                  className="flex flex-col items-center gap-2 p-4 rounded-xl border border-border bg-card hover:border-primary/40 hover:bg-muted/50 transition-colors text-center"
-                >
-                  <div className="w-10 h-10 rounded-full bg-muted flex items-center justify-center">
-                    <RotateCcw className="w-5 h-5 text-muted-foreground" />
-                  </div>
-                  <span className="text-sm font-medium">Request a Return</span>
-                </button>
+                  );
+                })}
+              </div>
+              <div className="border-t border-border mt-4 pt-3 flex justify-between font-semibold text-sm">
+                <span>Total</span>
+                <span>S${order.total.toFixed(2)}</span>
               </div>
             </div>
           )}
-        </div>
-      )}
 
-      {/* CTA */}
-      <div className="flex flex-col sm:flex-row gap-3">
-        <Button onClick={() => navigate("/shop")} className="flex-1" size="lg">
-          Continue Shopping <ChevronRight className="w-4 h-4 ml-1" />
-        </Button>
-        <Button variant="outline" onClick={() => navigate("/account")} className="flex-1" size="lg">
-          <Home className="w-4 h-4 mr-2" /> My Account
-        </Button>
+          {/* Bottom CTAs */}
+          <div className="flex flex-col sm:flex-row gap-3">
+            <Button onClick={() => navigate("/shop")} className="flex-1" size="lg">
+              Continue Shopping <ChevronRight className="w-4 h-4 ml-1" />
+            </Button>
+            <Button variant="outline" onClick={() => navigate("/account")} className="flex-1" size="lg">
+              <Home className="w-4 h-4 mr-2" /> My Account
+            </Button>
+          </div>
+        </div>
+
+        {/* Right column — sticky actions sidebar (desktop only) */}
+        <div className="hidden md:block">
+          <div className="sticky top-24">
+            <ActionsContent />
+          </div>
+        </div>
       </div>
     </div>
   );

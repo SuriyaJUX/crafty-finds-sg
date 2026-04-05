@@ -1,4 +1,4 @@
-import { useParams, Link } from "react-router-dom";
+import { useParams, Link, useLocation } from "react-router-dom";
 import { products, reviews as allReviews } from "@/data/products";
 import type { Review } from "@/data/types";
 import { useCart } from "@/context/CartContext";
@@ -6,7 +6,7 @@ import { useAuth } from "@/context/AuthContext";
 import { useInkPoints } from "@/context/InkPointsContext";
 import { useToast } from "@/hooks/use-toast";
 import { Star, Heart, ShoppingBag, ArrowLeft, Users, Camera, Sparkles, AlertTriangle } from "lucide-react";
-import { useState } from "react";
+import { useState, useEffect, useRef } from "react";
 import type { ProductVariant } from "@/data/types";
 import ProductCard from "@/components/ProductCard";
 import ProductQA from "@/components/ProductQA";
@@ -15,6 +15,7 @@ import WriteReviewModal, { getPurchasedProductIds } from "@/components/WriteRevi
 
 const ProductDetail = () => {
   const { id } = useParams();
+  const location = useLocation();
   const product = products.find(p => p.id === id);
   const { addItem, toggleSaved, isSaved } = useCart();
   const { isAuthenticated } = useAuth();
@@ -27,8 +28,24 @@ const ProductDetail = () => {
   const [activeImage, setActiveImage] = useState(0);
   const [quantity, setQuantity] = useState(1);
   const [selectedVariant, setSelectedVariant] = useState<string | null>(null);
+  const reviewsSectionRef = useRef<HTMLElement>(null);
 
   const PRESETS = [1, 5, 10, 25, 50] as const;
+
+  // Auto-open review modal when navigated with openReview state
+  useEffect(() => {
+    const state = location.state as { openReview?: boolean } | null;
+    if (state?.openReview && product) {
+      // Small delay to let the page render first
+      const timer = setTimeout(() => {
+        setShowReviewModal(true);
+        reviewsSectionRef.current?.scrollIntoView({ behavior: "smooth", block: "center" });
+      }, 400);
+      // Clear the state so it doesn't re-trigger
+      window.history.replaceState({}, document.title);
+      return () => clearTimeout(timer);
+    }
+  }, [location.state, product]);
 
   const handleQuantityInput = (val: string) => {
     const num = parseInt(val, 10);
@@ -307,7 +324,11 @@ const ProductDetail = () => {
 
       {/* Reviews */}
       <section
-        ref={reviewsReveal.ref}
+        ref={(el) => {
+          // Assign to both refs
+          (reviewsReveal.ref as React.MutableRefObject<HTMLElement | null>).current = el;
+          (reviewsSectionRef as React.MutableRefObject<HTMLElement | null>).current = el;
+        }}
         className={`mb-16 transition-[opacity,transform] duration-700 ${reviewsReveal.visible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-8"}`}
       >
         <div className="flex items-end justify-between mb-4">
