@@ -25,7 +25,7 @@ const Signup = () => {
     const success = await signup(email, password, displayName);
     setLoading(false);
     if (success) {
-      toast({ title: "Welcome to Paperly! 🎉", description: "You've earned 50 welcome bonus points!" });
+      toast({ title: "Welcome to Note & Gale! 🎉", description: "You've earned 50 welcome bonus points!" });
       setShowOnboarding(true);
     }
   };
