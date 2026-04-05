@@ -29,10 +29,10 @@ const Footer = () => (
         <div>
           <h5 className="text-sm font-semibold mb-3">Support</h5>
           <ul className="space-y-2 text-sm text-muted-foreground">
-            <li><Link to="/about#contact" className="hover:text-primary transition-colors font-medium">Contact Us</Link></li>
-            <li><a href="#" className="hover:text-primary transition-colors">Shipping & Returns</a></li>
-            <li><a href="#" className="hover:text-primary transition-colors">FAQ</a></li>
-            <li><Link to="/about" className="hover:text-primary transition-colors">About Note & Gale</Link></li>
+            <li><Link to="/about#contact" className="hover:text-foreground transition-colors font-medium">Contact Us</Link></li>
+            <li><a href="#" className="hover:text-foreground transition-colors">Shipping & Returns</a></li>
+            <li><a href="#" className="hover:text-foreground transition-colors">FAQ</a></li>
+            <li><Link to="/about" className="hover:text-foreground transition-colors">About Note & Gale</Link></li>
           </ul>
         </div>
         <div>

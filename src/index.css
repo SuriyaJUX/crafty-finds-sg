@@ -79,6 +79,8 @@
     --sidebar-accent-foreground: 40 15% 92%;
     --sidebar-border: 220 12% 20%;
     --sidebar-ring: 210 30% 60%;
+    --deals-banner: 10 35% 50%;
+    --deals-banner-foreground: 0 0% 100%;
   }
 }
 
