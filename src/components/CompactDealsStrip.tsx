@@ -73,7 +73,7 @@ const CompactDealsStrip = () => {
                   />
                   {/* Discount badge — always visible */}
                   {discountPercent > 0 && (
-                    <span className="absolute top-0.5 right-0.5 md:group-hover:top-2 md:group-hover:left-2 md:group-hover:right-auto bg-primary text-primary-foreground text-[9px] md:group-hover:text-[10px] font-bold px-1 md:group-hover:px-2 py-0.5 rounded-md md:group-hover:rounded-full leading-none transition-all duration-[400ms]">
+                    <span className="absolute top-1 right-1 md:group-hover:top-2 md:group-hover:left-2 md:group-hover:right-auto bg-primary text-primary-foreground text-[10px] md:group-hover:text-[11px] font-bold px-1.5 md:group-hover:px-2 py-0.5 rounded-md md:group-hover:rounded-full leading-none transition-all duration-[400ms] z-10">
                       -{discountPercent}%
                     </span>
                   )}
