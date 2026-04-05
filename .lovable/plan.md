@@ -2,26 +2,55 @@
 
 ## Problem
 
-The expiry reminder pill floats as a separate element in the hero's vertical flow — between the category buttons and the deals strip. It adds visual noise to the central content area and competes with the search bar and CTAs for attention.
+The current prototype uses "Paperly" branding with DM Sans/DM Serif Display fonts and a terracotta/sage/cream palette. The user wants to rebrand to **Note & Gale** using the provided brand board: Playfair Display + Inter fonts, Ink Black/Ivory/Sage/Dusty Blue/Soft Rose palette, with Dusty Blue as a dominant accent.
 
 ## Solution
 
-Move the expiry warning **into the existing loyalty sidebar** (desktop) and **into the mobile greeting pill** (mobile) — the natural home for Ink-related information. This eliminates the standalone pill entirely.
+Full design system rebrand across typography, color palette, and brand name references.
 
-### Changes to `src/components/IntentPrompt.tsx`
+### 1. Typography swap
+Replace DM Sans → **Inter** and DM Serif Display → **Playfair Display** in the Google Fonts import (`src/index.css`) and Tailwind config (`tailwind.config.ts`).
 
-1. **Desktop: Add expiry line to loyalty sidebar** — Below the streak line in the left-anchored glass card (lines 106-136), add a compact amber-tinted row: `⏳ 150 Ink expiring · Shop →`. Same `text-[11px]` size as existing sidebar content. The "Shop" link navigates to `/shop`. Include a small dismiss X. This keeps all loyalty info in one place.
+### 2. Color palette overhaul
+Remap CSS custom properties in `src/index.css` to the brand board palette:
 
-2. **Mobile: Append to greeting pill** — Extend the mobile greeting chip (lines 143-155) with a second line or adjacent pill when expiry is active: `⏳ 150 Ink expiring soon · Shop →` in the same compact style.
+| Role | Current | New (brand board) |
+|------|---------|-------------------|
+| **background** | warm cream (40 33% 96%) | Ivory (~40 30% 97%) |
+| **foreground** | dark blue-grey | Ink Black (~220 15% 15%) |
+| **primary** | terracotta (14 60% 55%) | **Dusty Blue** (~210 25% 55%) |
+| **secondary** | sage green (150 25% 45%) | Sage (~130 18% 52%) |
+| **ring/focus** | terracotta | Dusty Blue |
+| **accent** | warm cream tint | Soft Rose tint (~10 30% 92%) |
+| **deals-banner** | terracotta | Dusty Blue |
+| **badge-community** | gold | Sage |
 
-3. **Remove the standalone expiry pill** — Delete lines 213-234 (the centered `backdrop-blur-md bg-amber-500/10` block). No more floating element in the hero flow.
+Dark mode values updated accordingly. Dusty Blue becomes the primary action color (buttons, links, focus rings, banners).
 
-### Why this works
-- Loyalty sidebar already shows points, tier, and streak — expiry is contextually related
-- No new visual element added to the hero; information density stays the same
-- Mobile gets a subtle addition to an existing chip rather than a separate banner
-- The hero's headline → search → categories → deals flow remains uninterrupted
+### 3. Brand name replacement
+Replace all "Paperly" text references with "Note & Gale" across:
+- `src/components/Navbar.tsx` — logo text
+- `src/components/Footer.tsx` — brand name, tagline → "Where Ideas Take Flight", copyright
+- `src/pages/About.tsx` — all mentions, email domains → `hello@noteandgale.sg`
+- `src/pages/Login.tsx`, `src/pages/Signup.tsx` — welcome text
+- `src/context/AuthContext.tsx` — storage keys and welcome message
+- `src/pages/OrderTracking.tsx`, `src/pages/OrderReturn.tsx`, `src/components/WriteReviewModal.tsx` — storage key prefixes
+- `index.html` — page title
 
-### File changed
-- `src/components/IntentPrompt.tsx`
+### 4. Tailwind config update
+Update `tailwind.config.ts` font family definitions to reference Inter and Playfair Display.
+
+### Files changed
+- `src/index.css` — fonts + all CSS custom properties
+- `tailwind.config.ts` — font families
+- `index.html` — title
+- `src/components/Navbar.tsx` — brand name
+- `src/components/Footer.tsx` — brand name + tagline
+- `src/pages/About.tsx` — brand references
+- `src/pages/Login.tsx` — brand reference
+- `src/pages/Signup.tsx` — brand reference
+- `src/context/AuthContext.tsx` — storage key + welcome message
+- `src/pages/OrderTracking.tsx` — storage key
+- `src/pages/OrderReturn.tsx` — storage key
+- `src/components/WriteReviewModal.tsx` — storage key
 
