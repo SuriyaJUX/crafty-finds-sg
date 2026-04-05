@@ -635,17 +635,24 @@ const CheckoutPayment = () => {
                 </div>
 
                 {/* Place Order */}
-                <Button
-                  onClick={handlePlaceOrder}
-                  disabled={placing}
-                  className="w-full"
-                  size="lg"
-                >
-                  {placing
-                    ? <><Loader2 className="w-4 h-4 mr-2 animate-spin" /> Processing…</>
-                    : <>Place Order — S${total.toFixed(2)}</>
-                  }
-                </Button>
+                <div className="space-y-1.5">
+                  <Button
+                    onClick={handlePlaceOrder}
+                    disabled={placing}
+                    className="w-full"
+                    size="lg"
+                  >
+                    {placing
+                      ? <><Loader2 className="w-4 h-4 mr-2 animate-spin" /> Processing…</>
+                      : <>Place Order — S${total.toFixed(2)}</>
+                    }
+                  </Button>
+                  {(voucherDeduction + pointsDeduction) > 0 && (
+                    <p className="text-xs text-center text-secondary font-medium">
+                      You save S${(voucherDeduction + pointsDeduction).toFixed(2)} on this order
+                    </p>
+                  )}
+                </div>
               </div>
 
               {/* Other methods — compact list */}
