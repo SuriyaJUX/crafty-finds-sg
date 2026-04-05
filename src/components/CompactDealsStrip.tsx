@@ -79,7 +79,7 @@ const CompactDealsStrip = () => {
                   )}
                   {/* Community badge — only on expand */}
                   {p.isCommunityFavourite && (
-                    <span className="absolute top-2 left-2 opacity-0 md:group-hover:opacity-100 transition-opacity duration-300 delay-150 badge-community px-2 py-0.5 rounded-full text-[10px] font-semibold">
+                    <span className="absolute bottom-2 left-2 opacity-0 md:group-hover:opacity-100 transition-opacity duration-300 delay-150 badge-community px-2 py-0.5 rounded-full text-[10px] font-semibold z-10">
                       ❤️ Community Favourite
                     </span>
                   )}
