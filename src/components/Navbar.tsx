@@ -1,5 +1,6 @@
 import { Link, useLocation, useNavigate } from "react-router-dom";
-import { ShoppingBag, Heart, Search, Menu, X, User, LogOut, Target, HelpCircle } from "lucide-react";
+import { ShoppingBag, Heart, Search, Menu, X, User, LogOut, Target, HelpCircle, Sun, Moon } from "lucide-react";
+import { useTheme } from "next-themes";
 import { useCart } from "@/context/CartContext";
 import { useAuth } from "@/context/AuthContext";
 import { useInkPoints } from "@/context/InkPointsContext";
