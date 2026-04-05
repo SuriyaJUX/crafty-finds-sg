@@ -1,22 +1,24 @@
 
 
-## Problem
-The hero section currently cycles through 4 static JPG background images with crossfade transitions. The user wants to replace this with a looping background video.
+## Issue Found
 
-## Solution
-Replace the image carousel with a single `<video>` element playing the uploaded MP4 on loop, muted, and autoplaying. Remove the image cycling logic (state, refs, timers, imports) that is no longer needed.
+The video at `/Paint.mp4` loads fine in the dev server (HTTP 206), and both light and dark modes look correct with the overlay. However, there are two concerns:
 
-### Changes — `src/components/IntentPrompt.tsx`
+1. **Video file may not deploy to Netlify** — `Paint.mp4` needs to be in the `public/` directory and committed to git. Large video files are often gitignored. The earlier plan created `public/videos/hero-bg.mp4` but the component still references `/Paint.mp4`.
 
-1. **Copy uploaded video** to `public/videos/hero-bg.mp4` (public folder since it's a large media asset better served statically than bundled)
-2. **Remove** imports for `heroBg1–heroBg6`, the `heroImages` array, `FADE_DURATION` constant
-3. **Remove** the `currentImage`, `leavingImage`, and `leavingTimerRef` state/refs and the `useEffect` that cycles images
-4. **Replace** the `heroImages.map(...)` block with a single `<video>` element:
-   - `autoPlay`, `muted`, `loop`, `playsInline` attributes
-   - `className="absolute inset-0 w-full h-full object-cover"` with `zIndex: 1`
-   - `src="/videos/hero-bg.mp4"`
-5. **Keep** the overlay div and all content below unchanged
+2. **No Netlify CLI involvement** — The video is served by Vite's dev server, not Netlify CLI. Netlify CLI would only be relevant for production builds. The current setup (static file in `public/`) is the standard approach for Vite+Netlify deployments.
 
-### File touched
-- `src/components/IntentPrompt.tsx` — swap images for video, remove cycling logic
+## Recommendation
+
+No code changes needed for the video to work in both themes — it already does. If you want to ensure the video deploys correctly to Netlify:
+
+1. Confirm `Paint.mp4` exists in `public/` and is not gitignored
+2. Optionally, consider hosting the video on a CDN (Cloudinary, Bunny, etc.) to avoid bloating the repo with a large binary
+
+## What Was Verified
+
+- **Light mode**: Hero text, search, buttons, deals strip — all readable over the `bg-background/55` overlay ✓
+- **Dark mode**: Theme toggle works, all elements adapt correctly, overlay shifts to dark background blend ✓
+- **Video network request**: HTTP 206 (partial content) — loading successfully, no errors ✓
+- **Console**: No video-related errors ✓
 
