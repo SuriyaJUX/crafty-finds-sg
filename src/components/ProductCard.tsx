@@ -48,7 +48,7 @@ const ProductCard = ({
               </span>
             )}
             {discount && (
-              <span className="bg-primary text-primary-foreground px-2 py-0.5 rounded-full text-[11px] font-semibold">
+              <span className="bg-deals-banner text-deals-banner-foreground px-2 py-0.5 rounded-full text-[11px] font-semibold">
                 {discount}% off
               </span>
             )}
