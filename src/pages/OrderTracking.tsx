@@ -1,5 +1,5 @@
-import { useState, useEffect, useMemo } from "react";
-import { useParams, useNavigate, Link } from "react-router-dom";
+import { useState, useEffect } from "react";
+import { useParams, useNavigate } from "react-router-dom";
 import { useAuth } from "@/context/AuthContext";
 import { products } from "@/data/products";
 import { Button } from "@/components/ui/button";
@@ -7,7 +7,7 @@ import { cn } from "@/lib/utils";
 import {
   Package, CheckCircle2, Truck, Clock, MapPin, ArrowLeft,
   AlertTriangle, RotateCcw, Star, MessageSquare, ShieldCheck,
-  ChevronRight, XCircle, RefreshCw, Home,
+  ChevronRight, XCircle, RefreshCw, Home, ChevronDown,
 } from "lucide-react";
 
 // ── Types ──────────────────────────────────────────────────────────────────
@@ -57,14 +57,47 @@ function saveTracking(data: StoredTracking) {
   } catch {}
 }
 
+// ── Dynamic date helpers ───────────────────────────────────────────────────
+
+function addBusinessDays(from: Date, days: number): Date {
+  const d = new Date(from);
+  let added = 0;
+  while (added < days) {
+    d.setDate(d.getDate() + 1);
+    if (d.getDay() !== 0 && d.getDay() !== 6) added++;
+  }
+  return d;
+}
+
+function getDynamicTimestamp(bizDaysFromNow: number): string {
+  return addBusinessDays(new Date(), bizDaysFromNow).toISOString();
+}
+
+function formatDateShort(iso: string): string {
+  return new Date(iso).toLocaleString("en-SG", {
+    day: "numeric", month: "short", hour: "2-digit", minute: "2-digit",
+  });
+}
+
+function formatDateLong(d: Date): string {
+  return d.toLocaleDateString("en-SG", { weekday: "long", day: "numeric", month: "long" });
+}
+
 // ── Timeline config ────────────────────────────────────────────────────────
 
-const STEPS: { status: TrackingStatus; label: string; Icon: typeof Package }[] = [
-  { status: "placed",           label: "Order Placed",      Icon: Package },
-  { status: "processing",       label: "Processing",        Icon: Clock },
-  { status: "shipped",          label: "Shipped",           Icon: Truck },
-  { status: "out_for_delivery", label: "Out for Delivery",  Icon: Truck },
-  { status: "delivered",        label: "Delivered",         Icon: CheckCircle2 },
+interface TimelineStep {
+  status: TrackingStatus;
+  label: string;
+  Icon: typeof Package;
+  bizDays: number; // business days from order date
+}
+
+const STEPS: TimelineStep[] = [
+  { status: "placed",           label: "Order Placed",      Icon: Package,      bizDays: 0 },
+  { status: "processing",       label: "Processing",        Icon: Clock,        bizDays: 1 },
+  { status: "shipped",          label: "Shipped",           Icon: Truck,        bizDays: 2 },
+  { status: "out_for_delivery", label: "Out for Delivery",  Icon: Truck,        bizDays: 3 },
+  { status: "delivered",        label: "Delivered",         Icon: CheckCircle2, bizDays: 4 },
 ];
 
 const STATUS_ORDER: TrackingStatus[] = ["placed", "processing", "shipped", "out_for_delivery", "delivered"];
@@ -73,6 +106,92 @@ function statusIndex(s: TrackingStatus): number {
   if (s === "delayed") return STATUS_ORDER.indexOf("shipped");
   if (s === "failed") return STATUS_ORDER.indexOf("out_for_delivery");
   return STATUS_ORDER.indexOf(s);
+}
+
+// Build a full timeline that merges STEPS with any delayed/failed events, in chronological order
+function buildFullTimeline(tracking: StoredTracking): Array<{
+  status: TrackingStatus;
+  label: string;
+  Icon: typeof Package;
+  bizDays: number;
+  isReached: boolean;
+  isCurrent: boolean;
+  isDelayed: boolean;
+  isFailed: boolean;
+  event?: TrackingEvent;
+  estimatedDate: string;
+}> {
+  const activeIdx = statusIndex(tracking.currentStatus);
+  const isTerminal = tracking.currentStatus === "delivered";
+  const isDelayedScenario = tracking.scenario === "delayed";
+
+  const delayedEvent = tracking.events.find(e => e.status === "delayed");
+  const failedEvent = tracking.events.find(e => e.status === "failed");
+
+  const result: ReturnType<typeof buildFullTimeline> = [];
+
+  for (let i = 0; i < STEPS.length; i++) {
+    const step = STEPS[i];
+    const isReached = activeIdx >= i;
+    const matchingEvent = [...tracking.events].reverse().find(e => e.status === step.status);
+
+    // Extra biz days for delayed scenario after the delay point
+    let adjustedBizDays = step.bizDays;
+    if (isDelayedScenario && delayedEvent && step.bizDays >= 3) {
+      adjustedBizDays = step.bizDays + 2;
+    }
+
+    result.push({
+      status: step.status,
+      label: step.label,
+      Icon: step.Icon,
+      bizDays: adjustedBizDays,
+      isReached,
+      isCurrent: activeIdx === i && !isTerminal,
+      isDelayed: false,
+      isFailed: false,
+      event: matchingEvent,
+      estimatedDate: getDynamicTimestamp(adjustedBizDays),
+    });
+
+    // Insert delayed step between shipped and out_for_delivery
+    if (step.status === "shipped" && delayedEvent) {
+      const delayIsActive = tracking.currentStatus === "delayed";
+      const delayIsReached = delayIsActive || activeIdx > i;
+      result.push({
+        status: "delayed",
+        label: "Delivery Delayed",
+        Icon: AlertTriangle,
+        bizDays: step.bizDays + 1,
+        isReached: delayIsReached,
+        isCurrent: delayIsActive,
+        isDelayed: true,
+        isFailed: false,
+        event: delayedEvent,
+        estimatedDate: getDynamicTimestamp(step.bizDays + 1),
+      });
+    }
+
+    // Insert failed step between out_for_delivery and delivered
+    if (step.status === "out_for_delivery" && failedEvent) {
+      const failIsActive = tracking.currentStatus === "failed";
+      const failIsReached = failIsActive || tracking.currentStatus === "delivered";
+      result.push({
+        status: "failed",
+        label: "Delivery Failed",
+        Icon: XCircle,
+        bizDays: step.bizDays + 1,
+        isReached: failIsReached,
+        isCurrent: failIsActive,
+        isDelayed: false,
+        isFailed: true,
+        event: failedEvent,
+        estimatedDate: getDynamicTimestamp(step.bizDays + 1),
+      });
+    }
+  }
+
+  return result;
 }
 
 function createInitialEvents(orderId: string): TrackingEvent[] {
@@ -145,15 +264,9 @@ function generateNextEvent(current: TrackingStatus, scenario: DeliveryScenario):
 
 // ── Delivery estimate ──────────────────────────────────────────────────────
 
-function estimateDelivery(scenario: DeliveryScenario) {
-  const d = new Date();
-  const addBizDays = scenario === "delayed" ? 7 : scenario === "failed" ? 6 : 5;
-  let biz = 0;
-  while (biz < addBizDays) {
-    d.setDate(d.getDate() + 1);
-    if (d.getDay() !== 0 && d.getDay() !== 6) biz++;
-  }
-  return d.toLocaleDateString("en-SG", { weekday: "long", day: "numeric", month: "long" });
+function estimateDelivery(scenario: DeliveryScenario): string {
+  const bizDays = scenario === "delayed" ? 6 : scenario === "failed" ? 5 : 4;
+  return formatDateLong(addBusinessDays(new Date(), bizDays));
 }
 
 // ── Component ──────────────────────────────────────────────────────────────
@@ -178,6 +291,8 @@ const OrderTracking = () => {
     };
   });
 
+  const [showFullTimeline, setShowFullTimeline] = useState(false);
+
   useEffect(() => {
     if (tracking.orderId) saveTracking(tracking);
   }, [tracking]);
@@ -185,8 +300,33 @@ const OrderTracking = () => {
   const isTerminal = tracking.currentStatus === "delivered";
   const isFailed = tracking.currentStatus === "failed";
   const isDelayed = tracking.currentStatus === "delayed";
-  const activeIdx = statusIndex(tracking.currentStatus);
   const deliveryEstimate = estimateDelivery(tracking.scenario);
+
+  const fullTimeline = buildFullTimeline(tracking);
+  // Reverse: most recent first
+  const reversedTimeline = [...fullTimeline].reverse();
+
+  // Find current step index in reversed list
+  const currentReversedIdx = reversedTimeline.findIndex(s => s.isCurrent);
+  // For terminal (delivered), show the top 3
+  const anchorIdx = currentReversedIdx >= 0 ? currentReversedIdx : 0;
+
+  // Window: prev completed (below current in reversed = anchorIdx+1), current, next upcoming (above = anchorIdx-1)
+  const visibleIndices = new Set<number>();
+  visibleIndices.add(anchorIdx);
+  if (anchorIdx > 0) visibleIndices.add(anchorIdx - 1); // next upcoming (above in reversed)
+  if (anchorIdx < reversedTimeline.length - 1) visibleIndices.add(anchorIdx + 1); // prev completed (below in reversed)
+  // If terminal show top 3
+  if (isTerminal) {
+    visibleIndices.clear();
+    visibleIndices.add(0);
+    visibleIndices.add(1);
+    visibleIndices.add(2);
+  }
+
+  const displayedTimeline = showFullTimeline
+    ? reversedTimeline
+    : reversedTimeline.filter((_, i) => visibleIndices.has(i));
 
   const advanceStatus = () => {
     const nextEvent = generateNextEvent(tracking.currentStatus, tracking.scenario);
@@ -199,6 +339,7 @@ const OrderTracking = () => {
   };
 
   const switchScenario = (s: DeliveryScenario) => {
+    setShowFullTimeline(false);
     setTracking({
       orderId: orderId ?? "",
       scenario: s,
@@ -305,24 +446,24 @@ const OrderTracking = () => {
         </Button>
       </div>
 
-      {/* Visual timeline */}
+      {/* Visual timeline — reversed, windowed */}
       <div className="rounded-xl border border-border bg-card p-6 mb-6">
         <h2 className="font-serif text-lg mb-6">Tracking Timeline</h2>
         <div className="relative">
-          {STEPS.map((step, i) => {
-            const isReached = activeIdx >= i;
-            const isCurrent = activeIdx === i && !isTerminal;
+          {displayedTimeline.map((step, i) => {
             const StepIcon = step.Icon;
-            const matchingEvent = [...tracking.events].reverse().find(e => e.status === step.status);
+            const displayDate = step.event
+              ? formatDateShort(step.event.timestamp)
+              : formatDateShort(step.estimatedDate);
 
             return (
-              <div key={step.status} className="flex gap-4 relative">
+              <div key={`${step.status}-${i}`} className="flex gap-4 relative">
                 {/* Vertical line */}
-                {i < STEPS.length - 1 && (
+                {i < displayedTimeline.length - 1 && (
                   <div
                     className={cn(
                       "absolute left-[17px] top-[36px] w-0.5 h-[calc(100%-12px)]",
-                      isReached && activeIdx > i ? "bg-secondary" : "bg-border"
+                      step.isReached ? "bg-secondary" : "bg-border"
                     )}
                   />
                 )}
@@ -331,63 +472,72 @@ const OrderTracking = () => {
                 <div
                   className={cn(
                     "relative z-10 w-[36px] h-[36px] rounded-full flex items-center justify-center shrink-0 border-2 transition-colors",
-                    isReached
-                      ? "bg-secondary border-secondary text-white"
-                      : "bg-muted border-border text-muted-foreground",
-                    isCurrent && "ring-4 ring-secondary/20"
+                    step.isDelayed
+                      ? "bg-amber-500 border-amber-500 text-white"
+                      : step.isFailed
+                        ? "bg-destructive border-destructive text-white"
+                        : step.isReached
+                          ? "bg-secondary border-secondary text-white"
+                          : "bg-muted border-border text-muted-foreground",
+                    step.isCurrent && !step.isDelayed && !step.isFailed && "ring-4 ring-secondary/20",
+                    step.isCurrent && step.isDelayed && "ring-4 ring-amber-500/20",
+                    step.isCurrent && step.isFailed && "ring-4 ring-destructive/20"
                   )}
                 >
                   <StepIcon className="w-4 h-4" />
                 </div>
 
                 {/* Content */}
-                <div className={cn("pb-8 flex-1 min-w-0", i === STEPS.length - 1 && "pb-0")}>
+                <div className={cn("pb-8 flex-1 min-w-0", i === displayedTimeline.length - 1 && "pb-0")}>
                   <p className={cn(
                     "text-sm font-medium",
-                    isReached ? "text-foreground" : "text-muted-foreground"
+                    step.isDelayed ? "text-amber-700 dark:text-amber-400" :
+                    step.isFailed ? "text-destructive" :
+                    step.isReached ? "text-foreground" : "text-muted-foreground"
                   )}>
                     {step.label}
                   </p>
-                  {matchingEvent && (
-                    <>
-                      <p className="text-xs text-muted-foreground mt-0.5">
-                        {new Date(matchingEvent.timestamp).toLocaleString("en-SG", {
-                          day: "numeric", month: "short", hour: "2-digit", minute: "2-digit",
-                        })}
-                      </p>
-                      {matchingEvent.description && (
-                        <p className="text-xs text-muted-foreground mt-1">{matchingEvent.description}</p>
-                      )}
-                    </>
+                  <p className="text-xs text-muted-foreground mt-0.5">
+                    {step.event ? displayDate : `Est. ${displayDate}`}
+                  </p>
+                  {step.event?.description && (
+                    <p className={cn(
+                      "text-xs mt-1",
+                      step.isDelayed ? "text-amber-600 dark:text-amber-400" : "text-muted-foreground"
+                    )}>
+                      {step.event.description}
+                    </p>
+                  )}
+                  {/* Show updated delivery estimate on delayed step */}
+                  {step.isDelayed && step.event && (
+                    <p className="text-xs mt-1.5 font-medium text-amber-700 dark:text-amber-300">
+                      Updated delivery estimate: {estimateDelivery("delayed")}
+                    </p>
                   )}
                 </div>
               </div>
             );
           })}
-
-          {/* Extra events (delayed / failed) shown inline */}
-          {tracking.events.filter(e => e.status === "delayed" || e.status === "failed").map((evt, i) => (
-            <div key={`extra-${i}`} className="flex gap-4 mt-2 ml-0">
-              <div className={cn(
-                "w-[36px] h-[36px] rounded-full flex items-center justify-center shrink-0 border-2",
-                evt.status === "failed"
-                  ? "bg-destructive border-destructive text-white"
-                  : "bg-amber-500 border-amber-500 text-white"
-              )}>
-                {evt.status === "failed" ? <XCircle className="w-4 h-4" /> : <AlertTriangle className="w-4 h-4" />}
-              </div>
-              <div>
-                <p className="text-sm font-medium">{evt.label}</p>
-                <p className="text-xs text-muted-foreground mt-0.5">
-                  {new Date(evt.timestamp).toLocaleString("en-SG", {
-                    day: "numeric", month: "short", hour: "2-digit", minute: "2-digit",
-                  })}
-                </p>
-                {evt.description && <p className="text-xs text-muted-foreground mt-1">{evt.description}</p>}
-              </div>
-            </div>
-          ))}
         </div>
+
+        {/* Show full timeline toggle */}
+        {!showFullTimeline && reversedTimeline.length > 3 && (
+          <button
+            onClick={() => setShowFullTimeline(true)}
+            className="flex items-center gap-1.5 text-sm text-secondary hover:text-secondary/80 font-medium mt-4 transition-colors"
+          >
+            <ChevronDown className="w-4 h-4" />
+            Show full timeline
+          </button>
+        )}
+        {showFullTimeline && (
+          <button
+            onClick={() => setShowFullTimeline(false)}
+            className="flex items-center gap-1.5 text-sm text-muted-foreground hover:text-foreground font-medium mt-4 transition-colors"
+          >
+            Show less
+          </button>
+        )}
       </div>
 
       {/* Order items */}
