@@ -207,8 +207,8 @@ const WriteReviewModal = ({
   const validate = () => {
     const e: typeof errors = {};
     if (rating === 0) e.rating = "Please select a star rating.";
-    if (text.trim().length < 20)
-      e.text = "Please write at least 20 characters.";
+    if (text.trim().length < 10)
+      e.text = "Please write at least 10 characters.";
     setErrors(e);
     return Object.keys(e).length === 0;
   };
