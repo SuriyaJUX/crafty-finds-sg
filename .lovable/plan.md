@@ -1,24 +1,39 @@
 
 
-## Issue Found
+## Color Audit: Too Much Blue
 
-The video at `/Paint.mp4` loads fine in the dev server (HTTP 206), and both light and dark modes look correct with the overlay. However, there are two concerns:
+### Findings
 
-1. **Video file may not deploy to Netlify** — `Paint.mp4` needs to be in the `public/` directory and committed to git. Large video files are often gitignored. The earlier plan created `public/videos/hero-bg.mp4` but the component still references `/Paint.mp4`.
+The brand board defines 5 colors: **Ink Black**, **Ivory**, **Sage**, **Dusty Blue**, and **Soft Rose**. Currently:
 
-2. **No Netlify CLI involvement** — The video is served by Vite's dev server, not Netlify CLI. Netlify CLI would only be relevant for production builds. The current setup (static file in `public/`) is the standard approach for Vite+Netlify deployments.
+| Color | Role | Usage |
+|-------|------|-------|
+| Dusty Blue (`--primary`) | Everything interactive | 879 matches in 43 files — buttons, links, badges, deals banner, discount tags, focus rings, hover states, nav, progress bars |
+| Sage (`--secondary`) | Positive feedback | 406 matches in 23 files — shipping, savings, ink points, verified badges |
+| Soft Rose (`--accent`) | Almost unused | 116 matches but nearly all in shadcn UI primitives (hover/focus defaults). Zero custom usage |
 
-## Recommendation
+**Diagnosis**: Dusty Blue is doing triple duty as CTA color, link color, promotional/sale color, and banner background. Soft Rose — a core brand color — is essentially invisible to users.
 
-No code changes needed for the video to work in both themes — it already does. If you want to ensure the video deploys correctly to Netlify:
+### Proposed Rebalancing
 
-1. Confirm `Paint.mp4` exists in `public/` and is not gitignored
-2. Optionally, consider hosting the video on a CDN (Cloudinary, Bunny, etc.) to avoid bloating the repo with a large binary
+1. **Deals banner** — Change `--deals-banner` from Dusty Blue (`210 25% 55%`) to a warm Soft Rose tone (`10 40% 65%`), giving the promotional strip a distinct, warmer identity
+2. **Discount badges** on ProductCard — Switch from `bg-primary` to a new `bg-deals-banner` so sale callouts use the rose/warm palette instead of blue
+3. **"Community Favourite" badge** — Keep Sage (already distinct, works well)
+4. **Footer link hovers** — Change from `hover:text-primary` to `hover:text-foreground` so not every interactive element goes blue
+5. **Category pill hovers** in the hero — Use `hover:border-secondary/50 hover:text-secondary` on alternating pills, or use a warmer border highlight
+6. **Heart/saved icon** — Switch filled heart from `fill-primary text-primary` to a rose tone (`fill-destructive/80 text-destructive/80`) — hearts are conventionally warm-colored
 
-## What Was Verified
+### CSS Variable Changes (in `src/index.css`)
+- Light: `--deals-banner: 10 40% 65%` (warm rose-mauve for banners/promos)
+- Dark: `--deals-banner: 10 35% 50%` (muted rose for dark mode)
 
-- **Light mode**: Hero text, search, buttons, deals strip — all readable over the `bg-background/55` overlay ✓
-- **Dark mode**: Theme toggle works, all elements adapt correctly, overlay shifts to dark background blend ✓
-- **Video network request**: HTTP 206 (partial content) — loading successfully, no errors ✓
-- **Console**: No video-related errors ✓
+### Files Touched
+- `src/index.css` — adjust `--deals-banner` values
+- `src/components/ProductCard.tsx` — discount badge and heart icon colors
+- `src/components/Footer.tsx` — link hover colors
+- `src/components/IntentPrompt.tsx` — category button hover variation
+- `src/components/Navbar.tsx` — minor: Deals link dot color
+
+### Result
+Dusty Blue stays as the primary action color (buttons, main CTAs, links in content) but promotional/sale elements shift to Soft Rose, hearts become warm-toned, and the footer feels less blue-saturated. This gives users a richer visual experience aligned with the full brand palette.
 
