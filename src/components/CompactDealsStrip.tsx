@@ -54,12 +54,12 @@ const CompactDealsStrip = () => {
                 className="group relative flex-none cursor-pointer"
                 onClick={() => navigate(`/product/${p.id}`)}
               >
-                {/* Compact pill — always visible */}
-                <div className="relative w-16 h-16 md:w-[72px] md:h-[72px] rounded-xl overflow-hidden border border-border bg-card shadow-sm transition-all duration-300 group-hover:shadow-lg group-hover:border-primary/40">
+                {/* Compact pill with hover lift */}
+                <div className="relative w-16 h-16 md:w-[72px] md:h-[72px] rounded-xl overflow-hidden border border-border bg-card shadow-sm transition-all duration-300 ease-out group-hover:shadow-lg group-hover:border-primary/40 group-hover:-translate-y-1 group-hover:ring-2 group-hover:ring-primary/30">
                   <img
-src={p.images[0]}
+                    src={p.images[0]}
                     alt={p.name}
-                    className="w-full h-full object-cover"
+                    className="w-full h-full object-cover transition-transform duration-500 ease-out group-hover:scale-110"
                     loading="lazy"
                     width={72}
                     height={72}
@@ -73,21 +73,29 @@ src={p.images[0]}
                 </div>
 
                 {/* Expanded card — desktop hover only */}
-                <div className="hidden md:block absolute bottom-full left-1/2 -translate-x-1/2 mb-2 w-48 opacity-0 scale-95 pointer-events-none group-hover:opacity-100 group-hover:scale-100 group-hover:pointer-events-auto transition-all duration-300 z-50">
-                  <div className="rounded-xl border border-border bg-card shadow-xl overflow-hidden">
-                    <div className="aspect-square w-full overflow-hidden">
+                <div className="hidden md:block absolute bottom-full left-1/2 -translate-x-1/2 mb-2 w-48 translate-y-2 opacity-0 scale-95 pointer-events-none group-hover:translate-y-0 group-hover:opacity-100 group-hover:scale-100 group-hover:pointer-events-auto transition-all duration-[400ms] ease-out z-50">
+                  <div className="rounded-2xl border border-border bg-card shadow-xl backdrop-blur-sm overflow-hidden">
+                    <div className="aspect-square w-full overflow-hidden relative">
                       <img
-src={p.images[0]}
+                        src={p.images[0]}
                         alt={p.name}
                         className="w-full h-full object-cover"
                         loading="lazy"
                       />
+                      {/* Gradient overlay for contrast */}
+                      <div className="absolute inset-x-0 bottom-0 h-1/3 bg-gradient-to-t from-black/30 to-transparent" />
+                      {/* Discount badge on expanded card */}
+                      {discountPercent > 0 && (
+                        <span className="absolute top-2 right-2 bg-destructive text-destructive-foreground text-[10px] font-bold px-1.5 py-0.5 rounded-full leading-none">
+                          -{discountPercent}%
+                        </span>
+                      )}
                     </div>
                     <div className="p-3">
                       <p className="text-xs font-medium text-foreground line-clamp-2 leading-tight mb-1.5">
                         {p.name}
                       </p>
-                      <div className="flex items-baseline gap-1.5">
+                      <div className="flex items-baseline gap-1.5 mb-2">
                         <span className="text-sm font-bold text-foreground">
                           S${p.price.toFixed(2)}
                         </span>
@@ -97,11 +105,14 @@ src={p.images[0]}
                           </span>
                         )}
                       </div>
+                      <span className="text-[11px] font-medium text-primary">
+                        View →
+                      </span>
                     </div>
                   </div>
                 </div>
 
-                {/* Mobile: show name below pill */}
+                {/* Mobile: show price below pill */}
                 <p className="md:hidden text-[10px] text-center text-foreground mt-1 w-16 line-clamp-1">
                   S${p.price.toFixed(2)}
                 </p>
