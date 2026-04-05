@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { X, Truck, RefreshCw, ShieldCheck, Users, Clock } from "lucide-react";
+import { X, Truck, RefreshCw, ShieldCheck, Users } from "lucide-react";
 import DealsBanner from "@/components/DealsBanner";
 import IntentPrompt from "@/components/IntentPrompt";
 import FeaturedProducts from "@/components/FeaturedProducts";
