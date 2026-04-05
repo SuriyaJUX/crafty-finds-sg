@@ -1,4 +1,4 @@
-import { Link, useLocation } from "react-router-dom";
+import { Link, useLocation, useNavigate } from "react-router-dom";
 import { ShoppingBag, Heart, Search, Menu, X, User, LogOut, Target, HelpCircle } from "lucide-react";
 import { useCart } from "@/context/CartContext";
 import { useAuth } from "@/context/AuthContext";
@@ -25,13 +25,18 @@ const Navbar = () => {
   const { user, isAuthenticated, logout } = useAuth();
   const { currentTier } = useInkPoints();
   const location = useLocation();
+  const navigate = useNavigate();
   const [mobileOpen, setMobileOpen] = useState(false);
   const [userMenuOpen, setUserMenuOpen] = useState(false);
   const [scrolled, setScrolled] = useState(false);
   const [inkHovered, setInkHovered] = useState(false);
   const [newPointsPulse, setNewPointsPulse] = useState(false);
+  const [searchOpen, setSearchOpen] = useState(false);
+  const [searchQuery, setSearchQuery] = useState("");
   const prevPointsRef = useRef<number | null>(null);
   const userMenuRef = useRef<HTMLDivElement>(null);
+  const searchInputRef = useRef<HTMLInputElement>(null);
+  const searchContainerRef = useRef<HTMLDivElement>(null);
 
   // Detect points increase and show pulse for 5 s
   useEffect(() => {
@@ -60,6 +65,63 @@ const Navbar = () => {
     window.addEventListener("scroll", handleScroll, { passive: true });
     return () => window.removeEventListener("scroll", handleScroll);
   }, []);
+
+  // Close search on route change
+  useEffect(() => {
+    setSearchOpen(false);
+    setSearchQuery("");
+  }, [location.pathname]);
+
+  // Focus input when search opens
+  useEffect(() => {
+    if (searchOpen) searchInputRef.current?.focus();
+  }, [searchOpen]);
+
+  // Close search on outside click
+  useEffect(() => {
+    const handleClick = (e: MouseEvent) => {
+      if (searchContainerRef.current && !searchContainerRef.current.contains(e.target as Node)) {
+        setSearchOpen(false);
+        setSearchQuery("");
+      }
+    };
+    if (searchOpen) document.addEventListener("mousedown", handleClick);
+    return () => document.removeEventListener("mousedown", handleClick);
+  }, [searchOpen]);
+
+  // Search suggestions — live filter against name, category, tags
+  const suggestions = searchQuery.trim().length > 0
+    ? products
+        .filter(p =>
+          p.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+          p.category.toLowerCase().includes(searchQuery.toLowerCase()) ||
+          p.tags.some(t => t.toLowerCase().includes(searchQuery.toLowerCase()))
+        )
+        .slice(0, 5)
+    : [];
+
+  const handleSearchKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
+    if (e.key === "Escape") { setSearchOpen(false); setSearchQuery(""); }
+    if (e.key === "Enter" && searchQuery.trim()) {
+      navigate(`/shop?q=${encodeURIComponent(searchQuery.trim())}`);
+      setSearchOpen(false);
+      setSearchQuery("");
+    }
+  };
+
+  const handleSuggestionClick = (id: string) => {
+    navigate(`/product/${id}`);
+    setSearchOpen(false);
+    setSearchQuery("");
+  };
+
+  const handleSearchAll = () => {
+    if (searchQuery.trim()) {
+      navigate(`/shop?q=${encodeURIComponent(searchQuery.trim())}`);
+      setSearchOpen(false);
+      setSearchQuery("");
+    }
+  };
 
   // Arc progress to next 200-pt redemption threshold
   const REDEEM_STEP = 200;
@@ -98,9 +160,76 @@ const Navbar = () => {
         </nav>
 
         <div className="flex items-center gap-3">
-          <Link to="/shop" className="p-2 text-muted-foreground hover:text-foreground transition-colors">
-            <Search className="w-5 h-5" />
-          </Link>
+          {/* ── Expandable search ── */}
+          <div ref={searchContainerRef} className="relative flex items-center">
+            {searchOpen ? (
+              <div className="flex items-center gap-1">
+                <input
+                  ref={searchInputRef}
+                  type="text"
+                  value={searchQuery}
+                  onChange={e => setSearchQuery(e.target.value)}
+                  onKeyDown={handleSearchKeyDown}
+                  placeholder="Search products…"
+                  className="w-44 md:w-56 h-8 rounded-lg border border-border bg-card px-3 text-sm placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-primary/30"
+                />
+                <button
+                  onClick={() => { setSearchOpen(false); setSearchQuery(""); }}
+                  className="p-1.5 text-muted-foreground hover:text-foreground transition-colors"
+                  aria-label="Close search"
+                >
+                  <X className="w-4 h-4" />
+                </button>
+              </div>
+            ) : (
+              <button
+                onClick={() => setSearchOpen(true)}
+                className="p-2 text-muted-foreground hover:text-foreground transition-colors"
+                aria-label="Search"
+              >
+                <Search className="w-5 h-5" />
+              </button>
+            )}
+
+            {/* Suggestions dropdown */}
+            {searchOpen && searchQuery.trim().length > 0 && (
+              <div className="absolute right-0 top-full mt-2 w-72 rounded-xl border border-border bg-card shadow-lg z-50 animate-fade-in overflow-hidden">
+                {suggestions.length > 0 ? (
+                  <>
+                    {suggestions.map(p => (
+                      <button
+                        key={p.id}
+                        onClick={() => handleSuggestionClick(p.id)}
+                        className="flex items-center gap-3 w-full px-3 py-2.5 hover:bg-muted transition-colors text-left"
+                      >
+                        <img
+                          src={p.images[0]}
+                          alt={p.name}
+                          className="w-8 h-8 rounded object-cover bg-muted flex-shrink-0"
+                        />
+                        <div className="flex-1 min-w-0">
+                          <p className="text-sm font-medium truncate">{p.name}</p>
+                          <p className="text-xs text-muted-foreground">{p.category}</p>
+                        </div>
+                        <span className="text-xs font-semibold text-primary flex-shrink-0">
+                          S${p.price.toFixed(2)}
+                        </span>
+                      </button>
+                    ))}
+                  </>
+                ) : (
+                  <p className="px-4 py-3 text-sm text-muted-foreground">No products found</p>
+                )}
+                <button
+                  onClick={handleSearchAll}
+                  className="flex items-center gap-2 w-full px-4 py-2.5 border-t border-border text-sm text-primary hover:bg-muted transition-colors font-medium"
+                >
+                  <Search className="w-3.5 h-3.5" />
+                  Search all results for "{searchQuery.trim()}"
+                </button>
+              </div>
+            )}
+          </div>
           <Link
             to="/about#contact"
             className="flex p-2 text-muted-foreground hover:text-foreground transition-colors relative group"
