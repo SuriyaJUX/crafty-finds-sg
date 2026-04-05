@@ -5,6 +5,7 @@ import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Eye, EyeOff, UserPlus, Gift } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
+import InkPointsOnboarding from "@/components/InkPointsOnboarding";
 
 const Signup = () => {
   const [displayName, setDisplayName] = useState("");
@@ -12,6 +13,7 @@ const Signup = () => {
   const [password, setPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
   const [loading, setLoading] = useState(false);
+  const [showOnboarding, setShowOnboarding] = useState(false);
   const { signup } = useAuth();
   const navigate = useNavigate();
   const location = useLocation();
@@ -24,8 +26,13 @@ const Signup = () => {
     setLoading(false);
     if (success) {
       toast({ title: "Welcome to Paperly! 🎉", description: "You've earned 50 welcome bonus points!" });
-      navigate(location.state?.from ?? "/account");
+      setShowOnboarding(true);
     }
+  };
+
+  const handleOnboardingComplete = () => {
+    setShowOnboarding(false);
+    navigate(location.state?.from ?? "/");
   };
 
   return (
@@ -99,6 +106,8 @@ const Signup = () => {
           </Link>
         </p>
       </div>
+
+      {showOnboarding && <InkPointsOnboarding onComplete={handleOnboardingComplete} />}
     </div>
   );
 };
