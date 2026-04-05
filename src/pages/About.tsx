@@ -94,10 +94,10 @@ const About = () => {
           <div>
             <p className="text-sm font-medium">Order & delivery support</p>
             <a
-              href="mailto:orders@paperly.sg"
+              href="mailto:orders@noteandgale.sg"
               className="text-sm text-primary hover:underline"
             >
-              orders@paperly.sg
+              orders@noteandgale.sg
             </a>
           </div>
         </div>
