@@ -104,10 +104,6 @@ const Index = () => {
 
       <IntentPrompt />
 
-      <FeaturedProducts />
-      <CommunityPick />
-      <CreativePathsPreview />
-
       {/* ── Trust badges ── */}
       <div className="border-y border-border bg-card">
         <div className="container max-w-6xl mx-auto px-4 py-4">
@@ -124,6 +120,10 @@ const Index = () => {
           </div>
         </div>
       </div>
+
+      <FeaturedProducts />
+      <CommunityPick />
+      <CreativePathsPreview />
     </div>
   );
 };
