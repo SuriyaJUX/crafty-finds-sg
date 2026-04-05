@@ -59,7 +59,7 @@ const IntentPrompt = ({ expiringTotal = 0, earliestExpiry, expiryDismissed, onDi
     <section className="relative min-h-[70vh] flex flex-col justify-center overflow-hidden">
       {/* Background video */}
       <video
-        src="/Paint.mp4"
+        src="https://gentle-horses-81938c.netlify.app/Paint.mp4"
         autoPlay
         loop
         muted
