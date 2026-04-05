@@ -1,5 +1,5 @@
 import { Link, useLocation } from "react-router-dom";
-import { ShoppingBag, Heart, Search, Menu, X, User, LogOut, Target } from "lucide-react";
+import { ShoppingBag, Heart, Search, Menu, X, User, LogOut, Target, HelpCircle } from "lucide-react";
 import { useCart } from "@/context/CartContext";
 import { useAuth } from "@/context/AuthContext";
 import { useInkPoints } from "@/context/InkPointsContext";
@@ -100,6 +100,16 @@ const Navbar = () => {
         <div className="flex items-center gap-3">
           <Link to="/shop" className="p-2 text-muted-foreground hover:text-foreground transition-colors">
             <Search className="w-5 h-5" />
+          </Link>
+          <Link
+            to="/about#contact"
+            className="hidden md:flex p-2 text-muted-foreground hover:text-foreground transition-colors relative group"
+            title="Help & support"
+          >
+            <HelpCircle className="w-5 h-5" />
+            <span className="absolute top-full mt-1 left-1/2 -translate-x-1/2 px-2 py-1 rounded bg-foreground text-background text-[10px] font-medium opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap pointer-events-none">
+              Help &amp; support
+            </span>
           </Link>
           <Link to="/wishlist" className="p-2 text-muted-foreground hover:text-foreground transition-colors relative">
             <Heart className="w-5 h-5" />
@@ -317,6 +327,13 @@ const Navbar = () => {
                 </span>
               </div>
             )}
+            <Link
+              to="/about#contact"
+              onClick={() => setMobileOpen(false)}
+              className="text-sm font-medium py-2 text-muted-foreground flex items-center gap-2"
+            >
+              <HelpCircle className="w-4 h-4" /> Help &amp; Support
+            </Link>
           </nav>
         </div>
       )}
