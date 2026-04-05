@@ -1,4 +1,4 @@
-import { Search, Compass, Camera, Clock, X } from "lucide-react";
+import { Search, Compass, Camera, X } from "lucide-react";
 import CompactDealsStrip from "@/components/CompactDealsStrip";
 import { useState, useEffect, useRef } from "react";
 import { useNavigate } from "react-router-dom";
