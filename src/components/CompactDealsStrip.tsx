@@ -47,7 +47,7 @@ const CompactDealsStrip = () => {
         </div>
 
         {/* Deal pills row */}
-        <div className="flex justify-center gap-3 md:gap-4 overflow-x-auto pb-1 snap-x scroll-smooth">
+        <div className="flex items-start justify-center gap-3 md:gap-4 overflow-x-auto pb-1 snap-x scroll-smooth">
           {shown.map(p => {
             const discountPercent = p.originalPrice
               ? Math.round(((p.originalPrice - p.price) / p.originalPrice) * 100)
@@ -56,100 +56,86 @@ const CompactDealsStrip = () => {
             return (
               <div
                 key={p.id}
-                className="group relative flex-none cursor-pointer"
+                className="group relative flex-none cursor-pointer
+                  w-16 md:w-[72px] md:hover:w-[180px]
+                  transition-all duration-[400ms] ease-out
+                  overflow-hidden rounded-xl border border-border bg-card shadow-sm
+                  md:hover:shadow-lg md:hover:border-primary/40 md:hover:rounded-2xl"
                 onClick={() => navigate(`/product/${p.id}`)}
               >
-                {/* Compact pill with hover lift */}
-                <div className="relative w-16 h-16 md:w-[72px] md:h-[72px] rounded-xl overflow-hidden border border-border bg-card shadow-sm transition-all duration-300 ease-out group-hover:shadow-lg group-hover:border-primary/40 group-hover:-translate-y-1 group-hover:ring-2 group-hover:ring-primary/30">
+                {/* Image — always square based on current width */}
+                <div className="aspect-square w-full overflow-hidden relative">
                   <img
                     src={p.images[0]}
                     alt={p.name}
-                    className="w-full h-full object-cover transition-transform duration-500 ease-out group-hover:scale-110"
+                    className="w-full h-full object-cover"
                     loading="lazy"
-                    width={72}
-                    height={72}
                   />
-                  {/* Discount badge */}
+                  {/* Discount badge — always visible */}
                   {discountPercent > 0 && (
-                    <span className="absolute top-0.5 right-0.5 bg-destructive text-destructive-foreground text-[9px] font-bold px-1 py-0.5 rounded-md leading-none">
+                    <span className="absolute top-0.5 right-0.5 md:group-hover:top-2 md:group-hover:left-2 md:group-hover:right-auto bg-primary text-primary-foreground text-[9px] md:group-hover:text-[10px] font-bold px-1 md:group-hover:px-2 py-0.5 rounded-md md:group-hover:rounded-full leading-none transition-all duration-[400ms]">
                       -{discountPercent}%
                     </span>
                   )}
+                  {/* Community badge — only on expand */}
+                  {p.isCommunityFavourite && (
+                    <span className="absolute top-2 left-2 opacity-0 md:group-hover:opacity-100 transition-opacity duration-300 delay-150 badge-community px-2 py-0.5 rounded-full text-[10px] font-semibold">
+                      ❤️ Community Favourite
+                    </span>
+                  )}
+                  {/* Wishlist heart — only on expand */}
+                  <button
+                    onClick={(e) => { e.stopPropagation(); toggleSaved(p); }}
+                    className="absolute top-2 right-2 p-1.5 rounded-full bg-background/80 backdrop-blur hover:bg-background
+                      opacity-0 md:group-hover:opacity-100 transition-opacity duration-300 delay-150"
+                  >
+                    <Heart className={`w-4 h-4 ${isSaved(p.id) ? "fill-primary text-primary" : "text-muted-foreground"}`} />
+                  </button>
+                  {/* Gradient overlay — on expand */}
+                  <div className="absolute inset-x-0 bottom-0 h-1/3 bg-gradient-to-t from-black/20 to-transparent opacity-0 md:group-hover:opacity-100 transition-opacity duration-300" />
                 </div>
 
-                {/* Expanded card — desktop hover only */}
-                <div className="hidden md:block absolute bottom-full left-1/2 -translate-x-1/2 mb-2 w-56 translate-y-2 opacity-0 scale-95 pointer-events-none group-hover:translate-y-0 group-hover:opacity-100 group-hover:scale-100 group-hover:pointer-events-auto transition-all duration-[400ms] ease-out z-50">
-                  <div className="rounded-2xl border border-border bg-card shadow-xl backdrop-blur-sm overflow-hidden">
-                    <div className="aspect-square w-full overflow-hidden relative">
-                      <img
-                        src={p.images[0]}
-                        alt={p.name}
-                        className="w-full h-full object-cover"
-                        loading="lazy"
-                      />
-                      <div className="absolute inset-x-0 bottom-0 h-1/3 bg-gradient-to-t from-black/30 to-transparent" />
-                      {/* Badges top-left */}
-                      <div className="absolute top-2 left-2 flex flex-col gap-1">
-                        {p.isCommunityFavourite && (
-                          <span className="badge-community px-2 py-0.5 rounded-full text-[10px] font-semibold">
-                            ❤️ Community Favourite
-                          </span>
-                        )}
-                        {discountPercent > 0 && (
-                          <span className="bg-primary text-primary-foreground px-2 py-0.5 rounded-full text-[10px] font-semibold">
-                            {discountPercent}% off
-                          </span>
-                        )}
-                      </div>
-                      {/* Wishlist heart top-right */}
-                      <button
-                        onClick={(e) => { e.stopPropagation(); toggleSaved(p); }}
-                        className="absolute top-2 right-2 p-1.5 rounded-full bg-background/80 backdrop-blur hover:bg-background transition-colors"
-                      >
-                        <Heart className={`w-4 h-4 ${isSaved(p.id) ? "fill-primary text-primary" : "text-muted-foreground"}`} />
-                      </button>
+                {/* Details section — clipped when collapsed, revealed on expand */}
+                <div className="max-h-0 md:group-hover:max-h-[200px] overflow-hidden transition-all duration-[400ms] ease-out">
+                  <div className="p-2.5 opacity-0 md:group-hover:opacity-100 transition-opacity duration-300 delay-150">
+                    <p className="text-xs font-medium text-foreground line-clamp-2 leading-tight mb-1.5">
+                      {p.name}
+                    </p>
+                    <div className="flex items-center gap-1 mb-1.5">
+                      <Star className="w-3.5 h-3.5 fill-badge-community text-badge-community" />
+                      <span className="text-[11px] text-muted-foreground">
+                        {p.rating} ({p.reviewCount})
+                      </span>
                     </div>
-                    <div className="p-3">
-                      <p className="text-xs font-medium text-foreground line-clamp-2 leading-tight mb-1.5">
-                        {p.name}
-                      </p>
-                      <div className="flex items-center gap-1 mb-1.5">
-                        <Star className="w-3.5 h-3.5 fill-badge-community text-badge-community" />
-                        <span className="text-[11px] text-muted-foreground">
-                          {p.rating} ({p.reviewCount})
+                    <div className="flex items-baseline gap-1.5 mb-1.5">
+                      <span className="text-sm font-bold text-foreground">
+                        S${p.price.toFixed(2)}
+                      </span>
+                      {p.originalPrice && (
+                        <span className="text-[11px] text-muted-foreground line-through">
+                          S${p.originalPrice.toFixed(2)}
                         </span>
-                      </div>
-                      <div className="flex items-baseline gap-1.5 mb-1.5">
-                        <span className="text-sm font-bold text-foreground">
-                          S${p.price.toFixed(2)}
-                        </span>
-                        {p.originalPrice && (
-                          <span className="text-[11px] text-muted-foreground line-through">
-                            S${p.originalPrice.toFixed(2)}
-                          </span>
-                        )}
-                      </div>
-                      {/* Color swatches */}
-                      {p.colors && p.colors.length > 1 && (
-                        <div className="flex items-center gap-1">
-                          {p.colors.slice(0, 4).map(c => (
-                            <span
-                              key={c}
-                              className="w-2.5 h-2.5 rounded-full border border-border shrink-0"
-                              style={{ background: COLOR_HEX[c] || "#ccc" }}
-                            />
-                          ))}
-                          {p.colors.length > 4 && (
-                            <span className="text-[9px] text-muted-foreground">+{p.colors.length - 4}</span>
-                          )}
-                        </div>
                       )}
                     </div>
+                    {p.colors && p.colors.length > 1 && (
+                      <div className="flex items-center gap-1">
+                        {p.colors.slice(0, 4).map(c => (
+                          <span
+                            key={c}
+                            className="w-2.5 h-2.5 rounded-full border border-border shrink-0"
+                            style={{ background: COLOR_HEX[c] || "#ccc" }}
+                          />
+                        ))}
+                        {p.colors.length > 4 && (
+                          <span className="text-[9px] text-muted-foreground">+{p.colors.length - 4}</span>
+                        )}
+                      </div>
+                    )}
                   </div>
                 </div>
 
-                {/* Mobile: show price below pill */}
-                <p className="md:hidden text-[10px] text-center text-foreground mt-1 w-16 line-clamp-1">
+                {/* Mobile: price below pill */}
+                <p className="md:hidden text-[10px] text-center text-foreground py-1 line-clamp-1">
                   S${p.price.toFixed(2)}
                 </p>
               </div>
