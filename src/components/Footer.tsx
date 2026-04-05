@@ -6,9 +6,9 @@ const Footer = () => (
     <div className="container max-w-6xl mx-auto px-4">
       <div className="grid grid-cols-2 md:grid-cols-4 gap-8">
         <div>
-          <h4 className="font-serif text-lg mb-3">Paperly</h4>
+          <h4 className="font-serif text-lg mb-3">Note & Gale</h4>
           <p className="text-sm text-muted-foreground leading-relaxed mb-4">
-            Singapore's home for stationery lovers and art makers.
+            Where Ideas Take Flight — Singapore's home for stationery lovers and art makers.
           </p>
           <Link
             to="/about#contact"
