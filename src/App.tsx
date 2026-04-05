@@ -63,6 +63,7 @@ const App = () => (
               </Routes>
             </main>
             <Footer />
+            <FloatingHelpButton />
           </BrowserRouter>
         </CartProvider>
         </InkPointsProvider>
