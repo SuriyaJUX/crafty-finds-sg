@@ -81,10 +81,10 @@ const About = () => {
           <div>
             <p className="text-sm font-medium">General enquiries</p>
             <a
-              href="mailto:hello@paperly.sg"
+              href="mailto:hello@noteandgale.sg"
               className="text-sm text-primary hover:underline"
             >
-              hello@paperly.sg
+              hello@noteandgale.sg
             </a>
           </div>
         </div>
