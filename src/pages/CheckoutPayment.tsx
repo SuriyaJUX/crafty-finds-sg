@@ -712,13 +712,35 @@ const CheckoutPayment = () => {
           )}
         </div>
 
-        {/* Right: order summary (desktop) */}
+        {/* Right: order summary + savings (desktop) */}
         <div className="hidden md:block">
-          <div className="rounded-xl border border-border bg-card p-5 sticky top-24">
+          <div className="rounded-xl border border-border bg-card p-5 sticky top-24 space-y-0">
             <h2 className="font-serif text-lg mb-4">Order Summary</h2>
             <OrderSummary />
+            <div className="border-t border-border my-4" />
+            <SavingsRewardsCard />
           </div>
         </div>
+      </div>
+
+      {/* Sticky mobile Place Order bar */}
+      <div className="fixed bottom-0 inset-x-0 md:hidden bg-card/95 backdrop-blur-sm border-t border-border px-4 py-3 z-50">
+        <Button
+          onClick={handlePlaceOrder}
+          disabled={placing}
+          className="w-full"
+          size="lg"
+        >
+          {placing
+            ? <><Loader2 className="w-4 h-4 mr-2 animate-spin" /> Processing…</>
+            : <>Place Order — S${total.toFixed(2)}</>
+          }
+        </Button>
+        {(voucherDeduction + pointsDeduction) > 0 && (
+          <p className="text-xs text-center text-secondary font-medium mt-1">
+            You save S${(voucherDeduction + pointsDeduction).toFixed(2)}
+          </p>
+        )}
       </div>
     </div>
   );
