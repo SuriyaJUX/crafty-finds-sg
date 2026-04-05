@@ -1,28 +1,30 @@
 
 
-## Current State
+## What's changing
 
-The hover-expand card already exists (lines 76-102) but uses basic `opacity-0 scale-95 → opacity-100 scale-100` with `duration-300`. It works but feels flat — no easing personality, no subtle motion cues on the pill itself, and the transition is generic.
+The current hover-expand card is too small (48px wide, tiny text). The user wants it to expand into a full product card similar to the reference image — showing a large product image, community favourite badge, discount badge, wishlist heart, product name, star rating with review count, price with strikethrough original, and color swatches.
 
 ## Plan
 
-Enhance the hover interaction to feel polished and dynamic:
+### Enlarge the expanded hover card in `CompactDealsStrip.tsx`
 
-### 1. Pill hover micro-animation
-- Add a subtle `group-hover:-translate-y-1` lift on the pill thumbnail so it feels like it's "rising" to meet the expanding card
-- Add `group-hover:ring-2 group-hover:ring-primary/30` glow effect on the pill border
+**Current**: The expanded card is `w-48` (~192px) with minimal details.
 
-### 2. Expanded card animation refinement
-- Change from `scale-95 → scale-100` to `translate-y-2 scale-95 opacity-0 → translate-y-0 scale-100 opacity-1` so the card slides up into view rather than just fading
-- Increase duration to `duration-[400ms]` with `ease-out` for a smoother feel
-- Add a subtle `backdrop-blur-sm` on the card's shadow area for depth
-- Add the discount badge on the expanded card too, as a colored pill
+**New**: Expand to `w-56` (~224px) and add all ProductCard-style details:
 
-### 3. Visual polish on expanded card
-- Add a gradient overlay at the bottom of the product image (subtle dark-to-transparent) so the text area has more contrast separation
-- Add a "View →" micro-link at the bottom of the card in primary color to hint at clickability
-- Slightly round the card more (`rounded-2xl`) for a modern feel
+1. **Card size**: Change from `w-48` to `w-56` for a more substantial card
+2. **Image area**: Keep aspect-square with the product image, gradient overlay
+3. **Badges on image**:
+   - Community Favourite badge (top-left, amber pill with heart emoji) — shown conditionally
+   - Discount percentage badge (top-left, below community badge, amber/yellow pill)
+   - Wishlist heart icon (top-right, circular button)
+4. **Details section** below image:
+   - Product name (2-line clamp, medium weight)
+   - Star rating + review count (e.g. "★ 4.6 (334)")
+   - Price row: current price bold + original price strikethrough
+   - Color swatches row (small dots) if product has multiple colors
+5. **Animation**: Keep the existing slide-up + fade + scale transition at 400ms
 
 ### Files changed
-- `src/components/CompactDealsStrip.tsx` — all changes in this single file
+- `src/components/CompactDealsStrip.tsx` — update the expanded card markup (lines 76-113)
 
