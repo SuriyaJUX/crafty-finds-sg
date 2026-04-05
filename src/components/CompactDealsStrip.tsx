@@ -77,7 +77,7 @@ src={p.images[0]}
                   <div className="rounded-xl border border-border bg-card shadow-xl overflow-hidden">
                     <div className="aspect-square w-full overflow-hidden">
                       <img
-                        src={p.image}
+src={p.images[0]}
                         alt={p.name}
                         className="w-full h-full object-cover"
                         loading="lazy"
