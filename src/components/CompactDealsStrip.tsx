@@ -57,7 +57,7 @@ const CompactDealsStrip = () => {
               <div
                 key={p.id}
                 className="group relative flex-none cursor-pointer
-                  w-16 md:w-[72px] md:hover:w-[180px]
+                  w-20 md:w-[88px] md:hover:w-[180px]
                   transition-all duration-[400ms] ease-out
                   overflow-hidden rounded-xl border border-border bg-card shadow-sm
                   md:hover:shadow-lg md:hover:border-primary/40 md:hover:rounded-2xl"
@@ -73,13 +73,13 @@ const CompactDealsStrip = () => {
                   />
                   {/* Discount badge — always visible */}
                   {discountPercent > 0 && (
-                    <span className="absolute top-0.5 right-0.5 md:group-hover:top-2 md:group-hover:left-2 md:group-hover:right-auto bg-primary text-primary-foreground text-[9px] md:group-hover:text-[10px] font-bold px-1 md:group-hover:px-2 py-0.5 rounded-md md:group-hover:rounded-full leading-none transition-all duration-[400ms]">
+                    <span className="absolute top-1 right-1 md:group-hover:top-2 md:group-hover:left-2 md:group-hover:right-auto bg-primary text-primary-foreground text-[10px] md:group-hover:text-[11px] font-bold px-1.5 md:group-hover:px-2 py-0.5 rounded-md md:group-hover:rounded-full leading-none transition-all duration-[400ms] z-10">
                       -{discountPercent}%
                     </span>
                   )}
                   {/* Community badge — only on expand */}
                   {p.isCommunityFavourite && (
-                    <span className="absolute top-2 left-2 opacity-0 md:group-hover:opacity-100 transition-opacity duration-300 delay-150 badge-community px-2 py-0.5 rounded-full text-[10px] font-semibold">
+                    <span className="absolute bottom-2 left-2 opacity-0 md:group-hover:opacity-100 transition-opacity duration-300 delay-150 badge-community px-2 py-0.5 rounded-full text-[10px] font-semibold z-10">
                       ❤️ Community Favourite
                     </span>
                   )}
