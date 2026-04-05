@@ -2,14 +2,17 @@ import { useState, useEffect, useRef } from "react";
 import { useNavigate, useLocation, Navigate } from "react-router-dom";
 import { useCart } from "@/context/CartContext";
 import { useAuth } from "@/context/AuthContext";
+import { useInkPoints } from "@/context/InkPointsContext";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import {
   Check, CreditCard, QrCode, Smartphone, Lock, Shield,
   Tag, AlertCircle, Loader2, RefreshCw, ChevronDown, ChevronUp, ArrowLeft,
+  Sparkles,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useToast } from "@/hooks/use-toast";
+import { deals } from "@/data/products";
 
 interface DeliveryDetails {
   fullName: string;
@@ -79,6 +82,7 @@ const CheckoutPayment = () => {
   const { deliveryDetails, isGuest } = (location.state ?? {}) as { deliveryDetails?: DeliveryDetails; isGuest?: boolean };
   const { items, subtotal, removeItem } = useCart();
   const { user } = useAuth();
+  const { currentTier } = useInkPoints();
   const navigate = useNavigate();
   const { toast } = useToast();
 
@@ -93,13 +97,13 @@ const CheckoutPayment = () => {
   const [placing, setPlacing] = useState(false);
   const [paymentError, setPaymentError] = useState<string | null>(null);
   const [summaryOpen, setSummaryOpen] = useState(false);
-  const [discountOpen, setDiscountOpen] = useState(false);
+  const [savingsNudgeDismissed, setSavingsNudgeDismissed] = useState(false);
   const payNowInterval = useRef<ReturnType<typeof setInterval> | null>(null);
-
-  if (!deliveryDetails) return <Navigate to="/checkout/details" replace />;
+  const pendingVoucherCode = useRef<string | null>(null);
 
   // Auto-apply voucher claimed from the Promotions page
   useEffect(() => {
+    if (!deliveryDetails) return;
     const pending = localStorage.getItem("pendingVoucher");
     if (pending) {
       const code = pending.trim().toUpperCase();
@@ -107,7 +111,7 @@ const CheckoutPayment = () => {
       if (result) {
         setVoucherApplied(result);
         setVoucherCode(code);
-        setDiscountOpen(true);
+        pendingVoucherCode.current = code;
         toast({
           title: `Voucher ${code} applied from your deals page`,
           description: result.label,
@@ -118,7 +122,7 @@ const CheckoutPayment = () => {
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  // PayNow countdown — only runs when PayNow is expanded
+  // PayNow countdown
   useEffect(() => {
     if (expandedMethod === "paynow") {
       setPayNowTimeLeft(600);
@@ -134,6 +138,13 @@ const CheckoutPayment = () => {
     return () => { if (payNowInterval.current) clearInterval(payNowInterval.current); };
   }, [expandedMethod]);
 
+  if (!deliveryDetails) return <Navigate to="/checkout/details" replace />;
+
+  // Build list of available voucher tiles from deals + any claimed pending voucher
+  const availableVouchers: VoucherResult[] = deals
+    .filter(d => d.code && VOUCHER_MAP[d.code])
+    .map(d => VOUCHER_MAP[d.code!]);
+
   // Price calculations
   const shipping = subtotal >= 50 ? 0 : 3.50;
   const voucherDeduction = voucherApplied
@@ -146,7 +157,10 @@ const CheckoutPayment = () => {
     : 0;
   const pointsUsed = Math.floor(pointsDeduction * 200);
   const total = Math.max(0, subtotal - voucherDeduction - pointsDeduction + shipping);
-  const pointsEarned = Math.floor(total);
+  const pointsEarned = Math.floor(total * (currentTier?.earnMultiplier ?? 1));
+
+  const hasAvailableSavings = (user && user.loyaltyPoints > 0) || availableVouchers.length > 0;
+  const hasSavingsApplied = !!voucherApplied || redeemPoints;
 
   const formatCardNumber = (val: string) =>
     val.replace(/\D/g, "").slice(0, 16).replace(/(.{4})/g, "$1 ").trim();
@@ -192,7 +206,6 @@ const CheckoutPayment = () => {
     setPlacing(true);
     await new Promise(r => setTimeout(r, 1200));
 
-    // 10% mock failure on non-PayNow methods
     if (confirmedMethod !== "paynow" && Math.random() < 0.1) {
       setPlacing(false);
       setPaymentError("Payment could not be processed. Please check your details and try again, or choose a different payment method. Your cart has been saved.");
@@ -230,7 +243,7 @@ const CheckoutPayment = () => {
     setPaymentError(null);
     setCardErrors({});
     if (expandedMethod === id) {
-      setExpandedMethod(null); // collapse back to list
+      setExpandedMethod(null);
     } else {
       setExpandedMethod(id);
       setConfirmedMethod(id);
@@ -251,7 +264,6 @@ const CheckoutPayment = () => {
     { id: "googlepay",label: "Google Pay",                    subtitle: "Available on compatible devices",      icon: <span className="text-sm font-bold leading-none">G</span>, disabled: true },
   ];
 
-  // When a method is expanded, selected tile is shown first, others below
   const selectedTile = expandedMethod ? allMethodTiles.find(m => m.id === expandedMethod) : null;
   const otherTiles   = expandedMethod ? allMethodTiles.filter(m => m.id !== expandedMethod) : allMethodTiles;
 
@@ -342,6 +354,123 @@ const CheckoutPayment = () => {
     );
   };
 
+  // ── Savings & Rewards card ──
+  const SavingsRewardsCard = () => (
+    <div className="rounded-xl border border-border bg-card p-5 space-y-4">
+      <div className="flex items-center gap-2">
+        <Tag className="w-5 h-5 text-primary" />
+        <h2 className="font-serif text-lg">Savings & Rewards</h2>
+      </div>
+
+      {/* Voucher tiles */}
+      <div>
+        <p className="text-xs text-muted-foreground mb-2 font-medium uppercase tracking-wide">Available vouchers</p>
+        <div className="grid gap-2">
+          {availableVouchers.map(v => {
+            const isSelected = voucherApplied?.code === v.code;
+            const isPending = pendingVoucherCode.current === v.code;
+            return (
+              <button
+                key={v.code}
+                onClick={() => {
+                  if (isSelected) {
+                    setVoucherApplied(null);
+                  } else {
+                    setVoucherApplied(v);
+                    setVoucherCode(v.code);
+                  }
+                }}
+                className={cn(
+                  "w-full text-left rounded-lg border-2 px-3 py-2.5 transition-colors",
+                  isSelected
+                    ? "border-primary bg-primary/5"
+                    : "border-border hover:border-primary/40"
+                )}
+              >
+                <div className="flex items-center justify-between">
+                  <div>
+                    <div className="flex items-center gap-2">
+                      <span className="text-xs font-mono font-semibold text-primary">{v.code}</span>
+                      {isPending && !isSelected && (
+                        <span className="text-[10px] px-1.5 py-0.5 rounded-full bg-secondary/10 text-secondary font-medium">Claimed</span>
+                      )}
+                    </div>
+                    <p className="text-xs text-muted-foreground mt-0.5">{v.label}</p>
+                  </div>
+                  <div className="text-right shrink-0 ml-3">
+                    <span className="text-sm font-semibold text-secondary">
+                      {v.discountType === "percent" ? `${v.value}% off` : `S$${v.value.toFixed(2)}`}
+                    </span>
+                    {isSelected && <Check className="w-4 h-4 text-primary mt-0.5 ml-auto" />}
+                  </div>
+                </div>
+              </button>
+            );
+          })}
+        </div>
+      </div>
+
+      {/* Manual entry fallback */}
+      {!voucherApplied && (
+        <div>
+          <p className="text-xs text-muted-foreground mb-1.5">Have a different code?</p>
+          <div className="flex gap-2">
+            <Input
+              value={voucherCode}
+              onChange={e => setVoucherCode(e.target.value.toUpperCase())}
+              onKeyDown={e => e.key === "Enter" && applyVoucher()}
+              placeholder="Enter code"
+              className="flex-1 text-sm"
+            />
+            <Button variant="outline" size="sm" onClick={applyVoucher} className="shrink-0">Apply</Button>
+          </div>
+        </div>
+      )}
+
+      {/* Applied voucher badge */}
+      {voucherApplied && (
+        <div className="flex items-center justify-between rounded-lg bg-secondary/10 border border-secondary/30 px-3 py-2">
+          <div className="flex items-center gap-2 text-sm text-secondary">
+            <Check className="w-4 h-4" />
+            <span className="font-medium">{voucherApplied.code}</span>
+            <span className="text-muted-foreground">— saves S${voucherDeduction.toFixed(2)}</span>
+          </div>
+          <button onClick={() => setVoucherApplied(null)} className="text-xs text-muted-foreground hover:text-destructive transition-colors">Remove</button>
+        </div>
+      )}
+
+      {/* Points redemption — always visible */}
+      {user && user.loyaltyPoints > 0 && (
+        <div className="flex items-center justify-between rounded-lg bg-muted/60 px-3 py-2.5">
+          <div>
+            <p className="text-sm font-medium">Redeem Ink Points</p>
+            <p className="text-xs text-muted-foreground">{user.loyaltyPoints} pts = S${(user.loyaltyPoints / 200).toFixed(2)} off</p>
+          </div>
+          <button
+            onClick={() => setRedeemPoints(v => !v)}
+            className={cn(
+              "relative inline-flex w-11 h-6 rounded-full transition-colors duration-200 shrink-0",
+              redeemPoints ? "bg-primary" : "bg-border"
+            )}
+          >
+            <span className={cn(
+              "absolute top-0.5 left-0.5 w-5 h-5 rounded-full bg-white shadow transition-transform duration-200",
+              redeemPoints && "translate-x-5"
+            )} />
+          </button>
+        </div>
+      )}
+
+      {/* Points earned preview */}
+      {pointsEarned > 0 && (
+        <div className="flex items-center gap-1.5 text-xs text-secondary">
+          <Sparkles className="w-3.5 h-3.5" />
+          <span>You'll earn <span className="font-semibold">{pointsEarned} Ink Points</span> on this order</span>
+        </div>
+      )}
+    </div>
+  );
+
   const OrderSummary = () => (
     <div className="space-y-3">
       {items.map(item => {
@@ -382,6 +511,9 @@ const CheckoutPayment = () => {
     </div>
   );
 
+  // ── Confirmation nudge ──
+  const showNudge = expandedMethod && !savingsNudgeDismissed && !hasSavingsApplied && hasAvailableSavings;
+
   return (
     <div className="container max-w-6xl mx-auto px-4 py-8 animate-fade-in">
       <button
@@ -416,10 +548,9 @@ const CheckoutPayment = () => {
             )}
           </div>
 
-          {/* ── EXPANDED STATE: selected tile at top with inline panel ── */}
+          {/* ── EXPANDED STATE ── */}
           {expandedMethod && selectedTile && (
             <div className="animate-fade-in">
-              {/* Selected tile header — click to collapse */}
               <button
                 onClick={() => handleTileClick(selectedTile.id)}
                 className="w-full text-left rounded-t-xl border-2 border-primary bg-primary/5 px-4 py-3.5 flex items-center gap-3 transition-colors"
@@ -437,13 +568,10 @@ const CheckoutPayment = () => {
                 </div>
               </button>
 
-              {/* Inline detail panel */}
               <div className="rounded-b-xl border-2 border-t-0 border-primary bg-card px-5 pt-4 pb-5 space-y-5">
-
-                {/* Method-specific content */}
                 {renderMethodPanel(expandedMethod)}
 
-                {/* Trust badges — compact */}
+                {/* Trust badges */}
                 <div className="flex flex-wrap gap-2 pt-1">
                   {[
                     { icon: <Lock className="w-3 h-3" />, label: "Secured by Stripe" },
@@ -454,76 +582,6 @@ const CheckoutPayment = () => {
                       {b.icon} {b.label}
                     </span>
                   ))}
-                </div>
-
-                {/* Voucher / Points — collapsible */}
-                <div className="border-t border-border pt-4">
-                  {voucherApplied ? (
-                    /* Applied badge always visible */
-                    <div className="flex items-center justify-between rounded-lg bg-secondary/10 border border-secondary/30 px-3 py-2 mb-3">
-                      <div className="flex items-center gap-2 text-sm text-secondary">
-                        <Tag className="w-4 h-4" />
-                        <span className="font-medium">{voucherApplied.code}</span>
-                        <span className="text-muted-foreground">— {voucherApplied.label}</span>
-                      </div>
-                      <button onClick={() => setVoucherApplied(null)} className="text-xs text-muted-foreground hover:text-destructive transition-colors">Remove</button>
-                    </div>
-                  ) : (
-                    <button
-                      onClick={() => setDiscountOpen(v => !v)}
-                      className="flex items-center gap-2 text-sm text-muted-foreground hover:text-foreground transition-colors mb-3 group"
-                    >
-                      <Tag className="w-4 h-4 group-hover:text-primary transition-colors" />
-                      <span>Have a voucher or points to redeem?</span>
-                      <ChevronDown className={cn("w-3.5 h-3.5 transition-transform duration-200", discountOpen && "rotate-180")} />
-                    </button>
-                  )}
-
-                  {/* Expandable discount section */}
-                  <div
-                    className="grid transition-all duration-300 ease-in-out"
-                    style={{ gridTemplateRows: (discountOpen || voucherApplied) ? "1fr" : "0fr" }}
-                  >
-                    <div className="overflow-hidden">
-                      <div className="space-y-3 pb-1">
-                        {/* Voucher input (if not yet applied) */}
-                        {!voucherApplied && (
-                          <div className="flex gap-2">
-                            <Input
-                              value={voucherCode}
-                              onChange={e => setVoucherCode(e.target.value.toUpperCase())}
-                              onKeyDown={e => e.key === "Enter" && applyVoucher()}
-                              placeholder="e.g. SAKURA20"
-                              className="flex-1"
-                            />
-                            <Button variant="outline" onClick={applyVoucher} className="shrink-0">Apply</Button>
-                          </div>
-                        )}
-
-                        {/* Points redemption */}
-                        {user && user.loyaltyPoints > 0 && (
-                          <div className="flex items-center justify-between rounded-lg bg-muted/60 px-3 py-2.5">
-                            <div>
-                              <p className="text-sm font-medium">Redeem points</p>
-                              <p className="text-xs text-muted-foreground">{user.loyaltyPoints} pts = S${(user.loyaltyPoints / 200).toFixed(2)} off</p>
-                            </div>
-                            <button
-                              onClick={() => setRedeemPoints(v => !v)}
-                              className={cn(
-                                "relative inline-flex w-11 h-6 rounded-full transition-colors duration-200 shrink-0",
-                                redeemPoints ? "bg-primary" : "bg-border"
-                              )}
-                            >
-                              <span className={cn(
-                                "absolute top-0.5 left-0.5 w-5 h-5 rounded-full bg-white shadow transition-transform duration-200",
-                                redeemPoints && "translate-x-5"
-                              )} />
-                            </button>
-                          </div>
-                        )}
-                      </div>
-                    </div>
-                  </div>
                 </div>
 
                 {/* Error */}
@@ -550,7 +608,39 @@ const CheckoutPayment = () => {
                   </div>
                 )}
 
-                {/* Place Order — inside the panel */}
+                {/* Savings & Rewards card — prominently visible */}
+                <SavingsRewardsCard />
+
+                {/* Confirmation nudge */}
+                {showNudge && (
+                  <div className="rounded-lg border border-secondary/30 bg-secondary/5 px-4 py-3 animate-fade-in">
+                    <p className="text-sm text-foreground mb-2">
+                      Would you like to apply any vouchers or points before placing your order?
+                      {user && user.loyaltyPoints > 0 && (
+                        <span className="text-secondary font-medium"> You have {user.loyaltyPoints} pts (S${(user.loyaltyPoints / 200).toFixed(2)}) available.</span>
+                      )}
+                    </p>
+                    <div className="flex gap-2">
+                      <button
+                        onClick={() => {
+                          // Scroll to savings card
+                          setSavingsNudgeDismissed(true);
+                        }}
+                        className="px-3 py-1 rounded-md bg-secondary text-white text-xs font-medium hover:opacity-90 transition-opacity"
+                      >
+                        Yes, apply savings
+                      </button>
+                      <button
+                        onClick={() => setSavingsNudgeDismissed(true)}
+                        className="px-3 py-1 rounded-md border border-border text-xs text-muted-foreground hover:text-foreground transition-colors"
+                      >
+                        Skip
+                      </button>
+                    </div>
+                  </div>
+                )}
+
+                {/* Place Order */}
                 <Button
                   onClick={handlePlaceOrder}
                   disabled={placing}
@@ -593,7 +683,7 @@ const CheckoutPayment = () => {
             </div>
           )}
 
-          {/* ── LIST STATE: no method selected ── */}
+          {/* ── LIST STATE ── */}
           {!expandedMethod && (
             <div className="space-y-2 animate-fade-in">
               {allMethodTiles.map(m => (

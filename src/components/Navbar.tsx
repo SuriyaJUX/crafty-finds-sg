@@ -1,8 +1,9 @@
 import { Link, useLocation } from "react-router-dom";
-import { ShoppingBag, Heart, Search, Menu, X, User, LogOut } from "lucide-react";
+import { ShoppingBag, Heart, Search, Menu, X, User, LogOut, Target } from "lucide-react";
 import { useCart } from "@/context/CartContext";
 import { useAuth } from "@/context/AuthContext";
 import { useInkPoints } from "@/context/InkPointsContext";
+import { products } from "@/data/products";
 import { useState, useRef, useEffect } from "react";
 
 const navLinks = [
@@ -194,6 +195,36 @@ const Navbar = () => {
                   <p className="text-xs text-muted-foreground">
                     <span className="font-medium text-foreground">{ptToNext} pts</span> until next S$1.00 off
                   </p>
+
+                  {/* Goal progress */}
+                  {user.pointsGoal ? (() => {
+                    const goalProduct = products.find(p => p.id === user.pointsGoal!.targetProductId);
+                    if (!goalProduct) return null;
+                    const ptsNeeded = Math.ceil(goalProduct.price * 200);
+                    const pct = Math.min((user.loyaltyPoints / ptsNeeded) * 100, 100);
+                    const remaining = Math.max(0, ptsNeeded - user.loyaltyPoints);
+                    return (
+                      <div className="border-t border-border pt-3 mt-3">
+                        <div className="flex items-center gap-1.5 mb-1.5">
+                          <Target className="w-3 h-3 text-secondary" />
+                          <span className="text-[10px] font-medium uppercase tracking-wide text-muted-foreground">Goal</span>
+                        </div>
+                        <p className="text-xs font-medium truncate">{goalProduct.name}</p>
+                        <div className="mt-1.5 h-1 rounded-full bg-secondary/15 overflow-hidden">
+                          <div className="h-full rounded-full bg-secondary transition-all duration-300" style={{ width: `${pct}%` }} />
+                        </div>
+                        <p className="text-[10px] text-muted-foreground mt-1">
+                          {remaining > 0 ? <><span className="font-medium text-foreground">{remaining} pts</span> to go</> : <span className="text-secondary font-medium">Goal reached!</span>}
+                        </p>
+                      </div>
+                    );
+                  })() : (
+                    <div className="border-t border-border pt-3 mt-3">
+                      <Link to="/account" className="flex items-center gap-1.5 text-xs text-primary hover:underline">
+                        <Target className="w-3 h-3" /> Set a goal
+                      </Link>
+                    </div>
+                  )}
 
                   {/* Mini arc bar */}
                   <div className="mt-3 h-1 rounded-full bg-primary/10 overflow-hidden">

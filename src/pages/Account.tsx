@@ -198,6 +198,26 @@ const OverviewTab = ({
           )}
         </p>
       </div>
+
+      {/* Set a goal prompt — only when no goal is set */}
+      {!user.pointsGoal && (
+        <Link
+          to="/account"
+          onClick={() => {
+            // Switch to Goals tab — find the trigger and click it
+            setTimeout(() => {
+              const btn = document.querySelector('[value="goals"]') as HTMLButtonElement | null;
+              btn?.click();
+            }, 100);
+          }}
+          className="flex items-center gap-3 rounded-lg bg-secondary/5 border border-secondary/20 p-3 hover:bg-secondary/10 transition-colors"
+        >
+          <Target className="w-5 h-5 text-secondary shrink-0" />
+          <p className="text-sm text-muted-foreground">
+            You haven't set a points goal yet — <span className="text-primary font-medium">choose a product</span> you're saving toward.
+          </p>
+        </Link>
+      )}
     </div>
   );
 };

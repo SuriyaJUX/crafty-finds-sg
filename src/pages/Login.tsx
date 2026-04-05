@@ -3,7 +3,7 @@ import { Link, useNavigate, useLocation } from "react-router-dom";
 import { useAuth } from "@/context/AuthContext";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
-import { Eye, EyeOff, LogIn, ArrowLeft } from "lucide-react";
+import { Eye, EyeOff, LogIn, ArrowLeft, Target, X } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 
 const Login = () => {
@@ -11,6 +11,7 @@ const Login = () => {
   const [password, setPassword] = useState("password123");
   const [showPassword, setShowPassword] = useState(false);
   const [loading, setLoading] = useState(false);
+  const [showGoalBanner, setShowGoalBanner] = useState(false);
   const { login } = useAuth();
   const navigate = useNavigate();
   const location = useLocation();
@@ -23,6 +24,24 @@ const Login = () => {
     setLoading(false);
     if (success) {
       toast({ title: "Welcome back! 🎉", description: "You've earned +10 loyalty points for logging in." });
+
+      // Check if user has a points goal set — read from localStorage mock user
+      const stored = localStorage.getItem("paperly_user");
+      if (stored) {
+        try {
+          const userData = JSON.parse(stored);
+          if (!userData.pointsGoal) {
+            setShowGoalBanner(true);
+            // Auto-navigate after a short delay to let them see the banner
+            setTimeout(() => {
+              setShowGoalBanner(false);
+              navigate(location.state?.from ?? "/account");
+            }, 4000);
+            return;
+          }
+        } catch { /* ignore */ }
+      }
+
       navigate(location.state?.from ?? "/account");
     }
   };
@@ -42,6 +61,22 @@ const Login = () => {
             <ArrowLeft className="w-4 h-4" /> Back
           </button>
         )}
+
+        {/* Goal banner */}
+        {showGoalBanner && (
+          <div className="flex items-start gap-3 rounded-lg border border-secondary/30 bg-secondary/5 p-3 mb-6 animate-fade-in">
+            <Target className="w-5 h-5 text-secondary shrink-0 mt-0.5" />
+            <div className="flex-1">
+              <p className="text-sm">
+                You haven't set a points goal yet — <Link to="/account" className="text-primary font-medium hover:underline" onClick={() => setShowGoalBanner(false)}>set one</Link> to track your progress toward a free product.
+              </p>
+            </div>
+            <button onClick={() => { setShowGoalBanner(false); navigate(location.state?.from ?? "/account"); }} className="text-muted-foreground hover:text-foreground shrink-0">
+              <X className="w-4 h-4" />
+            </button>
+          </div>
+        )}
+
         <div className="text-center mb-8">
           <h1 className="font-serif text-3xl mb-2">Welcome back</h1>
           <p className="text-muted-foreground text-sm">Sign in to your Paperly account</p>
