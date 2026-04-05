@@ -132,6 +132,8 @@ export default {
         "hero-pan-up": "hero-pan-up 14s ease-in-out forwards",
         "hero-pan-down": "hero-pan-down 14s ease-in-out forwards",
         "float": "float 4s ease-in-out infinite",
+        "slide-in-left": "slide-in-left 0.5s ease-out",
+        "scale-in": "scale-in 0.4s ease-out",
       },
     },
   },
