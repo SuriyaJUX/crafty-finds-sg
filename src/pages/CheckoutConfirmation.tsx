@@ -220,103 +220,195 @@ const CheckoutConfirmation = () => {
 
   const updatedPoints = (user?.loyaltyPoints ?? 0) + (pointsEarned ?? 0) - (pointsUsed ?? 0);
 
+  // Shared components to avoid duplication
+  const ctaButtons = (
+    <div className="flex flex-col gap-2.5">
+      <Button onClick={() => navigate(`/order/${orderId}`)} className="w-full" size="lg">
+        <Package className="w-4 h-4 mr-2" /> Track Order
+      </Button>
+      <Button variant="outline" onClick={() => navigate("/shop")} className="w-full" size="lg">
+        Continue Shopping <ArrowRight className="w-4 h-4 ml-2" />
+      </Button>
+    </div>
+  );
+
+  const notificationToggle = (
+    <div className="rounded-xl border border-border bg-card p-4">
+      <div className="flex items-center justify-between gap-3">
+        <div className="flex items-center gap-2.5">
+          <Bell className="w-4 h-4 text-muted-foreground flex-shrink-0" />
+          <div>
+            <p className="text-sm font-medium">Shipping notifications</p>
+            <p className="text-xs text-muted-foreground">We'll email {deliveryDetails?.email}</p>
+          </div>
+        </div>
+        <button
+          onClick={() => setNotifEnabled(v => !v)}
+          className={cn(
+            "relative inline-flex w-11 h-6 rounded-full flex-shrink-0 transition-colors",
+            notifEnabled ? "bg-primary" : "bg-muted border border-border"
+          )}
+        >
+          <span className={cn(
+            "absolute top-0.5 left-0.5 w-5 h-5 rounded-full bg-white shadow transition-transform",
+            notifEnabled && "translate-x-5"
+          )} />
+        </button>
+      </div>
+      {notifEnabled && (
+        <p className="text-xs text-secondary mt-2.5 flex items-center gap-1.5">
+          <Check className="w-3 h-3" /> We'll email you when your order ships.
+        </p>
+      )}
+    </div>
+  );
+
+  const inkPointsCard = !isGuest ? (
+    <div className="rounded-xl border border-primary/20 bg-primary/5 p-4">
+      <div className="flex items-center gap-4">
+        <div className="flex-shrink-0">
+          <AnimatedInkDrop fillPercent={fillPercent} />
+        </div>
+        <div className="flex-1 min-w-0">
+          <p className="text-xs text-muted-foreground mb-0.5 uppercase tracking-wide font-medium">
+            Ink Points earned
+          </p>
+          <p className="text-2xl font-bold text-primary tabular-nums">
+            +{displayedPoints}
+          </p>
+          <p className="text-xs text-muted-foreground mt-1">
+            Balance: <span className="font-semibold text-foreground">{updatedPoints} Ink</span>
+            {" "}= <span className="font-medium text-foreground">S${(updatedPoints / 200).toFixed(2)}</span> off
+          </p>
+        </div>
+      </div>
+    </div>
+  ) : null;
+
+  const guestUpsell = isGuest ? (
+    <div className="rounded-xl border border-secondary/30 bg-secondary/5 p-4">
+      <div className="flex items-start gap-3">
+        <Gift className="w-6 h-6 text-secondary flex-shrink-0 mt-0.5" />
+        <div className="flex-1">
+          <p className="font-medium text-sm mb-1">
+            You missed <span className="text-secondary font-semibold">{pointsEarned ?? 0} Ink Points</span>
+          </p>
+          <p className="text-xs text-muted-foreground mb-3">
+            Sign up now — get <span className="font-medium text-foreground">200 bonus points</span>
+          </p>
+          <Button
+            size="sm"
+            className="bg-secondary text-secondary-foreground hover:bg-secondary/90"
+            onClick={() => navigate("/signup")}
+          >
+            Create account
+          </Button>
+        </div>
+      </div>
+    </div>
+  ) : null;
+
   return (
-    <div className="container max-w-3xl mx-auto px-4 py-8 animate-fade-in">
+    <div className="container max-w-5xl mx-auto px-4 py-8 animate-fade-in">
       <CheckoutProgressBar active={3} />
 
-      {/* Confirmation hero */}
-      <div className="rounded-xl border border-border bg-card p-8 text-center mb-6">
-        <div className="flex justify-center mb-4">
-          <CheckCircle2 className="w-16 h-16 text-secondary" />
+      {/* Two-column grid on md+ */}
+      <div className="grid md:grid-cols-[1fr_300px] gap-6">
+        {/* LEFT COLUMN */}
+        <div className="space-y-5">
+          {/* Compact hero */}
+          <div className="rounded-xl border border-border bg-card p-5 text-center">
+            <div className="flex justify-center mb-3">
+              <CheckCircle2 className="w-10 h-10 text-secondary" />
+            </div>
+            <h1 className="font-serif text-2xl mb-1.5">Order Confirmed!</h1>
+            <p className="text-muted-foreground text-sm mb-3">
+              Thank you, {deliveryDetails?.fullName.split(" ")[0]}. Your order is being prepared.
+            </p>
+            <div className="inline-block bg-muted rounded-lg px-3 py-1.5 text-sm font-mono font-medium text-foreground mb-3">
+              {orderId}
+            </div>
+            <div className="flex items-center justify-center gap-1.5 text-sm text-muted-foreground">
+              <MapPin className="w-4 h-4 flex-shrink-0" />
+              <span>
+                {deliveryDetails?.line1}{deliveryDetails?.line2 ? `, ${deliveryDetails.line2}` : ""}, Singapore {deliveryDetails?.postalCode}
+              </span>
+            </div>
+            <p className="text-sm text-muted-foreground mt-1.5">
+              Estimated delivery by <span className="font-medium text-foreground">{deliveryDate}</span>
+            </p>
+          </div>
+
+          {/* Mobile: CTAs + notification immediately after hero */}
+          <div className="md:hidden space-y-4">
+            {ctaButtons}
+            {notificationToggle}
+            {inkPointsCard}
+            {guestUpsell}
+          </div>
+
+          {/* Order summary (collapsible) */}
+          <details open className="rounded-xl border border-border bg-card">
+            <summary className="p-5 cursor-pointer font-serif text-lg select-none list-none flex items-center justify-between [&::-webkit-details-marker]:hidden">
+              Order Summary
+              <span className="text-xs text-muted-foreground font-sans font-normal">
+                {items?.length} item{(items?.length ?? 0) !== 1 ? "s" : ""} · S${(total ?? 0).toFixed(2)}
+              </span>
+            </summary>
+            <div className="px-5 pb-5">
+              <div className="space-y-2 mb-4">
+                {items?.map(item => (
+                  <div key={item.productId} className="flex justify-between text-sm">
+                    <span className="text-muted-foreground truncate max-w-[260px]">{item.name} × {item.quantity}</span>
+                    <span className="font-medium ml-2">S${(item.price * item.quantity).toFixed(2)}</span>
+                  </div>
+                ))}
+              </div>
+              <div className="border-t border-border pt-3 space-y-1.5 text-sm">
+                <div className="flex justify-between">
+                  <span className="text-muted-foreground">Subtotal</span>
+                  <span>S${subtotal.toFixed(2)}</span>
+                </div>
+                {voucherApplied && (
+                  <div className="flex justify-between text-secondary">
+                    <span>Voucher ({voucherApplied.code})</span>
+                    <span>−S${voucherDeduction.toFixed(2)}</span>
+                  </div>
+                )}
+                {(pointsUsed ?? 0) > 0 && (
+                  <div className="flex justify-between text-secondary">
+                    <span>Points redeemed ({pointsUsed} pts)</span>
+                    <span>−S${pointsDeduction.toFixed(2)}</span>
+                  </div>
+                )}
+                <div className="flex justify-between">
+                  <span className="text-muted-foreground">Shipping</span>
+                  <span className={shipping === 0 ? "text-secondary font-medium" : ""}>{shipping === 0 ? "Free" : `S$${shipping.toFixed(2)}`}</span>
+                </div>
+                <div className="flex justify-between font-semibold text-base pt-2 border-t border-border">
+                  <span>Total paid</span>
+                  <span>S${(total ?? 0).toFixed(2)}</span>
+                </div>
+              </div>
+            </div>
+          </details>
         </div>
-        <h1 className="font-serif text-3xl mb-2">Order Confirmed!</h1>
-        <p className="text-muted-foreground text-sm mb-4">
-          Thank you, {deliveryDetails?.fullName.split(" ")[0]}. Your order is being prepared.
-        </p>
-        <div className="inline-block bg-muted rounded-lg px-4 py-2 text-sm font-mono font-medium text-foreground mb-4">
-          {orderId}
+
+        {/* RIGHT COLUMN (desktop) — sticky sidebar */}
+        <div className="hidden md:block">
+          <div className="sticky top-24 space-y-4">
+            {ctaButtons}
+            {notificationToggle}
+            {inkPointsCard}
+            {guestUpsell}
+          </div>
         </div>
-        <div className="flex items-center justify-center gap-1.5 text-sm text-muted-foreground">
-          <MapPin className="w-4 h-4 flex-shrink-0" />
-          <span>
-            {deliveryDetails?.line1}{deliveryDetails?.line2 ? `, ${deliveryDetails.line2}` : ""}, Singapore {deliveryDetails?.postalCode}
-          </span>
-        </div>
-        <p className="text-sm text-muted-foreground mt-2">
-          Estimated delivery by <span className="font-medium text-foreground">{deliveryDate}</span>
-        </p>
       </div>
 
-      {/* Order summary */}
-      <div className="rounded-xl border border-border bg-card p-5 mb-6">
-        <h2 className="font-serif text-lg mb-4">Order Summary</h2>
-        <div className="space-y-2 mb-4">
-          {items?.map(item => (
-            <div key={item.productId} className="flex justify-between text-sm">
-              <span className="text-muted-foreground truncate max-w-[260px]">{item.name} × {item.quantity}</span>
-              <span className="font-medium ml-2">S${(item.price * item.quantity).toFixed(2)}</span>
-            </div>
-          ))}
-        </div>
-        <div className="border-t border-border pt-3 space-y-1.5 text-sm">
-          <div className="flex justify-between">
-            <span className="text-muted-foreground">Subtotal</span>
-            <span>S${subtotal.toFixed(2)}</span>
-          </div>
-          {voucherApplied && (
-            <div className="flex justify-between text-secondary">
-              <span>Voucher ({voucherApplied.code})</span>
-              <span>−S${voucherDeduction.toFixed(2)}</span>
-            </div>
-          )}
-          {(pointsUsed ?? 0) > 0 && (
-            <div className="flex justify-between text-secondary">
-              <span>Points redeemed ({pointsUsed} pts)</span>
-              <span>−S${pointsDeduction.toFixed(2)}</span>
-            </div>
-          )}
-          <div className="flex justify-between">
-            <span className="text-muted-foreground">Shipping</span>
-            <span className={shipping === 0 ? "text-secondary font-medium" : ""}>{shipping === 0 ? "Free" : `S$${shipping.toFixed(2)}`}</span>
-          </div>
-          <div className="flex justify-between font-semibold text-base pt-2 border-t border-border">
-            <span>Total paid</span>
-            <span>S${(total ?? 0).toFixed(2)}</span>
-          </div>
-        </div>
-      </div>
-
-      {/* Animated Ink Points earned — authenticated users only */}
-      {!isGuest && (
-        <div className="rounded-xl border border-primary/20 bg-primary/5 p-6 mb-6">
-          <div className="flex items-center gap-5">
-            {/* Animated ink drop */}
-            <div className="flex-shrink-0">
-              <AnimatedInkDrop fillPercent={fillPercent} />
-            </div>
-            <div className="flex-1 min-w-0">
-              <p className="text-xs text-muted-foreground mb-1 uppercase tracking-wide font-medium">
-                Ink Points earned
-              </p>
-              <p className="text-3xl font-bold text-primary tabular-nums">
-                +{displayedPoints}
-              </p>
-              <p className="text-xs text-muted-foreground mt-1.5">
-                New balance:{" "}
-                <span className="font-semibold text-foreground">{updatedPoints} Ink</span>
-                {" "}= <span className="font-medium text-foreground">
-                  S${(updatedPoints / 200).toFixed(2)}
-                </span> off your next order
-              </p>
-            </div>
-          </div>
-        </div>
-      )}
-
-      {/* Tier upgrade panel */}
+      {/* Below-fold: Tier upgrade & recommendation (full-width) */}
       {isNewTier && !isGuest && (
         <div
-          className="rounded-xl border p-5 mb-6 animate-fade-in"
+          className="rounded-xl border p-5 mt-6 animate-fade-in"
           style={{
             borderColor: `${currentTier.color}60`,
             backgroundColor: `${currentTier.color}12`,
@@ -336,16 +428,11 @@ const CheckoutConfirmation = () => {
               ×
             </button>
           </div>
-          <p className="text-xs text-muted-foreground mb-3">
-            Newly unlocked benefits:
-          </p>
+          <p className="text-xs text-muted-foreground mb-3">Newly unlocked benefits:</p>
           <ul className="space-y-1.5">
             {currentTier.benefits.map(b => (
               <li key={b} className="text-sm flex items-start gap-2 text-foreground/80">
-                <CheckCircle2
-                  className="w-3.5 h-3.5 mt-0.5 flex-shrink-0"
-                  style={{ color: currentTier.color }}
-                />
+                <CheckCircle2 className="w-3.5 h-3.5 mt-0.5 flex-shrink-0" style={{ color: currentTier.color }} />
                 {b}
               </li>
             ))}
@@ -353,82 +440,14 @@ const CheckoutConfirmation = () => {
         </div>
       )}
 
-      {/* Guest upsell — show what they missed and invite sign-up */}
-      {isGuest && (
-        <div className="rounded-xl border border-secondary/30 bg-secondary/5 p-5 mb-6">
-          <div className="flex items-start gap-4">
-            <Gift className="w-8 h-8 text-secondary flex-shrink-0 mt-0.5" />
-            <div className="flex-1">
-              <p className="font-medium text-sm mb-1">
-                You could have earned{" "}
-                <span className="text-secondary font-semibold">{pointsEarned ?? 0} Ink Points</span>{" "}
-                on this order
-              </p>
-              <p className="text-xs text-muted-foreground mb-4">
-                Create an account now and we'll add{" "}
-                <span className="font-medium text-foreground">200 bonus points</span> to get you started
-              </p>
-              <Button
-                size="sm"
-                className="bg-secondary text-secondary-foreground hover:bg-secondary/90"
-                onClick={() => navigate("/signup")}
-              >
-                Create account
-              </Button>
-            </div>
-          </div>
-        </div>
-      )}
-
-      {/* Shipping notification opt-in */}
-      <div className="rounded-xl border border-border bg-card p-5 mb-6">
-        <div className="flex items-center justify-between gap-4">
-          <div className="flex items-center gap-3">
-            <Bell className="w-5 h-5 text-muted-foreground flex-shrink-0" />
-            <div>
-              <p className="text-sm font-medium">Get notified when your order ships</p>
-              <p className="text-xs text-muted-foreground">We'll send a confirmation to {deliveryDetails?.email}</p>
-            </div>
-          </div>
-          <button
-            onClick={() => setNotifEnabled(v => !v)}
-            className={cn(
-              "relative inline-flex w-11 h-6 rounded-full flex-shrink-0 transition-colors",
-              notifEnabled ? "bg-primary" : "bg-muted border border-border"
-            )}
-          >
-            <span className={cn(
-              "absolute top-0.5 left-0.5 w-5 h-5 rounded-full bg-white shadow transition-transform",
-              notifEnabled && "translate-x-5"
-            )} />
-          </button>
-        </div>
-        {notifEnabled && (
-          <p className="text-xs text-secondary mt-3 flex items-center gap-1.5">
-            <Check className="w-3 h-3" /> Notifications enabled — we'll email you when your order ships.
-          </p>
-        )}
-      </div>
-
-      {/* Product recommendation */}
       {recommendation && (
-        <div className="mb-6">
+        <div className="mt-6">
           <h2 className="font-serif text-lg mb-4">You might also like</h2>
           <div className="max-w-[200px]">
             <ProductCard product={recommendation} />
           </div>
         </div>
       )}
-
-      {/* CTA buttons */}
-      <div className="flex flex-col sm:flex-row gap-3">
-        <Button onClick={() => navigate(`/order/${orderId}`)} className="flex-1" size="lg">
-          <Package className="w-4 h-4 mr-2" /> Track Order
-        </Button>
-        <Button variant="outline" onClick={() => navigate("/shop")} className="flex-1" size="lg">
-          Continue Shopping <ArrowRight className="w-4 h-4 ml-2" />
-        </Button>
-      </div>
     </div>
   );
 };
