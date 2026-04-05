@@ -2,17 +2,31 @@
 
 ## Problem
 
-The "Added to cart" toast appears at the **top-right** corner, which overlaps with the cart drawer when it's open. This feels intrusive.
+The Savings & Rewards card is embedded **inside the left payment column** (after the payment method panel), forcing the page to scroll. The goal is to fit the entire payment page in a single viewport.
 
 ## Solution
 
-Move the `ToastViewport` position from `top-0 right-0` to **bottom-center**, so notifications appear as a subtle bar at the bottom of the screen — away from the cart drawer entirely.
+Move the Savings & Rewards card to the **right sidebar**, stacked below the Order Summary. This removes significant vertical bulk from the left column and uses the empty space on the right.
 
-### Change
+### Layout changes
 
-**`src/components/ui/toast.tsx`** (line 17)
-- Change the viewport classes from `fixed top-0 right-0 ... sm:flex-col md:max-w-[420px]` to `fixed bottom-0 left-1/2 -translate-x-1/2 z-[100] flex max-h-screen w-full flex-col p-4 sm:flex-col md:max-w-[420px]`
-- This positions all legacy toasts (used for add-to-cart, login, vouchers, etc.) at the **bottom-center** of the viewport
+**Right column** (desktop): Stack Order Summary + Savings & Rewards inside the sticky sidebar, both in a single scrollable container if needed.
 
-Single file, single line change.
+**Left column**: Remove the inline `<SavingsRewardsCard />` call (line 633) and the confirmation nudge (lines 636-662). The left column becomes: payment method selection → trust badges → error display → Place Order button. This should comfortably fit in one viewport.
+
+**Mobile**: Keep Savings & Rewards below the mobile order summary accordion (since there's no right column on mobile).
+
+### Additional improvements
+
+1. **Compact the right sidebar** — combine Order Summary and Savings & Rewards under a single card with a subtle divider, reducing border/padding overhead.
+2. **Sticky "Place Order" on mobile** — add a fixed bottom bar on small screens so the user never has to scroll to find the CTA.
+3. **Savings badge on Place Order button** — if savings are applied, show a small "You save S$X.XX" line below the button total, reinforcing the value without needing the nudge card.
+
+### Files changed
+
+**`src/pages/CheckoutPayment.tsx`**
+- Move `<SavingsRewardsCard />` from left column (line 633) into the right sidebar `div` (after `<OrderSummary />`), wrapped with a `<Separator />` or `border-t`
+- Remove the confirmation nudge block (lines 636-662) — savings are now always visible in the sidebar
+- Add mobile rendering of `<SavingsRewardsCard />` inside the mobile summary accordion area
+- Optionally add a sticky mobile bottom bar with the Place Order button
 
