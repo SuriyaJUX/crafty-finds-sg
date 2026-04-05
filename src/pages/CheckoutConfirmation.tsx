@@ -206,13 +206,16 @@ const CheckoutConfirmation = () => {
     : 0;
   const pointsDeduction = (pointsUsed ?? 0) / 200;
 
-  // Product recommendation: same category as most expensive item
+  // Product recommendation: same category as most expensive item, excluding all purchased products
   const recommendation = (() => {
     if (!items || items.length === 0) return null;
+    const purchasedIds = items.map(i => i.productId);
     const topItem = [...items].sort((a, b) => b.price - a.price)[0];
     return products.find(
-      p => p.category === topItem.category && p.id !== topItem.productId && p.inStock
-    ) ?? products.find(p => p.inStock) ?? null;
+      p => p.category === topItem.category && !purchasedIds.includes(p.id) && p.inStock
+    ) ?? products.find(
+      p => !purchasedIds.includes(p.id) && p.inStock
+    ) ?? null;
   })();
 
   const updatedPoints = (user?.loyaltyPoints ?? 0) + (pointsEarned ?? 0) - (pointsUsed ?? 0);
