@@ -27,7 +27,7 @@ const About = () => {
 
       <div className="space-y-5 text-sm text-muted-foreground leading-relaxed">
         <p>
-          Paperly is a Singapore-based online stationery store dedicated to makers,
+          Note & Gale is a Singapore-based online stationery store dedicated to makers,
           journalers, students, and anyone who believes the right pen changes everything.
           We curate pens, notebooks, markers, watercolour sets, art supplies, and craft
           materials — sourced from trusted brands including Muji, Staedtler, Tombow,
