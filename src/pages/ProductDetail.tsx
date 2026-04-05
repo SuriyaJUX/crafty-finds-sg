@@ -1,4 +1,4 @@
-import { useParams, Link } from "react-router-dom";
+import { useParams, Link, useLocation } from "react-router-dom";
 import { products, reviews as allReviews } from "@/data/products";
 import type { Review } from "@/data/types";
 import { useCart } from "@/context/CartContext";
@@ -6,7 +6,7 @@ import { useAuth } from "@/context/AuthContext";
 import { useInkPoints } from "@/context/InkPointsContext";
 import { useToast } from "@/hooks/use-toast";
 import { Star, Heart, ShoppingBag, ArrowLeft, Users, Camera, Sparkles, AlertTriangle } from "lucide-react";
-import { useState } from "react";
+import { useState, useEffect, useRef } from "react";
 import type { ProductVariant } from "@/data/types";
 import ProductCard from "@/components/ProductCard";
 import ProductQA from "@/components/ProductQA";
