@@ -182,6 +182,49 @@ const ProductDetail = () => {
 
           <p className="text-muted-foreground text-sm leading-relaxed mb-6">{product.description}</p>
 
+          {/* Variant swatches */}
+          {product.variants && product.variants.length > 0 && (
+            <div className="mb-6">
+              <label className="text-sm font-medium mb-2 block">
+                {product.variants[0].colorHex ? "Colour" : "Option"}
+                {selectedVariant && (
+                  <span className="ml-2 font-normal text-muted-foreground">
+                    — {product.variants.find(v => v.value === selectedVariant)?.label}
+                  </span>
+                )}
+              </label>
+              <div className="flex flex-wrap gap-2">
+                {product.variants.map((v: ProductVariant) => (
+                  v.colorHex ? (
+                    <button
+                      key={v.value}
+                      onClick={() => setSelectedVariant(v.value)}
+                      title={v.label}
+                      className={`w-8 h-8 rounded-full border-2 transition-all ${
+                        selectedVariant === v.value
+                          ? "border-primary ring-2 ring-primary/30 scale-110"
+                          : "border-border hover:border-primary/40"
+                      }`}
+                      style={{ backgroundColor: v.colorHex }}
+                    />
+                  ) : (
+                    <button
+                      key={v.value}
+                      onClick={() => setSelectedVariant(v.value)}
+                      className={`px-3 py-1.5 rounded-full text-xs font-medium border transition-colors ${
+                        selectedVariant === v.value
+                          ? "bg-primary text-primary-foreground border-primary"
+                          : "border-border text-muted-foreground hover:border-primary/40 hover:text-foreground"
+                      }`}
+                    >
+                      {v.label}
+                    </button>
+                  )
+                ))}
+              </div>
+            </div>
+          )}
+
           {/* Quantity selector */}
           <div className="mb-4">
             <label className="text-sm font-medium mb-2 block">Quantity</label>
