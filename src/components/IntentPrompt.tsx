@@ -1,19 +1,12 @@
 import { Search, Compass, Camera, X } from "lucide-react";
 import CompactDealsStrip from "@/components/CompactDealsStrip";
-import { useState, useEffect, useRef } from "react";
+import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
-import heroBg1 from "@/assets/hero-bg-1.jpg";
-import heroBg2 from "@/assets/hero-bg-2.jpg";
-import heroBg3 from "@/assets/hero-bg-3.jpg";
-import heroBg6 from "@/assets/hero-bg-6.jpg";
 import ImageSearchModal from "@/components/ImageSearchModal";
 import { useAuth } from "@/context/AuthContext";
 import { useInkPoints } from "@/context/InkPointsContext";
 import { Progress } from "@/components/ui/progress";
 
-const heroImages = [heroBg1, heroBg2, heroBg3, heroBg6];
-
-const FADE_DURATION = 5000;
 const HINT_KEY = "imageSearchHintSeen";
 
 const CATEGORY_BUTTONS = [
@@ -32,9 +25,6 @@ interface IntentPromptProps {
 
 const IntentPrompt = ({ expiringTotal = 0, earliestExpiry, expiryDismissed, onDismissExpiry }: IntentPromptProps) => {
   const [query, setQuery] = useState("");
-  const [currentImage, setCurrentImage] = useState(0);
-  const [leavingImage, setLeavingImage] = useState<number | null>(null);
-  const leavingTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const navigate = useNavigate();
 
   const { user, isAuthenticated } = useAuth();
@@ -44,21 +34,6 @@ const IntentPrompt = ({ expiringTotal = 0, earliestExpiry, expiryDismissed, onDi
   const [hintSeen, setHintSeen] = useState(() =>
     typeof window !== "undefined" ? !!localStorage.getItem(HINT_KEY) : true
   );
-
-  useEffect(() => {
-    const interval = setInterval(() => {
-      setCurrentImage(prev => {
-        setLeavingImage(prev);
-        if (leavingTimerRef.current) clearTimeout(leavingTimerRef.current);
-        leavingTimerRef.current = setTimeout(() => setLeavingImage(null), FADE_DURATION + 200);
-        return (prev + 1) % heroImages.length;
-      });
-    }, 9000);
-    return () => {
-      clearInterval(interval);
-      if (leavingTimerRef.current) clearTimeout(leavingTimerRef.current);
-    };
-  }, []);
 
   const handleSearch = (e: React.FormEvent) => {
     e.preventDefault();
@@ -82,18 +57,17 @@ const IntentPrompt = ({ expiringTotal = 0, earliestExpiry, expiryDismissed, onDi
 
   return (
     <section className="relative min-h-[70vh] flex flex-col justify-center overflow-hidden">
-      {/* Cycling background images */}
-      {heroImages.map((src, index) => (
-        <img
-          key={index}
-          src={src}
-          alt=""
-          aria-hidden="true"
-          className="absolute inset-0 w-full h-full object-cover transition-opacity duration-[5000ms] ease-in-out"
-          style={{ opacity: currentImage === index ? 1 : 0, zIndex: currentImage === index ? 1 : 0 }}
-          {...(index === 0 ? { width: 1440, height: 800 } : { loading: "lazy" as const, width: 1440, height: 800 })}
-        />
-      ))}
+      {/* Background video */}
+      <video
+        src="/Paint.mp4"
+        autoPlay
+        loop
+        muted
+        playsInline
+        aria-hidden="true"
+        className="absolute inset-0 w-full h-full object-cover"
+        style={{ zIndex: 1 }}
+      />
       {/* Overlay */}
       <div className="absolute inset-0 bg-background/55" style={{ zIndex: 2 }} />
 
