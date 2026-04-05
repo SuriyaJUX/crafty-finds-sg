@@ -325,7 +325,8 @@ const ProductDetail = () => {
       {/* Reviews */}
       <section
         ref={(el) => {
-          reviewsReveal.ref(el);
+          // Assign to both refs
+          (reviewsReveal.ref as React.MutableRefObject<HTMLElement | null>).current = el;
           (reviewsSectionRef as React.MutableRefObject<HTMLElement | null>).current = el;
         }}
         className={`mb-16 transition-[opacity,transform] duration-700 ${reviewsReveal.visible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-8"}`}
