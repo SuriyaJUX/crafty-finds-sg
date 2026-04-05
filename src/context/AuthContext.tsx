@@ -108,7 +108,7 @@ const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
 // ── Seed data ───────────────────────────────────────────────────────────────
 
-const STORAGE_KEY = "paperly_auth";
+const STORAGE_KEY = "note_gale_auth";
 
 const createRachelNg = (): MockUser => {
   const now = new Date();
