@@ -120,6 +120,12 @@ export default {
           from: { opacity: "0", transform: "scale(0.96)" },
           to: { opacity: "1", transform: "scale(1)" },
         },
+        "flap": {
+          "0%, 100%": { transform: "rotate(0deg) scaleY(1)" },
+          "25%": { transform: "rotate(-15deg) scaleY(0.8)" },
+          "50%": { transform: "rotate(5deg) scaleY(1.1)" },
+          "75%": { transform: "rotate(-10deg) scaleY(0.85)" },
+        },
       },
       animation: {
         "accordion-down": "accordion-down 0.2s ease-out",
