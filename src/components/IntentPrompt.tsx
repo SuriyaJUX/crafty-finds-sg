@@ -69,7 +69,7 @@ const IntentPrompt = ({ expiringTotal = 0, earliestExpiry, expiryDismissed, onDi
         style={{ zIndex: 1 }}
       />
       {/* Overlay */}
-      <div className="absolute inset-0 bg-background/55" style={{ zIndex: 2 }} />
+      <div className="absolute inset-0 bg-background/65" style={{ zIndex: 2 }} />
 
       {/* Content */}
       <div className="relative flex-1 flex flex-col justify-center" style={{ zIndex: 3 }}>
@@ -143,10 +143,10 @@ const IntentPrompt = ({ expiringTotal = 0, earliestExpiry, expiryDismissed, onDi
             </div>
           )}
 
-          <h1 className="font-serif text-4xl md:text-5xl mb-2 text-foreground leading-tight">
+          <h1 className="font-serif text-4xl md:text-5xl mb-2 text-foreground leading-tight" style={{ textShadow: "0 2px 12px rgba(0,0,0,0.35), 0 1px 3px rgba(0,0,0,0.25)" }}>
             What are you creating today?
           </h1>
-          <p className="text-sm text-muted-foreground mb-7">
+          <p className="text-sm text-muted-foreground mb-7" style={{ textShadow: "0 1px 8px rgba(0,0,0,0.3)" }}>
             Singapore's home for specialty stationery — notebooks, inks, and tools for every kind of maker.
           </p>
 
@@ -157,7 +157,7 @@ const IntentPrompt = ({ expiringTotal = 0, earliestExpiry, expiryDismissed, onDi
               value={query}
               onChange={e => setQuery(e.target.value)}
               placeholder="Search for pens, notebooks, paints..."
-              className="w-full pl-12 pr-12 py-4 rounded-xl border border-border bg-card text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-primary/30 transition-shadow text-sm"
+              className="w-full pl-12 pr-12 py-4 rounded-xl border border-border bg-card text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-primary/30 transition-shadow text-sm shadow-md"
             />
             <button
               type="button"
@@ -189,7 +189,7 @@ const IntentPrompt = ({ expiringTotal = 0, earliestExpiry, expiryDismissed, onDi
                 key={label}
                 onClick={() => navigate(path)}
                 className={`inline-flex items-center gap-2 px-5 py-2.5 rounded-full border border-border bg-card/80 backdrop-blur-sm text-sm font-medium text-foreground transition-colors animate-fade-in ${i % 2 === 0 ? "hover:border-primary/50 hover:text-primary" : "hover:border-secondary/50 hover:text-secondary"}`}
-                style={{ animationDelay: `${i * 80}ms`, animationFillMode: "backwards" }}
+                style={{ animationDelay: `${i * 80}ms`, animationFillMode: "backwards", textShadow: "0 1px 4px rgba(0,0,0,0.15)" }}
               >
                 {Icon && <Icon className="w-4 h-4" />}
                 {label}
