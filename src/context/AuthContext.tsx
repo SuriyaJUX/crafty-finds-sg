@@ -2,13 +2,11 @@ import React, { createContext, useContext, useState, useEffect, useCallback } fr
 
 // ── Tier types & helpers ────────────────────────────────────────────────────
 
-export type TierName = "sketcher" | "scribe" | "creator" | "artisan";
+export type TierName = "scribe" | "creator";
 
 export function getTier(lifetimePoints: number): TierName {
-  if (lifetimePoints >= 4000) return "artisan";
   if (lifetimePoints >= 1500) return "creator";
-  if (lifetimePoints >= 500)  return "scribe";
-  return "sketcher";
+  return "scribe";
 }
 
 const TIER_MULTIPLIERS: Record<TierName, number> = {
