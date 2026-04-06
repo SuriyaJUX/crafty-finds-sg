@@ -157,7 +157,7 @@ const IntentPrompt = ({ expiringTotal = 0, earliestExpiry, expiryDismissed, onDi
               value={query}
               onChange={e => setQuery(e.target.value)}
               placeholder="Search for pens, notebooks, paints..."
-              className="w-full pl-12 pr-12 py-4 rounded-xl border border-border bg-card text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-primary/30 transition-shadow text-sm"
+              className="w-full pl-12 pr-12 py-4 rounded-xl border border-border bg-card text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-primary/30 transition-shadow text-sm shadow-md"
             />
             <button
               type="button"
