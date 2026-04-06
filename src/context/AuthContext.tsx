@@ -2,7 +2,7 @@ import React, { createContext, useContext, useState, useEffect, useCallback } fr
 
 // ── Tier types & helpers ────────────────────────────────────────────────────
 
-export type TierName = "sketcher" | "inker" | "illustrator" | "artisan";
+export type TierName = "sketcher" | "scribe" | "creator" | "artisan";
 
 export function getTier(lifetimePoints: number): TierName {
   if (lifetimePoints >= 4000) return "artisan";
