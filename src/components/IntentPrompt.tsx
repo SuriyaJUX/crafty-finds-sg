@@ -143,10 +143,10 @@ const IntentPrompt = ({ expiringTotal = 0, earliestExpiry, expiryDismissed, onDi
             </div>
           )}
 
-          <h1 className="font-serif text-4xl md:text-5xl mb-2 text-foreground leading-tight">
+          <h1 className="font-serif text-4xl md:text-5xl mb-2 text-foreground leading-tight" style={{ textShadow: "0 2px 12px rgba(0,0,0,0.35), 0 1px 3px rgba(0,0,0,0.25)" }}>
             What are you creating today?
           </h1>
-          <p className="text-sm text-muted-foreground mb-7">
+          <p className="text-sm text-muted-foreground mb-7" style={{ textShadow: "0 1px 8px rgba(0,0,0,0.3)" }}>
             Singapore's home for specialty stationery — notebooks, inks, and tools for every kind of maker.
           </p>
 
