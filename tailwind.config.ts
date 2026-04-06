@@ -140,6 +140,7 @@ export default {
         "float": "float 4s ease-in-out infinite",
         "slide-in-left": "slide-in-left 0.5s ease-out",
         "scale-in": "scale-in 0.4s ease-out",
+        "flap": "flap 0.2s ease-in-out 3",
       },
     },
   },
