@@ -69,7 +69,7 @@ const IntentPrompt = ({ expiringTotal = 0, earliestExpiry, expiryDismissed, onDi
         style={{ zIndex: 1 }}
       />
       {/* Overlay */}
-      <div className="absolute inset-0 bg-background/55" style={{ zIndex: 2 }} />
+      <div className="absolute inset-0 bg-background/65" style={{ zIndex: 2 }} />
 
       {/* Content */}
       <div className="relative flex-1 flex flex-col justify-center" style={{ zIndex: 3 }}>
