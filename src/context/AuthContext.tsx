@@ -6,8 +6,8 @@ export type TierName = "sketcher" | "scribe" | "creator" | "artisan";
 
 export function getTier(lifetimePoints: number): TierName {
   if (lifetimePoints >= 4000) return "artisan";
-  if (lifetimePoints >= 1500) return "illustrator";
-  if (lifetimePoints >= 500)  return "inker";
+  if (lifetimePoints >= 1500) return "creator";
+  if (lifetimePoints >= 500)  return "scribe";
   return "sketcher";
 }
 
