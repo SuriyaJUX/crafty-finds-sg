@@ -28,7 +28,7 @@ const FloatingHelpButton = () => {
       onClick={() => navigate("/help")}
       aria-label="Help & support"
       className={[
-        "fixed bottom-4 z-50 w-[96px] h-[96px]",
+        "fixed bottom-4 z-50 w-[110px] h-[110px]",
         "flex items-center justify-center",
         "hover:scale-110 transition-transform duration-200",
         "group cursor-pointer",
@@ -36,127 +36,139 @@ const FloatingHelpButton = () => {
       ].join(" ")}
     >
       <svg
-        viewBox="0 0 120 140"
+        viewBox="0 0 200 200"
         className="w-full h-full drop-shadow-lg"
         fill="none"
         xmlns="http://www.w3.org/2000/svg"
       >
-        {/* === BODY – head, breast, pen nib (static) === */}
-        <g className="fill-foreground">
-          {/* Head – round, facing left */}
-          <circle cx="30" cy="42" r="16" />
-
-          {/* Beak – small triangle pointing left */}
-          <polygon points="14,42 22,38 22,46" />
-
-          {/* Body – streamlined S-curve from head down into pen nib */}
-          <path d="
-            M 38 54
-            C 34 50, 26 48, 22 46
-            Q 30 46, 38 48
-            C 50 50, 58 56, 60 64
-            C 62 70, 60 78, 56 86
-            L 50 86
-            C 54 78, 56 70, 54 64
-            C 52 58, 44 54, 38 54
+        {/* === BODY — round head + flowing breast + pen nib === */}
+        <path
+          d="
+            M 58 16
+            C 44 12, 26 18, 16 30
+            C 8 40, 6 46, 4 44
+            L 2 42
+            C 4 46, 8 50, 14 52
+            C 18 54, 20 58, 22 64
+            C 26 76, 28 86, 32 98
+            C 36 110, 42 122, 52 134
+            C 60 144, 68 152, 76 162
+            C 84 170, 92 178, 98 186
+            L 102 192
+            L 106 186
+            C 108 178, 108 170, 106 162
+            C 102 152, 96 142, 90 130
+            C 84 118, 78 106, 76 94
+            C 74 82, 74 70, 78 60
+            C 82 50, 82 36, 76 24
+            C 72 16, 64 14, 58 16
             Z
-          " />
+          "
+          className="fill-foreground"
+        />
 
-          {/* Pen nib – tapers to sharp point downward */}
-          <path d="
-            M 56 86
-            C 58 92, 58 100, 56 108
-            L 54 114
-            L 50 104
-            C 48 96, 48 90, 50 86
-            Z
-          " />
+        {/* Eye — white dot */}
+        <circle cx="34" cy="34" r="5" className="fill-background" />
 
-          {/* Nib sharp tip */}
-          <polygon points="56,108 54,118 52,112" />
+        {/* Nib breather hole */}
+        <ellipse cx="100" cy="172" rx="2.5" ry="3.5" className="fill-background" />
 
-          {/* Nib breather hole */}
-          <ellipse cx="53" cy="98" rx="2" ry="2.8" className="fill-background" />
+        {/* Nib slit */}
+        <line x1="101" y1="184" x2="102" y2="191" strokeWidth="1" className="stroke-background" />
 
-          {/* Nib slit line */}
-          <line x1="55" y1="108" x2="54" y2="117" strokeWidth="0.7" className="stroke-background" />
-        </g>
+        {/* === White S-curves separating body from wings === */}
+        <path
+          d="
+            M 72 52
+            C 68 60, 68 72, 72 84
+            C 78 72, 82 60, 82 50
+          "
+          className="fill-background"
+        />
 
-        {/* Eye */}
-        <circle cx="24" cy="39" r="3" className="fill-background" />
-
-        {/* === UPPER WING – dark, sweeps up-right (animated) === */}
+        {/* === UPPER WING — dark, sweeps upper-right === */}
         <g
           className={isFlapping ? "animate-flap" : ""}
-          style={{ transformOrigin: "42px 48px" }}
+          style={{ transformOrigin: "78px 46px" }}
         >
           <path
             d="
-              M 42 48
-              C 52 40, 68 28, 86 18
-              C 96 12, 106 14, 104 20
-              C 100 26, 88 36, 74 44
-              C 60 52, 48 54, 42 52
+              M 76 44
+              C 92 32, 116 18, 148 8
+              C 166 2, 184 4, 186 12
+              C 186 20, 172 32, 150 46
+              C 126 62, 98 68, 80 58
+              C 76 54, 76 48, 76 44
               Z
             "
             className="fill-foreground"
           />
-          {/* White separation S-curve */}
+          {/* White separation below upper wing */}
           <path
-            d="M 42 52 C 52 48, 66 38, 80 30
-               C 72 40, 58 50, 44 56 Z"
+            d="
+              M 80 58
+              C 96 52, 124 38, 158 24
+              C 140 42, 110 58, 82 66
+              Z
+            "
             className="fill-background"
           />
         </g>
 
-        {/* === MIDDLE WING – dark (animated) === */}
+        {/* === MIDDLE WING — dark === */}
         <g
           className={isFlapping ? "animate-flap" : ""}
-          style={{ transformOrigin: "44px 54px", animationDelay: "0.04s" }}
+          style={{ transformOrigin: "82px 60px", animationDelay: "0.04s" }}
         >
           <path
             d="
-              M 44 56
-              C 56 46, 72 34, 90 24
-              C 100 18, 108 22, 106 28
-              C 102 34, 88 44, 72 54
-              C 60 62, 50 62, 44 60
+              M 82 62
+              C 100 48, 128 32, 160 20
+              C 178 14, 194 18, 194 28
+              C 192 38, 176 52, 152 66
+              C 126 82, 98 86, 84 76
+              C 80 72, 80 66, 82 62
               Z
             "
             className="fill-foreground"
           />
-          {/* White separation S-curve */}
+          {/* White separation below middle wing */}
           <path
-            d="M 44 60 C 54 56, 68 46, 82 38
-               C 76 48, 62 58, 46 64 Z"
+            d="
+              M 84 78
+              C 102 70, 132 54, 164 40
+              C 148 58, 118 76, 86 86
+              Z
+            "
             className="fill-background"
           />
         </g>
 
-        {/* === LOWER WING – teal accent (animated) === */}
+        {/* === LOWER WING — teal accent === */}
         <g
           className={isFlapping ? "animate-flap" : ""}
-          style={{ transformOrigin: "46px 62px", animationDelay: "0.07s" }}
+          style={{ transformOrigin: "84px 78px", animationDelay: "0.07s" }}
         >
           <path
             d="
-              M 46 64
-              C 58 54, 76 40, 94 30
-              C 104 24, 112 28, 108 34
-              C 104 42, 90 52, 74 62
-              C 62 70, 52 70, 46 68
+              M 86 82
+              C 106 66, 136 50, 168 38
+              C 186 30, 198 36, 196 46
+              C 192 56, 176 70, 152 84
+              C 128 100, 100 104, 88 96
+              C 84 92, 84 86, 86 82
               Z
             "
             fill="#5f7f8a"
           />
         </g>
 
-        {/* === TAIL FEATHERS – dark, below wings === */}
+        {/* === TAIL FEATHERS — dark, below wings === */}
         <g className="fill-foreground">
           <path d="
-            M 48 70
-            C 58 62, 72 52, 86 44
-            C 78 56, 64 66, 50 74
+            M 88 98
+            C 108 86, 138 68, 166 56
+            C 150 74, 122 92, 92 106
             Z
           " />
         </g>
