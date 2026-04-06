@@ -77,14 +77,14 @@ export const TIERS: TierData[] = [
     earlyAccessDays: 1,
   },
   {
-    name: "illustrator",
+    name: "creator",
     minLifetime: 1500,
     maxLifetime: 3999,
     earnMultiplier: 1.05,
     color: "#f59e0b",
-    badge: "Illustrator",
+    badge: "Creator",
     benefits: [
-      "All Inker benefits",
+      "All Scribe benefits",
       "5% earn multiplier on every purchase",
       "Free gift wrapping on every order",
       "3-day early access to new arrivals",
