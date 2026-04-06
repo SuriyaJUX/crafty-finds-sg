@@ -1,37 +1,26 @@
 
 
-## Redesign Notingale Bird Widget to Match Logo
+## Rebuild Notingale SVG to Match Reference Image
 
-### Problems
-1. Current SVG doesn't match the actual logo — it's a generic bird, not the Notingale (bird with pen-nib tail, teal wing accent, flowing S-curve body)
-2. Wing flap animation is on small feathers near the head instead of the actual wings
-3. Button has a circular container (`rounded-full`, `w-14 h-14`, `bg-card`, `border`) — should be borderless/transparent
-4. Too small
+### Problem
+The current SVG paths produce a bird shape that doesn't closely match the uploaded reference logo. The proportions, curves, and overall silhouette need to be redrawn.
 
-### Plan
+### What changes
 
-**Rewrite `src/components/FloatingHelpButton.tsx`**
+**File: `src/components/FloatingHelpButton.tsx`** — rewrite SVG paths only
 
-Rebuild the SVG to accurately trace the uploaded logo. The Notingale has these distinct features:
-- **Head**: Round, facing left, with a small white eye
-- **Body**: Flowing S-curve merging into a pen nib at the bottom
-- **Wings**: Two swept-back wings extending to the upper-right — the upper wing is dark (foreground), the lower wing has a **teal accent** (`#5f7f8a` or similar)
-- **Pen-nib tail**: The body tapers into a fountain pen nib pointing down, with a small oval hole and a sharp tip
-- White negative-space curves separate the body from the wings
+Studying the reference image closely, the Notingale has these proportions and features:
 
-SVG structure:
-- `<g id="body">` — head, body, pen-nib (static, `fill-foreground`)
-- `<g id="wing-upper">` — dark upper wing (animated, `fill-foreground`)
-- `<g id="wing-lower">` — teal lower wing (animated, `fill-[#5f7f8a]`)
-- Eye as `fill-card` circle
+- **Head**: Large round head on the left, centered around ~25% from left, ~30% from top. Small white dot eye
+- **Breast/belly**: Smooth curve from chin downward, forming a rounded belly that flows into the pen nib tail
+- **Pen-nib tail**: Extends down and slightly right from the belly, tapering to a sharp point at bottom-right. Has a small oval breather hole and a slit at the tip
+- **Upper wing (dark)**: Sweeps from mid-body up and to the right, pointed tip at upper-right. Separated from body by a white S-curve
+- **Lower wing (teal)**: Below the upper wing, also sweeps right, with the same white separation curves. Fill `#5f7f8a`
+- **Tail feathers (dark)**: Below the wings, a dark swept shape pointing right, separated by white curves from the nib
 
-**Animation**: The `animate-flap` class applies to **both wing groups**, with transform-origin at the wing joint (where wings meet the body). The wings rotate up/down to simulate flapping.
+The key issue is the body is much larger/rounder in the reference — the bird has a plump rounded breast, and the wings emerge from the back/shoulder area sweeping upward-right. The nib extends downward from the belly.
 
-**Container changes**:
-- Remove `rounded-full`, `bg-card`, `shadow-lg`, `border`
-- Make container transparent, larger: `w-16 h-16` or `w-20 h-20`
-- SVG fills the container
-- Keep: fixed positioning, cart-aware offset, click→`/help`, tooltip
+I will redraw all SVG paths with better bezier curves to match the silhouette, adjusting the viewBox if needed to accommodate the proportions. The animation groups and scroll logic remain unchanged.
 
-**No changes to `tailwind.config.ts`** — existing `flap` keyframes work, but update transform origin in the component.
+### No other files change
 
