@@ -8,7 +8,7 @@ const FloatingHelpButton = () => {
 
   return (
     <button
-      onClick={() => navigate("/about", { state: { scrollTo: "contact" } })}
+      onClick={() => navigate("/help")}
       aria-label="Help & support"
       className={[
         "fixed bottom-6 z-50 w-12 h-12 rounded-full",

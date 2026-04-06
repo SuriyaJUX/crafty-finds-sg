@@ -62,6 +62,7 @@ const App = () => (
                 <Route path="/order/:orderId" element={<OrderTracking />} />
                 <Route path="/order/:orderId/return" element={<OrderReturn />} />
                 <Route path="/about" element={<About />} />
+                <Route path="/help" element={<HelpSupport />} />
                 <Route path="*" element={<NotFound />} />
               </Routes>
             </main>
