@@ -467,7 +467,7 @@ const Navbar = () => {
               </div>
             )}
             <Link
-              to="/about#contact"
+              to="/help"
               onClick={() => setMobileOpen(false)}
               className="text-sm font-medium py-2 text-muted-foreground flex items-center gap-2"
             >
