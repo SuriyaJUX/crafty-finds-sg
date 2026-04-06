@@ -92,7 +92,7 @@ export const InkPointsProvider: React.FC<{ children: React.ReactNode }> = ({ chi
 
   // Current creative tier data
   const currentTier: TierData =
-    TIERS.find(t => t.name === (user?.tier ?? "sketcher")) ?? TIERS[0];
+    TIERS.find(t => t.name === (user?.tier ?? "scribe")) ?? TIERS[0];
 
   // ── earnPoints ─────────────────────────────────────────────────────────────
 

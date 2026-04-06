@@ -48,28 +48,16 @@ export interface TierData {
 
 export const TIERS: TierData[] = [
   {
-    name: "sketcher",
-    minLifetime: 0,
-    maxLifetime: 499,
-    earnMultiplier: 1.0,
-    color: "#94a3b8",
-    badge: "Sketcher",
-    benefits: [
-      "1 pt earned per S$1 spent",
-      "Access to member-only deals",
-      "Birthday bonus points",
-    ],
-    earlyAccessDays: 0,
-  },
-  {
     name: "scribe",
-    minLifetime: 500,
+    minLifetime: 0,
     maxLifetime: 1499,
     earnMultiplier: 1.0,
     color: "#6366f1",
     badge: "Scribe",
     benefits: [
-      "All Sketcher benefits",
+      "1 pt earned per S$1 spent",
+      "Access to member-only deals",
+      "Birthday bonus points",
       "Free shipping on orders above S$40",
       "Priority customer support",
       "1-day early access to new arrivals",
@@ -79,7 +67,7 @@ export const TIERS: TierData[] = [
   {
     name: "creator",
     minLifetime: 1500,
-    maxLifetime: 3999,
+    maxLifetime: Infinity,
     earnMultiplier: 1.05,
     color: "#f59e0b",
     badge: "Creator",
@@ -89,25 +77,11 @@ export const TIERS: TierData[] = [
       "Free gift wrapping on every order",
       "3-day early access to new arrivals",
       "Exclusive seasonal collections",
-    ],
-    earlyAccessDays: 3,
-  },
-  {
-    name: "artisan",
-    minLifetime: 4000,
-    maxLifetime: Infinity,
-    earnMultiplier: 1.08,
-    color: "#10b981",
-    badge: "Artisan",
-    benefits: [
-      "All Creator benefits",
-      "8% earn multiplier on every purchase",
       "Dedicated account manager",
-      "7-day early access to new arrivals",
       "Annual curated gift hamper",
       "Invitations to exclusive workshops",
     ],
-    earlyAccessDays: 7,
+    earlyAccessDays: 3,
   },
 ];
 
