@@ -46,21 +46,22 @@ const FloatingHelpButton = () => {
           d="
             M 58 16
             C 44 12, 26 18, 16 30
-            C 8 40, 6 46, 4 44
-            L 2 42
-            C 4 46, 8 50, 14 52
-            C 18 54, 20 58, 22 64
-            C 26 76, 28 86, 32 98
-            C 36 110, 42 122, 52 134
-            C 60 144, 68 152, 76 162
-            C 84 170, 92 178, 98 186
-            L 102 192
-            L 106 186
-            C 108 178, 108 170, 106 162
-            C 102 152, 96 142, 90 130
-            C 84 118, 78 106, 76 94
-            C 74 82, 74 70, 78 60
-            C 82 50, 82 36, 76 24
+            C 8 40, 4 44, 2 42
+            L -6 38
+            L 2 44
+            C 6 48, 12 52, 18 54
+            C 22 56, 24 62, 26 70
+            C 30 82, 32 92, 34 102
+            C 36 112, 40 122, 46 132
+            C 52 142, 60 152, 68 162
+            C 76 170, 82 178, 86 184
+            L 88 190
+            L 94 184
+            C 96 178, 96 170, 94 162
+            C 90 150, 84 138, 80 126
+            C 76 114, 74 102, 74 90
+            C 74 78, 76 68, 80 58
+            C 84 48, 82 34, 76 24
             C 72 16, 64 14, 58 16
             Z
           "
@@ -68,20 +69,20 @@ const FloatingHelpButton = () => {
         />
 
         {/* Eye — white dot */}
-        <circle cx="34" cy="34" r="5" className="fill-background" />
+        <circle cx="32" cy="34" r="5" className="fill-background" />
 
         {/* Nib breather hole */}
-        <ellipse cx="100" cy="172" rx="2.5" ry="3.5" className="fill-background" />
+        <ellipse cx="90" cy="174" rx="2.5" ry="3.5" className="fill-background" />
 
         {/* Nib slit */}
-        <line x1="101" y1="184" x2="102" y2="191" strokeWidth="1" className="stroke-background" />
+        <line x1="89" y1="184" x2="88" y2="189" strokeWidth="1" className="stroke-background" />
 
         {/* === White S-curves separating body from wings === */}
         <path
           d="
-            M 72 52
-            C 68 60, 68 72, 72 84
-            C 78 72, 82 60, 82 50
+            M 74 52
+            C 70 62, 70 74, 74 86
+            C 80 74, 84 62, 82 50
           "
           className="fill-background"
         />
