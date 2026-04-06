@@ -138,7 +138,7 @@ const createRachelNg = (): MockUser => {
     lifetimePoints: 1240,
     currentStreak: 7,
     longestStreak: 12,
-    tier: "inker",   // getTier(1240) = "inker"
+    tier: "scribe",   // getTier(1240) = "scribe"
 
     pointsBatches: [
       {

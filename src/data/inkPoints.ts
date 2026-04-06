@@ -100,7 +100,7 @@ export const TIERS: TierData[] = [
     color: "#10b981",
     badge: "Artisan",
     benefits: [
-      "All Illustrator benefits",
+      "All Creator benefits",
       "8% earn multiplier on every purchase",
       "Dedicated account manager",
       "7-day early access to new arrivals",
