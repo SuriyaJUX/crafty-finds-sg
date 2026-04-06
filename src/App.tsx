@@ -27,6 +27,7 @@ import CheckoutConfirmation from "./pages/CheckoutConfirmation";
 import OrderTracking from "./pages/OrderTracking";
 import OrderReturn from "./pages/OrderReturn";
 import About from "./pages/About";
+import HelpSupport from "./pages/HelpSupport";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -61,6 +62,7 @@ const App = () => (
                 <Route path="/order/:orderId" element={<OrderTracking />} />
                 <Route path="/order/:orderId/return" element={<OrderReturn />} />
                 <Route path="/about" element={<About />} />
+                <Route path="/help" element={<HelpSupport />} />
                 <Route path="*" element={<NotFound />} />
               </Routes>
             </main>

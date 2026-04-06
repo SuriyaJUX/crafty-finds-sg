@@ -241,7 +241,7 @@ const Navbar = () => {
             {theme === "dark" ? <Sun className="w-5 h-5" /> : <Moon className="w-5 h-5" />}
           </button>
           <Link
-            to="/about#contact"
+            to="/help"
             className="flex p-2 text-muted-foreground hover:text-foreground transition-colors relative group"
             title="Help & support"
           >
@@ -467,7 +467,7 @@ const Navbar = () => {
               </div>
             )}
             <Link
-              to="/about#contact"
+              to="/help"
               onClick={() => setMobileOpen(false)}
               className="text-sm font-medium py-2 text-muted-foreground flex items-center gap-2"
             >
