@@ -189,6 +189,7 @@ const IntentPrompt = ({ expiringTotal = 0, earliestExpiry, expiryDismissed, onDi
                 key={label}
                 onClick={() => navigate(path)}
                 className={`inline-flex items-center gap-2 px-5 py-2.5 rounded-full border border-border bg-card/80 backdrop-blur-sm text-sm font-medium text-foreground transition-colors animate-fade-in ${i % 2 === 0 ? "hover:border-primary/50 hover:text-primary" : "hover:border-secondary/50 hover:text-secondary"}`}
+                style={{ animationDelay: `${i * 80}ms`, animationFillMode: "backwards", textShadow: "0 1px 4px rgba(0,0,0,0.15)" }}
                 style={{ animationDelay: `${i * 80}ms`, animationFillMode: "backwards" }}
               >
                 {Icon && <Icon className="w-4 h-4" />}
