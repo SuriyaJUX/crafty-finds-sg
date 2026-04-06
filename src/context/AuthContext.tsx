@@ -12,10 +12,10 @@ export function getTier(lifetimePoints: number): TierName {
 }
 
 const TIER_MULTIPLIERS: Record<TierName, number> = {
-  sketcher:    1.0,
-  inker:       1.0,
-  illustrator: 1.05,
-  artisan:     1.08,
+  sketcher: 1.0,
+  scribe:   1.0,
+  creator:  1.05,
+  artisan:  1.08,
 };
 
 export function calculatePointsEarned(orderTotal: number, tier: TierName | string): number {
