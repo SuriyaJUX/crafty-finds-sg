@@ -113,7 +113,8 @@ const CartDrawer = () => {
             )}
             <Progress
               value={shippingProgress}
-              className={`h-1.5 ${remaining === 0 ? "bg-secondary/20" : "bg-muted"}`}
+              className="h-1.5 bg-secondary/15"
+              indicatorClassName="bg-secondary"
             />
           </div>
         )}

@@ -96,7 +96,7 @@ const IntentPrompt = ({ expiringTotal = 0, earliestExpiry, expiryDismissed, onDi
               </p>
               {nextTierData ? (
                 <div className="space-y-1">
-                  <Progress value={tierProgressPercent} className="h-1.5" />
+                  <Progress value={tierProgressPercent} className="h-1.5 bg-amber-500/20" indicatorClassName="bg-amber-500" />
                   <p className="text-[11px] text-muted-foreground">
                     <span className="font-medium text-foreground">{lifetimeToNext}</span> to {nextTierData.badge}
                   </p>

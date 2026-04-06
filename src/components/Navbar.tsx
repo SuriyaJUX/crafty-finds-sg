@@ -1,5 +1,7 @@
 import { Link, useLocation, useNavigate } from "react-router-dom";
-import { ShoppingBag, Heart, Search, Menu, X, User, LogOut, Target, HelpCircle, Sun, Moon } from "lucide-react";
+import { ShoppingBag, Heart, Search, Menu, X, User, LogOut, Target, HelpCircle, Sun, Moon, ChevronDown, Zap } from "lucide-react";
+import MegaMenu from "@/components/MegaMenu";
+import { getStreakMultiplier } from "@/context/InkPointsContext";
 import { useTheme } from "next-themes";
 import { useCart } from "@/context/CartContext";
 import { useAuth } from "@/context/AuthContext";
@@ -35,6 +37,7 @@ const Navbar = () => {
   const [newPointsPulse, setNewPointsPulse] = useState(false);
   const [searchOpen, setSearchOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
+  const [megaOpen, setMegaOpen] = useState(false);
   const prevPointsRef = useRef<number | null>(null);
   const userMenuRef = useRef<HTMLDivElement>(null);
   const searchInputRef = useRef<HTMLInputElement>(null);
@@ -68,10 +71,11 @@ const Navbar = () => {
     return () => window.removeEventListener("scroll", handleScroll);
   }, []);
 
-  // Close search on route change
+  // Close search and mega menu on route change
   useEffect(() => {
     setSearchOpen(false);
     setSearchQuery("");
+    setMegaOpen(false);
   }, [location.pathname]);
 
   // Focus input when search opens
@@ -143,7 +147,29 @@ const Navbar = () => {
         <nav className="hidden md:flex items-center gap-8">
           {navLinks.map(link => {
             const isDeals = link.label === "Deals";
+            const isShop = link.label === "Shop";
             const isActive = location.pathname === link.to;
+
+            if (isShop) {
+              return (
+                <div
+                  key={link.to}
+                  className="relative"
+                  onMouseEnter={() => setMegaOpen(true)}
+                  onMouseLeave={() => setMegaOpen(false)}
+                >
+                  <button
+                    className={`flex items-center gap-0.5 text-sm font-medium transition-colors hover:text-primary ${
+                      isActive || megaOpen ? "text-primary" : "text-muted-foreground"
+                    }`}
+                  >
+                    {link.label}
+                    <ChevronDown className={`w-3.5 h-3.5 transition-transform duration-200 ${megaOpen ? "rotate-180" : ""}`} />
+                  </button>
+                </div>
+              );
+            }
+
             return (
               <Link
                 key={link.to}
@@ -334,10 +360,22 @@ const Navbar = () => {
                     </span> off your next order
                   </p>
 
-                  {/* Streak */}
-                  <div className="flex items-center gap-1.5 text-xs text-muted-foreground border-t border-border pt-3 mb-2">
-                    <span>🔥</span>
-                    <span>Day <span className="font-medium text-foreground">{user.currentStreak}</span> streak</span>
+                  {/* Streak + multiplier badge */}
+                  <div className="border-t border-border pt-3 mb-2">
+                    <div className="flex items-center gap-1.5 text-xs text-muted-foreground mb-1.5">
+                      <span>🔥</span>
+                      <span>Day <span className="font-medium text-foreground">{user.currentStreak}</span> streak</span>
+                    </div>
+                    {(() => {
+                      const m = getStreakMultiplier(user.currentStreak);
+                      if (!m) return null;
+                      return (
+                        <div className={`inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-semibold ${m.bg} ${m.color}`}>
+                          <Zap className="w-2.5 h-2.5" />
+                          {m.label} active
+                        </div>
+                      );
+                    })()}
                   </div>
 
                   {/* Next reward */}
@@ -441,6 +479,17 @@ const Navbar = () => {
         </div>
       </div>
 
+      {/* ── Mega menu (desktop only) ── */}
+      {megaOpen && (
+        <div
+          className="hidden md:block"
+          onMouseEnter={() => setMegaOpen(true)}
+          onMouseLeave={() => setMegaOpen(false)}
+        >
+          <MegaMenu onClose={() => setMegaOpen(false)} />
+        </div>
+      )}
+
       {mobileOpen && (
         <div className="md:hidden border-t border-border bg-background animate-fade-in">
           <nav className="container max-w-7xl mx-auto px-4 py-4 flex flex-col gap-3">
@@ -456,6 +505,19 @@ const Navbar = () => {
                 {link.label}
               </Link>
             ))}
+            {/* Shop sub-categories on mobile */}
+            <div className="border-t border-border pt-3 grid grid-cols-2 gap-x-4 gap-y-1">
+              {["Pens & Markers","Notebooks","Paints","Paper & Pads","Coloured Pencils","Brushes","Pencils","Erasers","Office Supplies"].map(cat => (
+                <Link
+                  key={cat}
+                  to={`/shop?category=${encodeURIComponent(cat)}`}
+                  onClick={() => setMobileOpen(false)}
+                  className="text-xs text-muted-foreground hover:text-primary py-1.5 transition-colors"
+                >
+                  {cat}
+                </Link>
+              ))}
+            </div>
             {isAuthenticated && user && (
               <div className="flex items-center gap-2 py-2 border-t border-border">
                 <span className="text-xs font-medium text-primary">{user.loyaltyPoints} Ink Points</span>

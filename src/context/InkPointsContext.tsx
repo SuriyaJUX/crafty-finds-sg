@@ -15,6 +15,26 @@ import {
 } from "@/data/inkPoints";
 import type { TierData, SeasonalChallenge } from "@/data/inkPoints";
 
+// ── Streak multiplier tiers ──────────────────────────────────────────────────
+
+export const STREAK_MILESTONES = [
+  { minStreak: 30, multiplier: 2.0,  label: "2× streak bonus",    color: "text-amber-500", bg: "bg-amber-500/10" },
+  { minStreak: 14, multiplier: 1.5,  label: "1.5× streak bonus",  color: "text-secondary", bg: "bg-secondary/10" },
+  { minStreak: 7,  multiplier: 1.25, label: "1.25× streak bonus", color: "text-primary",   bg: "bg-primary/10"  },
+] as const;
+
+export type StreakMilestone = (typeof STREAK_MILESTONES)[number];
+
+/** Returns the active streak milestone, or null if streak < 7 */
+export function getStreakMultiplier(streak: number): StreakMilestone | null {
+  return ([...STREAK_MILESTONES] as StreakMilestone[]).find(m => streak >= m.minStreak) ?? null;
+}
+
+/** Recovery cost in points for a given previous streak length */
+export function streakRecoveryCost(previousStreak: number): number {
+  return Math.max(50, previousStreak * 5);
+}
+
 // ── Context type ────────────────────────────────────────────────────────────
 
 interface InkPointsContextType {
@@ -49,11 +69,28 @@ interface InkPointsContextType {
    */
   getExpiringPoints: (daysAhead: number) => PointsBatch[];
   /**
-   * Increments the login streak, awards the scaled daily-login points,
-   * and returns the number of points earned.
-   * Call once per session after login.
+   * Increments the login streak (resetting to 1 if a day was missed),
+   * awards the scaled daily-login points, and returns the number of points earned.
+   * Call once per session after login — skip if showing StreakRecoveryModal.
    */
   checkAndUpdateStreak: () => number;
+  /**
+   * Checks whether the current login breaks the streak, without modifying state.
+   * Safe to call immediately after login to decide whether to show recovery UI.
+   */
+  checkStreakStatus: () => {
+    broken: boolean;
+    previousStreak: number;
+    recoveryCost: number;
+    canRecover: boolean;
+  };
+  /**
+   * Spends points to restore a broken streak. Returns false if insufficient points.
+   * Also awards the day's login points at the restored streak level.
+   */
+  recoverStreak: (previousStreak: number) => boolean;
+  /** Active streak earning multiplier for the current user, or null if streak < 7. */
+  streakMultiplier: StreakMilestone | null;
   /**
    * Returns the new TierName if the user's lifetimePoints just crossed
    * a tier threshold, otherwise null.
@@ -103,7 +140,12 @@ export const InkPointsProvider: React.FC<{ children: React.ReactNode }> = ({ chi
       // 1. Tier multiplier
       const tierMultiplier = currentTier.earnMultiplier;
 
-      // 2. Seasonal challenge multipliers (stack multiplicatively)
+      // 2. Streak multiplier (skip for dailyLogin — already streak-scaled)
+      const streakMult = source === "dailyLogin"
+        ? 1.0
+        : (getStreakMultiplier(user.currentStreak ?? 0)?.multiplier ?? 1.0);
+
+      // 3. Seasonal challenge multipliers (stack multiplicatively)
       const challengeMultiplier = activeChallenges.reduce((acc, c) => {
         const matchesCategory =
           !c.categoryFilter ||
@@ -111,7 +153,7 @@ export const InkPointsProvider: React.FC<{ children: React.ReactNode }> = ({ chi
         return matchesCategory ? acc * c.multiplier : acc;
       }, 1.0);
 
-      const finalAmount = Math.floor(amount * tierMultiplier * challengeMultiplier);
+      const finalAmount = Math.floor(amount * tierMultiplier * streakMult * challengeMultiplier);
       if (finalAmount <= 0) return;
 
       // 3. Update creativeStats
@@ -179,32 +221,88 @@ export const InkPointsProvider: React.FC<{ children: React.ReactNode }> = ({ chi
   const checkAndUpdateStreak = useCallback((): number => {
     if (!user) return 0;
 
-    // Only award once per calendar day
-    const today = new Date().toISOString().slice(0, 10);
+    const today     = new Date().toISOString().slice(0, 10);
+    const yesterday = new Date(Date.now() - 86_400_000).toISOString().slice(0, 10);
     const lastAwarded = localStorage.getItem("lastLoginAwardDate");
+
+    // Already awarded today
     if (lastAwarded === today) return 0;
     localStorage.setItem("lastLoginAwardDate", today);
 
-    const newStreak    = (user.currentStreak ?? 0) + 1;
+    // Reset streak if more than one day has passed since last login
+    const streakBroken = !!lastAwarded && lastAwarded < yesterday;
+    const newStreak     = streakBroken ? 1 : (user.currentStreak ?? 0) + 1;
     const longestStreak = Math.max(user.longestStreak ?? 0, newStreak);
-    // Cap daily login bonus at 100 pts
-    const streakPoints = Math.min(EARN_RATES.dailyLogin * newStreak, 100);
+    const streakPoints  = Math.min(EARN_RATES.dailyLogin * newStreak, 100);
 
-    patchUser(prev => ({
-      ...prev,
-      currentStreak: newStreak,
-      longestStreak,
-    }));
+    patchUser(prev => ({ ...prev, currentStreak: newStreak, longestStreak }));
 
-    addPoints(
-      streakPoints,
-      `Daily login streak (day ${newStreak})`,
-      "log-in",
-      "dailyLogin",
-    );
+    addPoints(streakPoints, `Daily login — day ${newStreak} streak`, "log-in", "dailyLogin");
 
     return streakPoints;
   }, [user, addPoints, patchUser]);
+
+  // ── checkStreakStatus ──────────────────────────────────────────────────────
+
+  const checkStreakStatus = useCallback(() => {
+    if (!user) return { broken: false, previousStreak: 0, recoveryCost: 0, canRecover: false };
+
+    const today     = new Date().toISOString().slice(0, 10);
+    const yesterday = new Date(Date.now() - 86_400_000).toISOString().slice(0, 10);
+    const lastAwarded = localStorage.getItem("lastLoginAwardDate");
+
+    // Already processed today — no break possible
+    if (lastAwarded === today) {
+      return { broken: false, previousStreak: user.currentStreak ?? 0, recoveryCost: 0, canRecover: false };
+    }
+
+    const broken         = !!lastAwarded && lastAwarded < yesterday;
+    const previousStreak = user.currentStreak ?? 0;
+    const cost           = streakRecoveryCost(previousStreak);
+
+    const lastRecoveryStr  = localStorage.getItem("lastStreakRecovery");
+    const daysSinceRecover = lastRecoveryStr
+      ? (Date.now() - new Date(lastRecoveryStr).getTime()) / 86_400_000
+      : Infinity;
+
+    const canRecover =
+      broken &&
+      previousStreak >= 3 &&
+      user.loyaltyPoints >= cost &&
+      daysSinceRecover >= 7;
+
+    return { broken, previousStreak, recoveryCost: cost, canRecover };
+  }, [user]);
+
+  // ── recoverStreak ──────────────────────────────────────────────────────────
+
+  const recoverStreak = useCallback((previousStreak: number): boolean => {
+    if (!user) return false;
+    const cost = streakRecoveryCost(previousStreak);
+    if (user.loyaltyPoints < cost) return false;
+
+    const today           = new Date().toISOString().slice(0, 10);
+    const restoredStreak  = previousStreak + 1;
+    const streakPoints    = Math.min(EARN_RATES.dailyLogin * restoredStreak, 100);
+
+    // Deduct cost and restore streak in one patch
+    patchUser(prev => ({
+      ...prev,
+      loyaltyPoints: prev.loyaltyPoints - cost,
+      currentStreak: restoredStreak,
+      longestStreak: Math.max(prev.longestStreak ?? 0, restoredStreak),
+    }));
+
+    localStorage.setItem("lastLoginAwardDate", today);
+    localStorage.setItem("lastStreakRecovery", today);
+
+    addPoints(streakPoints, `Streak recovered — day ${restoredStreak} 🔥`, "log-in", "dailyLogin");
+
+    return true;
+  }, [user, addPoints, patchUser]);
+
+  // ── streakMultiplier (derived) ────────────────────────────────────────────
+  const streakMultiplier = getStreakMultiplier(user?.currentStreak ?? 0);
 
   // ── checkTierUpgrade ──────────────────────────────────────────────────────
   // addPoints() already auto-updates user.tier via getTier(newLifetime).
@@ -233,6 +331,9 @@ export const InkPointsProvider: React.FC<{ children: React.ReactNode }> = ({ chi
         redeemPoints,
         getExpiringPoints,
         checkAndUpdateStreak,
+        checkStreakStatus,
+        recoverStreak,
+        streakMultiplier,
         checkTierUpgrade,
         isNewTier,
         clearNewTier,

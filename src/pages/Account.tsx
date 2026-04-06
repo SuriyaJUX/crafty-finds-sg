@@ -2,7 +2,7 @@ import { useState, useMemo } from "react";
 import { useAuth } from "@/context/AuthContext";
 import { useInkPoints } from "@/context/InkPointsContext";
 import { useCart } from "@/context/CartContext";
-import { Navigate, Link } from "react-router-dom";
+import { Navigate, Link, useSearchParams } from "react-router-dom";
 import {
   Gift, LogIn, Star, ShoppingBag, Heart, MapPin,
   ChevronRight, Package, CheckCircle2, Truck, Clock, XCircle,
@@ -176,7 +176,7 @@ const OverviewTab = ({
               <span>{currentTier.badge}</span>
               <span>{nextTierData!.badge}</span>
             </div>
-            <Progress value={tierProgress} className="h-2 mb-2" />
+            <Progress value={tierProgress} className="h-2 mb-2 bg-amber-500/15" indicatorClassName="bg-amber-500" />
             <p className="text-xs text-muted-foreground text-right">
               <span className="font-semibold text-foreground">{inkToNextTier} Ink</span> to unlock {nextTierData!.badge}
             </p>
@@ -202,14 +202,7 @@ const OverviewTab = ({
       {/* Set a goal prompt — only when no goal is set */}
       {!user.pointsGoal && (
         <Link
-          to="/account"
-          onClick={() => {
-            // Switch to Goals tab — find the trigger and click it
-            setTimeout(() => {
-              const btn = document.querySelector('[value="goals"]') as HTMLButtonElement | null;
-              btn?.click();
-            }, 100);
-          }}
+          to="/account?tab=goals"
           className="flex items-center gap-3 rounded-lg bg-secondary/5 border border-secondary/20 p-3 hover:bg-secondary/10 transition-colors"
         >
           <Target className="w-5 h-5 text-secondary shrink-0" />
@@ -382,7 +375,7 @@ const GoalsTab = ({
                   <span>{user.loyaltyPoints} Ink</span>
                   <span>{totalPtsNeeded} Ink</span>
                 </div>
-                <Progress value={progressPct} className="h-2" />
+                <Progress value={progressPct} className="h-2 bg-secondary/15" indicatorClassName="bg-secondary" />
               </div>
             </div>
           </div>
@@ -548,7 +541,8 @@ const StreakTab = ({
           <div className="mt-2">
             <Progress
               value={Math.min((user.currentStreak / nextMilestone) * 100, 100)}
-              className="h-1.5"
+              className="h-1.5 bg-amber-500/15"
+              indicatorClassName="bg-amber-500"
             />
           </div>
         </div>
@@ -598,16 +592,30 @@ const StreakTab = ({
 
 // ── Main Account component ─────────────────────────────────────────────────
 
+const VALID_TABS = ["overview", "history", "goals", "streak"] as const;
+type TabValue = typeof VALID_TABS[number];
+
 const Account = () => {
   const { user, logout, patchUser } = useAuth();
   const { currentTier, tiers, getExpiringPoints, earnRates } = useInkPoints();
   const { savedItems } = useCart();
+  const [searchParams, setSearchParams] = useSearchParams();
   const submittedReviews = getSubmittedReviews();
   const reviewedProductIds = new Set(submittedReviews.map(r => r.productId));
 
   if (!user) return <Navigate to="/login" state={{ from: "/account" }} replace />;
 
   const expiringBatches = getExpiringPoints(60);
+
+  // Controlled tab state — driven by ?tab= URL param, defaults to "overview"
+  const rawTab = searchParams.get("tab") ?? "overview";
+  const activeTab: TabValue = (VALID_TABS as readonly string[]).includes(rawTab)
+    ? rawTab as TabValue
+    : "overview";
+
+  const setTab = (tab: string) => {
+    setSearchParams({ tab }, { replace: true });
+  };
 
   const handleSetGoal = (productId: string) => {
     const p = products.find(pr => pr.id === productId);
@@ -659,7 +667,7 @@ const Account = () => {
             </span>
           </div>
 
-          <Tabs defaultValue="overview">
+          <Tabs value={activeTab} onValueChange={setTab}>
             <TabsList className="w-full mb-5">
               <TabsTrigger value="overview"  className="flex-1">Overview</TabsTrigger>
               <TabsTrigger value="history"   className="flex-1">History</TabsTrigger>
