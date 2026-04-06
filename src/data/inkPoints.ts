@@ -62,12 +62,12 @@ export const TIERS: TierData[] = [
     earlyAccessDays: 0,
   },
   {
-    name: "inker",
+    name: "scribe",
     minLifetime: 500,
     maxLifetime: 1499,
     earnMultiplier: 1.0,
     color: "#6366f1",
-    badge: "Inker",
+    badge: "Scribe",
     benefits: [
       "All Sketcher benefits",
       "Free shipping on orders above S$40",
