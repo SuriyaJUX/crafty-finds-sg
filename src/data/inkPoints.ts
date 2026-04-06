@@ -62,12 +62,12 @@ export const TIERS: TierData[] = [
     earlyAccessDays: 0,
   },
   {
-    name: "inker",
+    name: "scribe",
     minLifetime: 500,
     maxLifetime: 1499,
     earnMultiplier: 1.0,
     color: "#6366f1",
-    badge: "Inker",
+    badge: "Scribe",
     benefits: [
       "All Sketcher benefits",
       "Free shipping on orders above S$40",
@@ -77,14 +77,14 @@ export const TIERS: TierData[] = [
     earlyAccessDays: 1,
   },
   {
-    name: "illustrator",
+    name: "creator",
     minLifetime: 1500,
     maxLifetime: 3999,
     earnMultiplier: 1.05,
     color: "#f59e0b",
-    badge: "Illustrator",
+    badge: "Creator",
     benefits: [
-      "All Inker benefits",
+      "All Scribe benefits",
       "5% earn multiplier on every purchase",
       "Free gift wrapping on every order",
       "3-day early access to new arrivals",
@@ -100,7 +100,7 @@ export const TIERS: TierData[] = [
     color: "#10b981",
     badge: "Artisan",
     benefits: [
-      "All Illustrator benefits",
+      "All Creator benefits",
       "8% earn multiplier on every purchase",
       "Dedicated account manager",
       "7-day early access to new arrivals",

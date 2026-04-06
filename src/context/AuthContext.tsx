@@ -2,20 +2,20 @@ import React, { createContext, useContext, useState, useEffect, useCallback } fr
 
 // ── Tier types & helpers ────────────────────────────────────────────────────
 
-export type TierName = "sketcher" | "inker" | "illustrator" | "artisan";
+export type TierName = "sketcher" | "scribe" | "creator" | "artisan";
 
 export function getTier(lifetimePoints: number): TierName {
   if (lifetimePoints >= 4000) return "artisan";
-  if (lifetimePoints >= 1500) return "illustrator";
-  if (lifetimePoints >= 500)  return "inker";
+  if (lifetimePoints >= 1500) return "creator";
+  if (lifetimePoints >= 500)  return "scribe";
   return "sketcher";
 }
 
 const TIER_MULTIPLIERS: Record<TierName, number> = {
-  sketcher:    1.0,
-  inker:       1.0,
-  illustrator: 1.05,
-  artisan:     1.08,
+  sketcher: 1.0,
+  scribe:   1.0,
+  creator:  1.05,
+  artisan:  1.08,
 };
 
 export function calculatePointsEarned(orderTotal: number, tier: TierName | string): number {
@@ -138,7 +138,7 @@ const createRachelNg = (): MockUser => {
     lifetimePoints: 1240,
     currentStreak: 7,
     longestStreak: 12,
-    tier: "inker",   // getTier(1240) = "inker"
+    tier: "scribe",   // getTier(1240) = "scribe"
 
     pointsBatches: [
       {
